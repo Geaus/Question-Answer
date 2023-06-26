@@ -1,7 +1,5 @@
-import {Button, Card, Col, Divider, Row, Space, Statistic, Tag} from "antd";
+import {Button, Card, Col, Row, Space, Statistic} from "antd";
 import {
-    ArrowDownOutlined,
-    ArrowUpOutlined,
     DislikeOutlined,
     FormOutlined,
     LikeOutlined,

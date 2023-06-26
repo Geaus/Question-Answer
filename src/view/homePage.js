@@ -3,8 +3,7 @@ import { Layout, Card, Button, List } from 'antd';
 import { UserOutlined, SolutionOutlined } from '@ant-design/icons';
 import "../css/HeaderTest.css"
 
-import {questionList} from '../App'
-import HeaderTest from "./HeaderTest";
+import HeaderTest from "../component/HeaderTest";
 
 const { Header, Content, Footer } = Layout;
 
@@ -126,5 +125,4 @@ const HomePage = () => {
         </Layout>
     );
 };
-
 export default HomePage;

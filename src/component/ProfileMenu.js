@@ -1,5 +1,5 @@
 import {DislikeOutlined, FormOutlined, LikeOutlined, QuestionOutlined} from "@ant-design/icons";
-import {Card, Menu} from "antd";
+import {Menu} from "antd";
 
 function ProfileMenu() {
     const items = [
