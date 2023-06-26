@@ -1,0 +1,95 @@
+.header-area-limit {
+    position: fixed;
+    float: top;
+    height: 8vh;
+    width: 99vw;
+    background-color: white;
+    border-radius: 1vw 1vw 0 0;
+    z-index: 1;
+}
+
+.header-logo-part {
+    height: 8vh;
+    width: 10vw;
+    background-color: white;
+    float: left;
+    text-align: center;
+    border-radius: 1vw 0 0 0;
+    font-size: 3vh;
+    line-height: 8vh;
+}
+
+.header-menu-part {
+    height: 8vh;
+    width: 20vw;
+    background-color: white;
+    float: left;
+    text-align: center;
+    font-size: 2vh;
+    line-height: 8vh;
+}
+
+.header-search-part {
+    height: 8vh;
+    width: 40vw;
+    background-color: white;
+    float: left;
+    text-align: center;
+    font-size: 2vh;
+    line-height: 8vh;
+}
+
+.header-search-input {
+    height: 8vh;
+    width: 35vw;
+    background-color: white;
+    float: left;
+    text-align: left;
+    border-radius: 0.5vw;
+    padding-top: 1.3vh;
+    font-size: 2vh;
+    line-height: 8vh;
+}
+
+.header-button-part {
+    height: 6.5vh;
+    width: 10vw;
+    background-color: white;
+    float: left;
+    text-align: left;
+    border-radius: 0 1vw 0 0;
+    font-size: 2vh;
+    line-height: 8vh;
+}
+
+.header-question-button {
+    font-size: 1.5vh;
+    text-align: center;
+}
+
+.header-person-part {
+    height: 8vh;
+    width: 19vw;
+    background-color: white;
+    float: left;
+    text-align: left;
+    border-radius: 0 1vw 0 0;
+    font-size: 2vh;
+    line-height: 8vh;
+}
+
+.header-welcome-font {
+    float: right;
+    font-size: 3vh;
+}
+
+.header-avatar-part {
+    float: right;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    margin-top: 1vh;
+}
+
+.home-float {
+    float: top;
+}
