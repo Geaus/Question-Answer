@@ -13,25 +13,15 @@ function ProfileView(props) {
             <Header style={{height: '8vh', padding: 0}}>
                 <HeaderTest />
             </Header>
-            <Content
-                style={{
-                    display: 'flex',
-                    padding: '8px',
-                }}
-            >
-                <Space direction={"vertical"} align={"center"}>
-                    <Card>
-                        <ProfileUserInfo />
-                    </Card>
-                    <Card>
-                        <ProfileMenu />
-                    </Card>
+            <Content>
+                <Space direction={"vertical"} align={"start"} style={{width: "75%"}}>
+                    <ProfileUserInfo />
+                    <ProfileMenu />
                 </Space>
                 <Space>
                     <UserCard />
                 </Space>
             </Content>
-            <Footer>Footer</Footer>
         </Layout>
     );
 }

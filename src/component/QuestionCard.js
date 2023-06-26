@@ -15,7 +15,7 @@ function QuestionCard(props) {
     return (
         <div>
             <Card
-                size={"default"}
+                style={{width: '1100px'}}
                 actions={[
                     <LikeOutlined key="like" onClick={handleLike}/>,
                     <DislikeOutlined key="dislike" onClick={handleDislike}/>,

@@ -2,7 +2,7 @@ import './App.css';
 import './css/HeaderTest.css';
 import HomePage from "./view/homePage";
 import ProfileView from "./view/ProfileView";
-import {BrowserRouter, Route, Router, Routes} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 function App() {
   return (
