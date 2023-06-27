@@ -18,15 +18,19 @@ public class Question {
     @Basic
     @Column(name = "content")
     private String content;
+    @Basic
+    @Column(name = "time")
+    private String createTime;
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "question")
+    @JsonIgnore
     private List<Answer> answers;
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "questions")
     private List<Tag> tags;
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "relatedQuestion")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "relatedQuestion")
     @JsonIgnore
     private List<User> relatedUser;
 
@@ -86,16 +90,24 @@ public class Question {
         this.relatedUser = relatedUser;
     }
 
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Question question = (Question) o;
-        return id == question.id && Objects.equals(title, question.title) && Objects.equals(content, question.content) && Objects.equals(user, question.user) && Objects.equals(answers, question.answers) && Objects.equals(tags, question.tags) && Objects.equals(relatedUser, question.relatedUser);
+        return id == question.id && Objects.equals(title, question.title) && Objects.equals(content, question.content) && Objects.equals(createTime, question.createTime) && Objects.equals(user, question.user) && Objects.equals(answers, question.answers) && Objects.equals(tags, question.tags) && Objects.equals(relatedUser, question.relatedUser);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, content, user, answers, tags, relatedUser);
+        return Objects.hash(id, title, content, createTime, user, answers, tags, relatedUser);
     }
 }

@@ -22,7 +22,10 @@ public class Answer {
     @Basic
     @Column(name = "content")
     private String content;
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "relatedAnswer")
+    @Basic
+    @Column(name = "time")
+    private String createTime;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "relatedAnswer")
     @JsonIgnore
     private List<User> relatedUser;
 
@@ -66,16 +69,24 @@ public class Answer {
         this.relatedUser = relatedUser;
     }
 
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Answer answer = (Answer) o;
-        return id == answer.id && Objects.equals(user, answer.user) && Objects.equals(question, answer.question) && Objects.equals(content, answer.content) && Objects.equals(relatedUser, answer.relatedUser);
+        return id == answer.id && Objects.equals(user, answer.user) && Objects.equals(question, answer.question) && Objects.equals(content, answer.content) && Objects.equals(createTime, answer.createTime) && Objects.equals(relatedUser, answer.relatedUser);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, question, content, relatedUser);
+        return Objects.hash(id, user, question, content, createTime, relatedUser);
     }
 }

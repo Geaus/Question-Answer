@@ -15,26 +15,39 @@ public class User {
     @Basic
     @Column(name = "type")
     private Integer type;
+    @Basic
+    @Column(name = "username")
+    private String userName;
+    @Basic
+    @JsonIgnore
+    @Column(name = "password")
+    private String passWord;
+    @Basic
+    @Column(name = "email")
+    private String email;
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Question> questions;
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Answer> answers;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinTable(name = "follow",
                 joinColumns = {@JoinColumn(name = "user_1_id", referencedColumnName = "id")},
                 inverseJoinColumns = {@JoinColumn(name = "user_2_id", referencedColumnName = "id")})
     private List<User> followList;
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "followList")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "followList")
     @JsonIgnore
     private List<User> fanList;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinTable(name = "feedback_a",
                 joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
                 inverseJoinColumns = {@JoinColumn(name = "ans_id", referencedColumnName = "id")})
     private List<Answer> relatedAnswer;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinTable(name = "feedback_q",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "ques_id", referencedColumnName = "id")})
@@ -102,6 +115,30 @@ public class User {
 
     public void setRelatedQuestion(List<Answer> relatedQuestion) {
         this.relatedQuestion = relatedQuestion;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassWord() {
+        return passWord;
+    }
+
+    public void setPassWord(String passWord) {
+        this.passWord = passWord;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

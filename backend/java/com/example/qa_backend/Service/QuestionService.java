@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface QuestionService {
     List<Question> listQuestions();
+    Question findQuestion(int id);
 }

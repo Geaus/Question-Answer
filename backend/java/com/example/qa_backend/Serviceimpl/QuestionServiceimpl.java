@@ -15,4 +15,9 @@ public class QuestionServiceimpl implements QuestionService {
     public List<Question> listQuestions() {
         return questionDao.listQuestions();
     }
+
+    @Override
+    public Question findQuestion(int id) {
+        return questionDao.getQuestion(id);
+    }
 }
