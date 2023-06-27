@@ -14,7 +14,7 @@ const HomeView = () => {
 
     return (
         <Layout>
-            <Header style={{height: '8vh', padding: 0}}>
+            <Header style={{backgroundColor:'white'}}>
                 <HeaderTest />
             </Header>
             <Content

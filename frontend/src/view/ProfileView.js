@@ -12,7 +12,7 @@ import {questionList} from "../App";
 function ProfileView(props) {
     return (
         <Layout>
-            <Header style={{height: '8vh', padding: 0}}>
+            <Header style={{backgroundColor:'white'}}>
                 <HeaderTest />
             </Header>
             <Content

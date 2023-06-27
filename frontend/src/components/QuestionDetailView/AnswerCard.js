@@ -1,4 +1,4 @@
-import {Avatar, Button, Card, Divider, Space, Tag} from "antd";
+import {Avatar, Button, Card, Col, Divider, Row, Space, Tag, Typography} from "antd";
 import {
     CaretDownOutlined,
     CaretUpOutlined,
@@ -7,8 +7,10 @@ import {
     StarOutlined,
     UserAddOutlined
 } from "@ant-design/icons";
-import Meta from "antd/es/card/Meta";
 import React, {useState} from "react";
+import Answer from "./Answer";
+const { Meta } = Card;
+const { Text } = Typography;
 
 function AnswerCard(props) {
 
@@ -33,11 +35,6 @@ function AnswerCard(props) {
         <div>
             <Card
                 size={"small"}
-                actions={[
-                    <LikeOutlined key="like" onClick={handleLike}/>,
-                    <DislikeOutlined key="dislike" onClick={handleDislike}/>,
-                    <UserAddOutlined key="subscribe" onClick={handleSubscribe}/>
-                ]}
 
                 extra={
                     expanded ? (
@@ -53,10 +50,30 @@ function AnswerCard(props) {
             >
                 <Meta
                     avatar={<Avatar src="https://xsgames.co/randomusers/avatar.php?g=pixel" />}
-                    title={props.info.title}
-                    description={expanded ? answerContent : truncatedContent}
+                    title={props.info.user.userName}
+                    //description={expanded ? answerContent : truncatedContent}
                 />
+                {expanded && (<Answer info={answerContent} />)}
+                {!expanded && (<Answer info={truncatedContent} />)}
+                {/*<Answer info={expanded ? answerContent : truncatedContent}/>*/}
 
+                <Row gutter={16} style={{ marginTop: '10px' }}>
+                    <Col>
+                        <Space>
+                            <Button icon={<LikeOutlined />} />
+                            <Text type="secondary">10</Text>
+                        </Space>
+                    </Col>
+                    <Col>
+                        <Space>
+                            <Button icon={<DislikeOutlined />} />
+                            <Text type="secondary">5</Text>
+                        </Space>
+                    </Col>
+                    <Col>
+                        <Button icon={<UserAddOutlined />} />
+                    </Col>
+                </Row>
 
             </Card>
         </div>

@@ -1,21 +1,19 @@
-import {Button, Card, Divider, Space, Tag} from "antd";
-import Meta from "antd/es/card/Meta";
-import {DislikeOutlined, LikeOutlined, StarOutlined} from "@ant-design/icons";
+import {Avatar, Button, Card, Col, Divider, Row, Space, Tag, Typography} from "antd";
+import {CaretDownOutlined, CaretUpOutlined, DislikeOutlined, LikeOutlined, StarOutlined} from "@ant-design/icons";
 import {useParams} from "react-router";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {questionList} from "../../App";
 import Answer from "./Editor";
+import {getQuestion} from "../../service/QuestionService";
+const { Meta } = Card;
+const { Text } = Typography;
 
 function QuestionCard(props) {
 
 
     const { id } = useParams();
     console.log(id);
-    const [question,setQuestion] =useState({
-        id:0,
-        title:'',
-        content:''
-    });
+    const [question,setQuestion] =useState({});
     const[answer,setAnswer] =useState(false);
 
     function handleLike() {
@@ -32,39 +30,48 @@ function QuestionCard(props) {
 
         setAnswer(!answer);
     }
+
     useEffect(() => {
 
+        const params = new URLSearchParams();
+        params.append('qid', id);
+
         // eslint-disable-next-line array-callback-return
-        questionList.map((item) =>{
-                if(item.id.toString()===id.toString()){
-                    setQuestion(item);
-                }
-        }
-        );
+       getQuestion(params,setQuestion);
 
     }, [id]);
 
 
     return (
         <div>
-            <Card
-                size={"default"}
-                actions={[
-                    <LikeOutlined key="like" onClick={handleLike}/>,
-                    <DislikeOutlined key="dislike" onClick={handleDislike}/>,
-                    <StarOutlined key="start" onClick={handleStar}/>
-                ]}
-            >
-                <h1>{question.title}</h1>
-                <p1>{question.content}</p1>
-
+            <Card>
+                <Meta
+                    title={question.title}
+                    description={question.content}
+                />
                 <Divider />
                 <Space size={[0, 3]} wrap>
                     <Tag>magenta</Tag>
                     <Tag>red</Tag>
                     <Tag>volcano</Tag>
                 </Space>
-
+                <Row gutter={16} style={{ marginTop: '10px' }}>
+                    <Col>
+                        <Space>
+                            <Button icon={<LikeOutlined />} />
+                            <Text type="secondary">10</Text>
+                        </Space>
+                    </Col>
+                    <Col>
+                        <Space>
+                            <Button icon={<DislikeOutlined />} />
+                            <Text type="secondary">5</Text>
+                        </Space>
+                    </Col>
+                    <Col>
+                        <Button icon={<StarOutlined />} />
+                    </Col>
+                </Row>
                 <Button
                     style={{float:'right'}}
                     onClick={handleAnswer}
@@ -72,7 +79,6 @@ function QuestionCard(props) {
                     回答问题
                 </Button>
             </Card>
-
 
             {
                 answer&&(

@@ -1,4 +1,4 @@
-import {Button, Card, Col, Divider, Row, Space, Statistic, Tag} from "antd";
+import {Button, Card, Col, Divider, Input, Modal, Row, Space, Statistic, Tag} from "antd";
 import {
     ArrowDownOutlined,
     ArrowUpOutlined,
@@ -9,8 +9,32 @@ import {
 } from "@ant-design/icons";
 import Meta from "antd/es/card/Meta";
 import Link from "antd/es/typography/Link";
+import {useState} from "react";
 // 点赞数量 点踩数量 提问数量 回答数量
 function UserCard() {
+
+
+    const [open,setOpen]=useState(false);
+    const [questionTitle, setQuestionTitle] = useState('');
+    const [questionContent, setQuestionContent] = useState('');
+    const [questionTags, setQuestionTags] = useState([]);
+
+
+    const handleAsk=()=>{
+
+        const title = questionTitle;
+        const content = questionContent;
+        const tags = questionTags;
+
+    }
+
+    const handleRemoveTag = (index) => {
+        const updatedTags = [...questionTags];
+        updatedTags.splice(index, 1);
+        setQuestionTags(updatedTags);
+    };
+
+
     return (
         <div>
             <Card
@@ -39,7 +63,7 @@ function UserCard() {
                     <Meta title={"您可以"} />
                     <Row>
                         <Col span={12}>
-                            <Button type="primary" size={"large"} href={"createQuestion"}>去提问！</Button>
+                            <Button type="primary" size={"large"} onClick={()=>{setOpen(true)}}>去提问！</Button>
                         </Col>
                         <Col span={12}>
 
@@ -51,6 +75,46 @@ function UserCard() {
                     </Row>
                 </Space>
             </Card>
+
+
+            <Modal
+                visible={open}
+                onOk={handleAsk}
+                onCancel={() => { setOpen(false) }}
+            >
+                <Input
+                    placeholder="问题标题"
+                    value={questionTitle}
+                    onChange={(e) => { setQuestionTitle(e.target.value) }}
+                />
+                <Input.TextArea
+                    placeholder="问题内容"
+                    value={questionContent}
+                    onChange={(e) => { setQuestionContent(e.target.value) }}
+                    autoSize={{ minRows: 3, maxRows: 6 }}
+                />
+                <Input
+                    placeholder="输入标签，按回车添加"
+                    value={''}
+                    onPressEnter={(e) => {
+                        const tagValue = e.target.value.trim();
+                        if (tagValue !== '') {
+                            setQuestionTags([...questionTags, tagValue]);
+                            e.target.value = '';
+                        }
+                    }}
+                />
+                <div>
+                    {questionTags.map((tag, index) => (
+                        <Tag key={index} closable onClose={() => handleRemoveTag(index)}>
+                            {tag}
+                        </Tag>
+                    ))}
+                </div>
+            </Modal>
+
+
+
         </div>
     );
 }
