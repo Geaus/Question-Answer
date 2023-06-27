@@ -39,4 +39,9 @@ public class AnswerServiceimpl implements AnswerService {
         ans.setCreateTime(formattedDate);
         return answerDao.addAnswer(ans);
     }
+
+    @Override
+    public List<Answer> getAsked(int userId) {
+        return answerDao.findAnswered(userDao.findUser(userId));
+    }
 }

@@ -3,6 +3,7 @@ package com.example.qa_backend.Daoimpl;
 import com.example.qa_backend.Dao.AnswerDao;
 import com.example.qa_backend.Entity.Answer;
 import com.example.qa_backend.Entity.Question;
+import com.example.qa_backend.Entity.User;
 import com.example.qa_backend.Repository.AnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -22,5 +23,10 @@ public class AnswerDaoimpl implements AnswerDao {
     @Override
     public List<Answer> findAnswers(Question question) {
         return answerRepository.findAnswersByQuestion(question);
+    }
+
+    @Override
+    public List<Answer> findAnswered(User user) {
+        return answerRepository.findAnswersByUser(user);
     }
 }

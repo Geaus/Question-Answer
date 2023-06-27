@@ -16,7 +16,6 @@ public class Answer {
     @JoinColumn(name = "user_id")
     private User user;
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "ques_id")
     private Question question;
     @Basic

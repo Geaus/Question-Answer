@@ -2,6 +2,7 @@ package com.example.qa_backend.Daoimpl;
 
 import com.example.qa_backend.Dao.QuestionDao;
 import com.example.qa_backend.Entity.Question;
+import com.example.qa_backend.Entity.User;
 import com.example.qa_backend.Repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -20,5 +21,15 @@ public class QuestionDaoimpl implements QuestionDao {
     @Override
     public Question getQuestion(int id) {
         return questionRepository.findQuestionById(id);
+    }
+
+    @Override
+    public Question addQuestion(Question question) {
+        return questionRepository.save(question);
+    }
+
+    @Override
+    public List<Question> getAsked(User user) {
+        return questionRepository.findQuestionsByUser(user);
     }
 }

@@ -20,4 +20,6 @@ public class AnswerController {
     @RequestMapping("/addAnswer")
     public Answer addAnswer(@RequestParam int userId, @RequestParam int questionId,
                             @RequestParam String content) { return answerService.addAnswer(userId, questionId, content); }
+    @RequestMapping("/getAnswered")
+    public List<Answer> listAsked(@RequestParam int userId){ return answerService.getAsked(userId); }
 }

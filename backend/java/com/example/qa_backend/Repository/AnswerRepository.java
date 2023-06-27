@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     List<Answer> findAnswersByQuestion(Question question);
+    List<Answer> findAnswersByUser(User user);
 }
