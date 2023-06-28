@@ -25,7 +25,14 @@ export const getAnswers = (params,callback) => {
         })
 };
 
-export const askQuestion = (params, tags, callback) => {
+export const listTag = (callback) => {
+
+    fetch('http://localhost:8080/listTag' )
+        .then((response) => response.json())
+        .then((data) => {callback(data)})
+
+}
+export const askQuestion = (params, tags) => {
     let opts = {
         method: 'POST',
         headers: {
@@ -40,7 +47,7 @@ export const askQuestion = (params, tags, callback) => {
     // params.append('uid', uid);
     fetch('http://localhost:8080/askQuestion?' + params.toString(), opts)
         .then((response) => response.json())
-        .then((data) => {callback(data)})
+        .then((data) => {console.log(data)})
 
 }
 

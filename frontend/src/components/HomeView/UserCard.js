@@ -10,7 +10,7 @@ import {
 import Meta from "antd/es/card/Meta";
 import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {getQuestions} from "../../service/QuestionService";
+import {askQuestion, getQuestions, listTag} from "../../service/QuestionService";
 // 点赞数量 点踩数量 提问数量 回答数量
 function UserCard() {
 
@@ -21,7 +21,7 @@ function UserCard() {
     const [questionContent, setQuestionContent] = useState('');
 
     const [selectedTags, setSelectedTags] = useState([]); // 上方已选择的标签
-    const [unselectedTags, setUnselectedTags] = useState(['Tag1', 'Tag2', 'Tag3', 'Tag4']); // 下方未选择的标签
+    const [unselectedTags, setUnselectedTags] = useState([]); // 下方未选择的标签
 
     const handleAddTagToQuestion = (tag) => {
         const updatedSelectedTags = [...selectedTags, tag];
@@ -43,6 +43,18 @@ function UserCard() {
         const title = questionTitle;
         const content = questionContent;
 
+        const params = new URLSearchParams();
+        params.append('uid', uid);
+        params.append('title',title);
+        params.append('content', content);
+
+        askQuestion(params,selectedTags);
+        setOpen(false);
+        setSelectedTags([]);
+        listTag(setUnselectedTags);
+        setQuestionTitle('');
+        setQuestionContent('');
+
     }
 
     useEffect(() => {
@@ -51,6 +63,7 @@ function UserCard() {
         const uid=sessionStorage.getItem('uid');
         setUid(uid);
 
+        listTag(setUnselectedTags);
 
     },[]);
 
@@ -119,11 +132,11 @@ function UserCard() {
                     <div>
                         {selectedTags.map((tag) => (
                             <Tag
-                                key={tag}
+                                key={tag.id}
                                 closable
                                 onClose={() => handleRemoveTag(tag)}
                             >
-                                {tag}
+                                {tag.content}
                             </Tag>
                         ))}
                     </div>
@@ -131,11 +144,11 @@ function UserCard() {
                     <div>
                         {unselectedTags.map((tag) => (
                             <Tag
-                                key={tag}
+                                key={tag.id}
                                 onClick={() => handleAddTagToQuestion(tag)} // 添加点击事件
 
                             >
-                                {tag}
+                                {tag.content}
                             </Tag>
                         ))}
                     </div>
