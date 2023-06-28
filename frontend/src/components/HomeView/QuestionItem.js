@@ -1,7 +1,8 @@
 import React, {Component, useState} from 'react';
 import {Card, Button, Collapse, Row, Col, Space, Typography} from 'antd';
 import {CaretDownOutlined, CaretUpOutlined, DislikeOutlined, LikeOutlined, StarOutlined} from "@ant-design/icons";
-import Link from "antd/es/typography/Link";
+import {Link} from "react-router-dom";
+
 
 const { Meta } = Card;
 const { Text } = Typography;
@@ -31,10 +32,9 @@ const QuestionPage =(props)=>{
     return (
         <Card
             title={
-                <a href={`/ques/${props.info.id}`}
-                >
+                <Link to={`/ques/${props.info.id}`}>
                     {props.info.title}
-                </a>
+                </Link>
             }
             extra={
                 expanded ? (

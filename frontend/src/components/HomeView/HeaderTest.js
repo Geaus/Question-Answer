@@ -2,13 +2,16 @@ import React from "react";
 import "../../css/HeaderTest.css"
 import {Menu, Input, Avatar, Button, Space, Row, Col} from "antd";
 import {FireOutlined, HomeOutlined, StarOutlined} from "@ant-design/icons";
+import {Link} from "react-router-dom";
+
 
 const {Search} = Input;
 
 const menuItems = [
     {
-        label: "首页",
-        key: "home"
+        label: <Link to={"/"} >"首页"</Link>,
+        key: "home",
+
     },
     {
         label: "关注",
@@ -51,7 +54,7 @@ const HeaderTest = () => {
             <div style={{ fontSize: '20px' }}>My App</div>
             <Menu mode="horizontal" theme="light" style={menuStyle}>
                 <Menu.Item key="home" icon={<HomeOutlined />}>
-                    首页
+                    <Link to={"/"} >首页</Link>,
                 </Menu.Item>
                 <Menu.Item key="follow" icon={<StarOutlined />}>
                     关注
@@ -63,26 +66,10 @@ const HeaderTest = () => {
             <Input.Search placeholder="搜索" style={searchInputStyle} />
             <div style={greetingStyle}>你好</div>
             <span style={{width: "2vw"}}></span>
-            <Avatar src="https://example.com/avatar.png" />
+            <Avatar />
         </div>
     );
-        // return (
-            // <div className={"header-area-limit"}>
-            //     <div className={"header-logo-part"} >
-            //         <span>Logo</span>
-            //     </div>
-            //     <div className={"header-menu-part"}>
-            //         <Menu items={menuItems} mode="horizontal"></Menu>
-            //     </div>
-            //     <div className={"header-search-part"}>
-            //         <Search className={"header-search-input"} />
-            //     </div>
-            //     <div className={"header-person-part"}>
-            //         <Avatar className={"header-avatar-part"} size={"default"}/>
-            //         <span className={"header-welcome-font"}>你好，用户</span>
-            //     </div>
-            // </div>
-        // );
+
 }
 
 export default HeaderTest;

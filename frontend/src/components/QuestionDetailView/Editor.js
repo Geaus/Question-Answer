@@ -22,15 +22,30 @@ import { menu } from "@milkdown/plugin-menu";
 import { block } from "@milkdown/plugin-block";
 import { cursor } from "@milkdown/plugin-cursor";
 import { clipboard } from "@milkdown/plugin-clipboard";
+import { math } from '@milkdown/plugin-math';
+import 'katex/dist/katex.min.css';
 import { useEffect, useState } from "react";
 import { insert, replaceAll } from "@milkdown/utils";
+import {Button} from "antd";
+import {useParams} from "react-router";
+import {addAnswer} from "../../service/QuestionService";
 
-export default function Answer() {
-    const [content, setContent] = useState("# hello \nSelect me to annotate me!");
+export default function Answer(props) {
+    const [content, setContent] = useState("请输入你的回答");
+    const { id } = useParams();
 
     useEffect(() => {
         console.log("content=", content);
     }, [content]);
+
+    function handlePublish(){
+        const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('qid', id);
+        params.append('content', content);
+        addAnswer(params);
+        props.setAnswer(false);
+    }
 
     const { editor, getInstance } = useEditor(
         (root) =>
@@ -84,18 +99,20 @@ export default function Answer() {
                 .use(block)
                 .use(cursor)
                 .use(clipboard)
+                .use(math)
         //.use(slash)
     );
 
-    const setValue = () => {
-        console.log(getInstance().action(replaceAll("# Fetched \nMarkup")));
-    };
-
     return (
-        <div >
-            <h1 onClick={setValue}>Answer Editors</h1>
-            <ReactEditor editor={editor} />
-            <hr />
+        <div style={{ backgroundColor: 'white' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <h1 style={{ marginLeft: '2vw' }}>Answer Editors</h1>
+                <Button onClick={handlePublish} style={{ marginLeft: 'auto' }}>发布</Button>
+            </div>
+            <div >
+                <ReactEditor editor={editor} />
+            </div>
         </div>
+
     );
 }

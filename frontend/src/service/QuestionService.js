@@ -1,6 +1,6 @@
-export const getQuestions = (callback) => {
+export const getQuestions = (params,callback) => {
 
-    fetch('http://localhost:8080/getQuestions')
+    fetch('http://localhost:8080/getQuestions?'+params.toString())
         .then(response => response.json())
         .then((data) => {
             callback(data);
@@ -42,4 +42,12 @@ export const askQuestion = (params, tags, callback) => {
         .then((response) => response.json())
         .then((data) => {callback(data)})
 
+}
+
+export const addAnswer = (params) => {
+    fetch('http://localhost:8080/addAnswer?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            console.log(data);
+        })
 }

@@ -1,7 +1,6 @@
 
 import {Card, Layout, List, Space} from "antd";
 import QuestionCard from "../components/QuestionDetailView/QuestionCard";
-import AnswerCard from "../components/QuestionDetailView/AnswerCard";
 import HeaderTest from "../components/HomeView/HeaderTest";
 import {answerList, questionList} from "../App";
 import QuestionItem from "../components/HomeView/QuestionItem";

@@ -97,7 +97,7 @@ class App extends React.Component {
 
                     <Route path="/" element={<HomeView />} />
                     <Route path="/ques/:id" element={<QuestionDetailView />} />
-                    <Route path="/profile" element={<ProfileView />} />
+                    <Route path="/profile/:uid" element={<ProfileView />} />
                     <Route path="/login" element={<LoginView/>}/>
 
                 </Routes>

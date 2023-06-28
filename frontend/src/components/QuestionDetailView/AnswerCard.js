@@ -7,9 +7,10 @@ import {
     UserAddOutlined
 } from "@ant-design/icons";
 import React, {useState} from "react";
-import Answer from "./Answer";
 import gfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from "remark-math";
+import rehypeKatex from 'rehype-katex'
 import Meta from "antd/es/card/Meta";
 const { Text } = Typography;
 
@@ -55,9 +56,8 @@ function AnswerCard(props) {
                     title={props.info.user.userName}
                     //description={expanded ? answerContent : truncatedContent}
                 />
-                {expanded && (<ReactMarkdown remarkPlugins={[gfm]}>{answerContent}</ReactMarkdown>)}
-                {!expanded && (<ReactMarkdown remarkPlugins={[gfm]}>{truncatedContent}</ReactMarkdown>)}
-                {/*<Answer info={expanded ? answerContent : truncatedContent}/>*/}
+                {expanded && (<ReactMarkdown remarkPlugins={[gfm, remarkMath]} rehypePlugins={[rehypeKatex]}>{answerContent}</ReactMarkdown>)}
+                {!expanded && (<ReactMarkdown remarkPlugins={[gfm, remarkMath]} rehypePlugins={[rehypeKatex]}>{truncatedContent}</ReactMarkdown>)}
 
                 <Row gutter={16} style={{ marginTop: '10px' }}>
                     <Col>

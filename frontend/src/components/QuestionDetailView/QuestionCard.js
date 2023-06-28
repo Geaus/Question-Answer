@@ -34,6 +34,7 @@ function QuestionCard(props) {
     useEffect(() => {
 
         const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', id);
 
         // eslint-disable-next-line array-callback-return
@@ -86,7 +87,7 @@ function QuestionCard(props) {
             {
                 answer&&(
                     <div >
-                        <Answer/>
+                        <Answer setAnswer={setAnswer}/>
                     </div>
 
                 )
