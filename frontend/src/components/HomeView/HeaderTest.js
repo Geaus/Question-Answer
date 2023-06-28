@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import "../../css/HeaderTest.css"
 import {Menu, Input, Avatar, Button, Space, Row, Col} from "antd";
 import {FireOutlined, HomeOutlined, StarOutlined} from "@ant-design/icons";
 import {Link} from "react-router-dom";
+import {getQuestions} from "../../service/QuestionService";
 
 
 const {Search} = Input;
@@ -49,6 +50,13 @@ const HeaderTest = () => {
         fontWeight: 'bold',
     };
 
+    const [uid ,setUid] =useState(0);
+    useEffect(() => {
+        const uid=sessionStorage.getItem('uid');
+        setUid(uid);
+
+    },[]);
+
     return (
         <div style={headerBarStyle}>
             <div style={{ fontSize: '20px' }}>My App</div>
@@ -66,7 +74,12 @@ const HeaderTest = () => {
             <Input.Search placeholder="搜索" style={searchInputStyle} />
             <div style={greetingStyle}>你好</div>
             <span style={{width: "2vw"}}></span>
-            <Avatar />
+
+
+            <Link to={{pathname:'/profile',search:'?uid='+uid}}>
+               <Avatar />
+            </Link>
+
         </div>
     );
 

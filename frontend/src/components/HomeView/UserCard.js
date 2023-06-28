@@ -30,11 +30,12 @@ function UserCard() {
         setUnselectedTags(updatedUnselectedTags);
     };
 
-    const handleRemoveTag = (index) => {
-        const removedTag = selectedTags[index];
-        const updatedSelectedTags = selectedTags.filter((_, i) => i !== index);
+    const handleRemoveTag = (tag) => {
+
+        const updatedSelectedTags =  selectedTags.filter((t) => t !== tag);
+        const updatedUnselectedTags =[...unselectedTags, tag];
         setSelectedTags(updatedSelectedTags);
-        setUnselectedTags([...unselectedTags, removedTag]); // 修改这一行
+        setUnselectedTags(updatedUnselectedTags);
     };
 
     const handleAsk=()=>{
@@ -88,7 +89,7 @@ function UserCard() {
                             <Col span={12}>
 
 
-                                <Link to={`/profile/${uid}`}>
+                                <Link to={{pathname:'/profile',search:'?uid='+uid}}>
                                     <Button  >查看我的主页</Button>
                                 </Link>
 
@@ -116,11 +117,11 @@ function UserCard() {
                         autoSize={{ minRows: 3, maxRows: 6 }}
                     />
                     <div>
-                        {selectedTags.map((tag, index) => (
+                        {selectedTags.map((tag) => (
                             <Tag
-                                key={index}
+                                key={tag}
                                 closable
-                                onClose={() => handleRemoveTag(index)}
+                                onClose={() => handleRemoveTag(tag)}
                             >
                                 {tag}
                             </Tag>
@@ -128,9 +129,9 @@ function UserCard() {
                     </div>
                     <Divider/>
                     <div>
-                        {unselectedTags.map((tag, index) => (
+                        {unselectedTags.map((tag) => (
                             <Tag
-                                key={index}
+                                key={tag}
                                 onClick={() => handleAddTagToQuestion(tag)} // 添加点击事件
 
                             >

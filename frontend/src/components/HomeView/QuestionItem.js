@@ -32,7 +32,7 @@ const QuestionPage =(props)=>{
     return (
         <Card
             title={
-                <Link to={`/ques/${props.info.id}`}>
+                <Link to={{pathname:'/ques',search:'?qid='+props.info.id}}>
                     {props.info.title}
                 </Link>
             }

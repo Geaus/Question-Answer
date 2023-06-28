@@ -29,6 +29,7 @@ import { insert, replaceAll } from "@milkdown/utils";
 import {Button} from "antd";
 import {useParams} from "react-router";
 import {addAnswer} from "../../service/QuestionService";
+import "../../css/Editor.css"
 
 export default function Answer(props) {
     const [content, setContent] = useState("请输入你的回答");

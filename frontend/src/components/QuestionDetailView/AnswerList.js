@@ -11,12 +11,15 @@ import Meta from "antd/es/card/Meta";
 import React, {useEffect, useState} from "react";
 import {answerList} from "../../App";
 import AnswerCard from "./AnswerCard";
-import {useParams} from "react-router";
+import {useLocation, useParams} from "react-router";
 import {getAnswers, getQuestion} from "../../service/QuestionService";
 
 function AnswerList(props) {
 
-    const { id } = useParams();
+    const location=useLocation();
+    const searchParams=new URLSearchParams(location.search);
+    const id=searchParams.get('qid')
+
     const [answers,setAnswers]=useState([]);
 
     useEffect(() => {

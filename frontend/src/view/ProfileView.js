@@ -19,7 +19,7 @@ function ProfileView(props) {
                 style={{
                     display: 'flex',
                     height: '100vh',
-                    width:'80vw',
+                    width:'75vw',
                     margin: '0 auto',
                     paddingTop:'3vh'
                 }}
@@ -36,10 +36,6 @@ function ProfileView(props) {
                     <ProfileMenu/>
                 </div>
 
-
-                <div style={{ width:'20vw'}}>
-                    <UserCard/>
-                </div>
 
             </Content>
 

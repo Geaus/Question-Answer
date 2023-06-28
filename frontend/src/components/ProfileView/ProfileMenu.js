@@ -18,12 +18,17 @@ import {
     getLikedAnswer,
     getLikedQuestion, getMarkedQuestion
 } from "../../service/ProfileService";
-import {useParams} from "react-router";
+import {useLocation} from "react-router";
 
 
 function ProfileMenu() {
 
-    const {uid}=useParams();
+    const location=useLocation();
+    const searchParams=new URLSearchParams(location.search);
+    const uid=searchParams.get('uid')
+
+    const self= uid===sessionStorage.getItem('uid');
+    console.log(self)
 
     const [currentMenuItem,  setCurrentMenuItem] = useState('questions'); // 初始选中的菜单项，默认为 'menu1'
 
@@ -66,7 +71,8 @@ function ProfileMenu() {
         console.log(questions)
 
 
-    },[currentMenuItem]);
+    },[currentMenuItem,uid]);
+
 
     const handleMenuClick = (e) => {
         setCurrentMenuItem(e.key);
@@ -139,13 +145,18 @@ function ProfileMenu() {
     }
     else if (currentMenuItem === 'subscribe') {
         content =
-            <List
-                dataSource={follows}
-                renderItem={(follow) => (
-                    <ProfileUserCard  info={follow}/>
-                    // <Card key={question.id}>{question.title}</Card>
-                )}
-            />
+
+                self&&(
+                <List
+                    dataSource={follows}
+                    renderItem={(follow) => (
+                        <ProfileUserCard  info={follow}/>
+                        // <Card key={question.id}>{question.title}</Card>
+                    )}
+                />
+              );
+
+
     }
     else if (currentMenuItem === 'star') {
         content =
@@ -160,62 +171,65 @@ function ProfileMenu() {
 
     const items = [
         {
-            label: (
+            // eslint-disable-next-line no-mixed-operators
+            label: self&&(
                 <a>我的提问</a>
-            ),
+            ) || !self&&( <a>ta的提问</a>),
+
             key: 'questions',
             icon: <QuestionOutlined />,
         },
         {
-            label: (
+            label: self&&(
                 <a>我的回答</a>
-            ),
+            ) || !self&&( <a>ta的回答</a>),
             key: 'answers',
             icon: <FormOutlined />,
         },
         {
-            label: (
+            label: self&&(
                 <a>我赞过的</a>
-            ),
+            ) || !self&&( <a>ta赞过的</a>),
             key: 'likes',
             icon: <LikeOutlined />,
             children: [
                 {
-                    label:(
+                    label:self&&(
                         <a>我赞过的问题</a>
-                    ),
+                    ) || !self&&( <a>ta赞过的问题</a>),
                     key:'likeQuestion'
                 },
                 {
-                    label: (
+                    label:self&&(
                         <a>我赞过的回答</a>
-                    ),
+                    ) || !self&&( <a>ta赞过的回答</a>),
                     key:'likeAnswer'
                 }
             ]
         },
         {
-            label: (
+            label: self&&(
                 <a>我踩过的</a>
-            ),
+            ) || !self&&( <a>ta踩过的</a>),
             key: 'dislikes',
             icon: <DislikeOutlined />,
             children: [
                 {
-                    label:(
+                    label:self&&(
                         <a>我踩过的问题</a>
-                    ),
+                    ) || !self&&( <a>ta踩过的问题</a>),
                     key:'dislikeQuestion'
                 },
                 {
-                    label: (
+                    label: self&&(
                         <a>我踩过的回答</a>
-                    ),
+                    ) || !self&&( <a>ta踩过的回答</a>),
                     key:'dislikeAnswer'
                 }
             ]
         },
-        {
+
+        self&&{
             label: (
                 <a>我的关注</a>
             ),
@@ -223,9 +237,9 @@ function ProfileMenu() {
             icon: <UserAddOutlined />,
         },
         {
-            label: (
-                <a>我收藏的问题</a>
-            ),
+            label:self&&(
+                <a>我收藏的</a>
+            ) || !self&&( <a>ta收藏的</a>),
             key: 'star',
             icon: <StarOutlined />
         }

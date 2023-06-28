@@ -1,17 +1,22 @@
-import {Avatar, Button, Card, Col, Divider, Row, Space, Tag, Typography} from "antd";
+import {Avatar, Button, Card, Col, Divider, List, Row, Space, Tag, Typography} from "antd";
 import {CaretDownOutlined, CaretUpOutlined, DislikeOutlined, LikeOutlined, StarOutlined} from "@ant-design/icons";
 import {useParams} from "react-router";
 import React, {useEffect, useState} from "react";
-import {questionList} from "../../App";
+import {useLocation} from "react-router";
 import Answer from "./Editor";
 import {getQuestion} from "../../service/QuestionService";
+import QuestionItem from "../HomeView/QuestionItem";
 const { Meta } = Card;
 const { Text } = Typography;
 
 function QuestionCard(props) {
 
 
-    const { id } = useParams();
+    const location=useLocation();
+    const searchParams=new URLSearchParams(location.search);
+    const id=searchParams.get('qid')
+
+
     console.log(id);
     const [question,setQuestion] =useState({});
     const[answer,setAnswer] =useState(false);
@@ -52,10 +57,16 @@ function QuestionCard(props) {
                 />
                 <Divider />
 
-                <Space size={[0, 3]} wrap>
-                    <Tag>magenta</Tag>
-                    <Tag>red</Tag>
-                    <Tag>volcano</Tag>
+                <Space  wrap>
+
+                    <List
+                        dataSource={question.tags}
+                        renderItem={(tag) => (
+                            <Tag >{tag.content} </Tag>
+                            // <Card key={question.id}>{question.title}</Card>
+                        )}
+                    />
+
                 </Space>
 
                 <Row gutter={16} style={{ marginTop: '10px' }}>
