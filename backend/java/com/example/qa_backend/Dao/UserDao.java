@@ -4,4 +4,5 @@ import com.example.qa_backend.Entity.User;
 
 public interface UserDao {
     User findUser(int id);
+    User loginCheck(String userName, String passWord);
 }

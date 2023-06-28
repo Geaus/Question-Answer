@@ -11,6 +11,7 @@ public class AnswerJSON {
     private String createTime;
     private int like;
     private int dislike;
+    private int likeFlag;
 
     public int getId() {
         return id;
@@ -66,5 +67,13 @@ public class AnswerJSON {
 
     public void setDislike(int dislike) {
         this.dislike = dislike;
+    }
+
+    public int getLikeFlag() {
+        return likeFlag;
+    }
+
+    public void setLikeFlag(int likeFlag) {
+        this.likeFlag = likeFlag;
     }
 }

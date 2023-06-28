@@ -15,9 +15,9 @@ public class QuestionController {
     @Autowired
     QuestionService questionService;
     @RequestMapping("/getQuestions")
-    public List<QuestionJSON> listQuestions() { return questionService.listQuestions(); }
+    public List<QuestionJSON> listQuestions(@RequestParam int uid) { return questionService.listQuestions(uid); }
     @RequestMapping("/findQuestion")
-    public QuestionJSON findQuestion(@RequestParam int qid) { return questionService.findQuestion(qid); }
+    public QuestionJSON findQuestion(@RequestParam int uid, @RequestParam int qid) { return questionService.findQuestion(uid, qid); }
     @RequestMapping("/askQuestion")
     public Question askQuestion(@RequestParam int uid, @RequestParam String content, @RequestParam String title,
                                 @RequestBody List<Tag> tags) { return questionService.askQuestion(uid, content, title, tags); }

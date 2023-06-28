@@ -16,6 +16,8 @@ public class QuestionJSON {
     private int like;
     private int dislike;
     private int mark;
+    private int likeFlag;
+    private int markFlag;
 
     public int getId() {
         return id;
@@ -87,5 +89,21 @@ public class QuestionJSON {
 
     public void setMark(int mark) {
         this.mark = mark;
+    }
+
+    public int getLikeFlag() {
+        return likeFlag;
+    }
+
+    public void setLikeFlag(int likeFlag) {
+        this.likeFlag = likeFlag;
+    }
+
+    public int getMarkFlag() {
+        return markFlag;
+    }
+
+    public void setMarkFlag(int markFlag) {
+        this.markFlag = markFlag;
     }
 }

@@ -17,7 +17,7 @@ public class AnswerController {
     @Autowired
     AnswerService answerService;
     @RequestMapping("/getAnswer")
-    public List<AnswerJSON> getAnswer(@RequestParam int qid) { return answerService.getAnswer(qid); }
+    public List<AnswerJSON> getAnswer(@RequestParam int uid, @RequestParam int qid) { return answerService.getAnswer(uid, qid); }
     @RequestMapping("/addAnswer")
     public Answer addAnswer(@RequestParam int uid, @RequestParam int qid,
                             @RequestParam String content) { return answerService.addAnswer(uid, qid, content); }

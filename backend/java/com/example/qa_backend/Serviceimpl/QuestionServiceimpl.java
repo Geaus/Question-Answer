@@ -10,7 +10,6 @@ import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.Entity.TagQuesRelation;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,7 @@ public class QuestionServiceimpl implements QuestionService {
     @Autowired
     FeedbackQuestionDao feedbackQuestionDao;
     @Override
-    public List<QuestionJSON> listQuestions() {
+    public List<QuestionJSON> listQuestions(int uid) {
         List<Question> ques = questionDao.listQuestions();
         List<QuestionJSON> resList = new ArrayList<>();
         for(int i = 0; i < ques.size(); i++) {
@@ -40,22 +39,33 @@ public class QuestionServiceimpl implements QuestionService {
             res.setTitle(question.getTitle());
             res.setUser(question.getUser());
             List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-            int like = 0, dislike = 0, mark = 0;
+            int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
             for(int j = 0; j < feedback.size(); j++) {
-                if(feedback.get(i).getLike() == -1)dislike++;
-                else if(feedback.get(i).getLike() == 1)like++;
-                if(feedback.get(i).getBookmark() == 1)mark++;
+                if(feedback.get(j).getLike() == -1){
+                    if(feedback.get(j).getUserId() == uid)likeFlag = -1;
+                    dislike++;
+                }
+                else if(feedback.get(j).getLike() == 1){
+                    if(feedback.get(j).getUserId() == uid)likeFlag = 1;
+                    like++;
+                }
+                if(feedback.get(j).getBookmark() == 1){
+                    if(feedback.get(j).getUserId() == uid)markFlag = 1;
+                    mark++;
+                }
             }
             res.setLike(like);
             res.setDislike(dislike);
             res.setMark(mark);
+            res.setLikeFlag(likeFlag);
+            res.setMarkFlag(markFlag);
             resList.add(res);
         }
         return resList;
     }
 
     @Override
-    public QuestionJSON findQuestion(int id) {
+    public QuestionJSON findQuestion(int uid, int id) {
         Question question = questionDao.getQuestion(id);
         QuestionJSON res = new QuestionJSON();
         res.setId(question.getId());
@@ -65,15 +75,26 @@ public class QuestionServiceimpl implements QuestionService {
         res.setTitle(question.getTitle());
         res.setUser(question.getUser());
         List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(id);
-        int like = 0, dislike = 0, mark = 0;
+        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
         for(int i = 0; i < feedback.size(); i++) {
-            if(feedback.get(i).getLike() == -1)dislike++;
-            else if(feedback.get(i).getLike() == 1)like++;
-            if(feedback.get(i).getBookmark() == 1)mark++;
+            if(feedback.get(i).getLike() == -1){
+                if(feedback.get(i).getUserId() == uid)likeFlag = -1;
+                dislike++;
+            }
+            else if(feedback.get(i).getLike() == 1){
+                if(feedback.get(i).getUserId() == uid)likeFlag = 1;
+                like++;
+            }
+            if(feedback.get(i).getBookmark() == 1){
+                if(feedback.get(i).getUserId() == uid)markFlag = 1;
+                mark++;
+            }
         }
         res.setLike(like);
         res.setDislike(dislike);
         res.setMark(mark);
+        res.setLikeFlag(likeFlag);
+        res.setMarkFlag(markFlag);
         return res;
     }
 

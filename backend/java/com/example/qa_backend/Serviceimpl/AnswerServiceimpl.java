@@ -28,17 +28,23 @@ public class AnswerServiceimpl implements AnswerService {
     @Autowired
     FeedbackAnswerDao feedbackAnswerDao;
     @Override
-    public List<AnswerJSON> getAnswer(int questionId) {
+    public List<AnswerJSON> getAnswer(int userId, int questionId) {
         Question question = questionDao.getQuestion(questionId);
         List<Answer> ans = answerDao.findAnswers(question);
         List<AnswerJSON> res = new ArrayList<>();
         for(int i = 0; i < ans.size(); i++) {
             Answer a = ans.get(i);
             List<FeedbackForAnswer> feedback = feedbackAnswerDao.findFeedback(a.getId());
-            int like = 0, dislike = 0;
+            int like = 0, dislike = 0, flag = 0;
             for(int j = 0; j < feedback.size(); j++) {
-                if(feedback.get(j).getLike() == 1) like++;
-                else dislike++;
+                if(feedback.get(j).getLike() == 1) {
+                    if(feedback.get(j).getUserId() == userId)flag = 1;
+                    like++;
+                }
+                else {
+                    if(feedback.get(j).getUserId() == userId)flag = -1;
+                    dislike++;
+                }
             }
             AnswerJSON tmp = new AnswerJSON();
             tmp.setId(a.getId());
@@ -48,6 +54,7 @@ public class AnswerServiceimpl implements AnswerService {
             tmp.setUser(a.getUser());
             tmp.setCreateTime(a.getCreateTime());
             tmp.setDislike(dislike);
+            tmp.setLikeFlag(flag);
             res.add(tmp);
         }
         return res;
