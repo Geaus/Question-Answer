@@ -27,13 +27,16 @@ import 'katex/dist/katex.min.css';
 import { useEffect, useState } from "react";
 import { insert, replaceAll } from "@milkdown/utils";
 import {Button} from "antd";
-import {useParams} from "react-router";
+import {useLocation, useParams} from "react-router";
 import {addAnswer} from "../../service/QuestionService";
 import "../../css/Editor.css"
 
 export default function Answer(props) {
     const [content, setContent] = useState("请输入你的回答");
-    const { id } = useParams();
+
+    const location=useLocation();
+    const searchParams=new URLSearchParams(location.search);
+    const id=searchParams.get('qid')
 
     useEffect(() => {
         console.log("content=", content);
