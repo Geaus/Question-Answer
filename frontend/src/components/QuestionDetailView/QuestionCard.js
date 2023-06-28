@@ -18,7 +18,7 @@ function QuestionCard(props) {
 
 
     console.log(id);
-    const [question,setQuestion] =useState({});
+    const [question,setQuestion] =useState({tags: []});
     const[answer,setAnswer] =useState(false);
 
     function handleLike() {
@@ -59,13 +59,18 @@ function QuestionCard(props) {
 
                 <Space  wrap>
 
-                    <List
-                        dataSource={question.tags}
-                        renderItem={(tag) => (
-                            <Tag >{tag.content} </Tag>
-                            // <Card key={question.id}>{question.title}</Card>
-                        )}
-                    />
+                    {
+                        (question.tags !== null && question.tags.length !== 0) ?
+                            <List
+                                dataSource={question.tags}
+                                renderItem={(tag) => (
+                                    <Tag >{tag.content} </Tag>
+                                    // <Card key={question.id}>{question.title}</Card>
+                                )}
+                            />:null
+
+                    }
+
 
                 </Space>
 

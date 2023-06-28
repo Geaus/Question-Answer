@@ -62,7 +62,7 @@ const HeaderTest = () => {
             <div style={{ fontSize: '20px' }}>My App</div>
             <Menu mode="horizontal" theme="light" style={menuStyle}>
                 <Menu.Item key="home" icon={<HomeOutlined />}>
-                    <Link to={"/"} >首页</Link>,
+                    <Link to={"/"} >首页</Link>
                 </Menu.Item>
                 <Menu.Item key="follow" icon={<StarOutlined />}>
                     关注
