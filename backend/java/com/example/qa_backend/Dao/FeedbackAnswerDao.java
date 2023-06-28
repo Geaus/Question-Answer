@@ -8,4 +8,5 @@ public interface FeedbackAnswerDao {
     List<FeedbackForAnswer> findFeedback(int ans_id);
     List<FeedbackForAnswer> listRelatedAns(int user_id);
     FeedbackForAnswer findSpecific(int ans_id, int user_id);
+    FeedbackForAnswer addOne(FeedbackForAnswer feedback);
 }

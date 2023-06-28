@@ -26,4 +26,9 @@ public class FeedbackQuestionDaoimpl implements FeedbackQuestionDao {
     public FeedbackForQuestion findSpecific(int ques_id, int user_id) {
         return feedbackQuestionRepository.findFeedbackForQuestionByQuesIdAndUserId(ques_id, user_id);
     }
+
+    @Override
+    public FeedbackForQuestion addOne(FeedbackForQuestion feedback) {
+        return feedbackQuestionRepository.save(feedback);
+    }
 }

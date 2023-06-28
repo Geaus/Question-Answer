@@ -25,4 +25,9 @@ public class FeedbackAnswerDaoimpl implements FeedbackAnswerDao {
     public FeedbackForAnswer findSpecific(int ans_id, int user_id) {
         return feedbackAnswerRepository.findFeedbackForAnswerByAnsIdAndUserId(ans_id, user_id);
     }
+
+    @Override
+    public FeedbackForAnswer addOne(FeedbackForAnswer feedback) {
+        return feedbackAnswerRepository.save(feedback);
+    }
 }

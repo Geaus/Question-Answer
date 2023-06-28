@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface FollowDao {
     List<Follow> findFollowList(int id);
+    Follow addOne(Follow follow);
+    void deleteOne(int uid_1, int uid_2);
 }

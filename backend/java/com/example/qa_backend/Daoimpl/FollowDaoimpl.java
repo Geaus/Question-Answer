@@ -17,4 +17,14 @@ public class FollowDaoimpl implements FollowDao {
     public List<Follow> findFollowList(int id) {
         return followRepository.findFollowsByUser1Id(id);
     }
+
+    @Override
+    public Follow addOne(Follow follow) {
+        return followRepository.save(follow);
+    }
+
+    @Override
+    public void deleteOne(int uid_1, int uid_2) {
+        followRepository.deleteFollowByUser1IdAndUser2Id(uid_1, uid_2);
+    }
 }
