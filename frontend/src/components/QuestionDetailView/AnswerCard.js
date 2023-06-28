@@ -8,17 +8,20 @@ import {
 } from "@ant-design/icons";
 import React, {useState} from "react";
 import Answer from "./Answer";
-const { Meta } = Card;
+import gfm from 'remark-gfm';
+import ReactMarkdown from 'react-markdown';
+import Meta from "antd/es/card/Meta";
 const { Text } = Typography;
 
 function AnswerCard(props) {
 
     const [expanded,setExpanded]=useState(false);
     const answerContent=props.info.content;
-    const truncatedContent = answerContent.substring(0, 10) + '...';
-
+    const newlineIndex = answerContent.indexOf('\n');
+    const truncatedContent = newlineIndex !== -1 ? answerContent.substring(0, newlineIndex) + '...' : answerContent;
     const  handleExpanded=()=>{
         setExpanded(!expanded);
+        console.log(answerContent);
     }
 
     function handleLike() {
@@ -52,8 +55,8 @@ function AnswerCard(props) {
                     title={props.info.user.userName}
                     //description={expanded ? answerContent : truncatedContent}
                 />
-                {expanded && (<Answer info={answerContent} />)}
-                {!expanded && (<Answer info={truncatedContent} />)}
+                {expanded && (<ReactMarkdown remarkPlugins={[gfm]}>{answerContent}</ReactMarkdown>)}
+                {!expanded && (<ReactMarkdown remarkPlugins={[gfm]}>{truncatedContent}</ReactMarkdown>)}
                 {/*<Answer info={expanded ? answerContent : truncatedContent}/>*/}
 
                 <Row gutter={16} style={{ marginTop: '10px' }}>

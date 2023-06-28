@@ -9,7 +9,7 @@ export const getQuestions = (callback) => {
 
 export const getQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/getQuestion?'+params.toString())
+    fetch('http://localhost:8080/findQuestion?'+params.toString())
         .then(response => response.json())
         .then((data) => {
             callback(data);
