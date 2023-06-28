@@ -16,10 +16,10 @@ public class AnswerController {
     @Autowired
     AnswerService answerService;
     @RequestMapping("/getAnswer")
-    public List<Answer> getAnswer(@RequestParam int questionId) { return answerService.getAnswer(questionId); }
+    public List<Answer> getAnswer(@RequestParam int qid) { return answerService.getAnswer(qid); }
     @RequestMapping("/addAnswer")
-    public Answer addAnswer(@RequestParam int userId, @RequestParam int questionId,
-                            @RequestParam String content) { return answerService.addAnswer(userId, questionId, content); }
+    public Answer addAnswer(@RequestParam int uid, @RequestParam int qid,
+                            @RequestParam String content) { return answerService.addAnswer(uid, qid, content); }
     @RequestMapping("/getAnswered")
-    public List<Answer> listAsked(@RequestParam int userId){ return answerService.getAsked(userId); }
+    public List<Answer> listAsked(@RequestParam int uid){ return answerService.getAsked(uid); }
 }

@@ -22,7 +22,6 @@ public class Question {
     @Column(name = "time")
     private String createTime;
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "question")
