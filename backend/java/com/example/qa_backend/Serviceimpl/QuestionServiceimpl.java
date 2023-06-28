@@ -13,7 +13,9 @@ import com.example.qa_backend.Service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 @Service
 public class QuestionServiceimpl implements QuestionService {
@@ -105,6 +107,10 @@ public class QuestionServiceimpl implements QuestionService {
         question.setUser(userDao.findUser(userId));
         question.setTitle(title);
         question = questionDao.addQuestion(question);
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = formatter.format(date);
+        question.setCreateTime(formattedDate);
         int ques_id = question.getId();
         for(int i = 0; i < tags.size(); i++) {
             TagQuesRelation tagQuesRelation = new TagQuesRelation();
