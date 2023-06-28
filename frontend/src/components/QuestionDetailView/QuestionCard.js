@@ -50,11 +50,13 @@ function QuestionCard(props) {
                     description={question.content}
                 />
                 <Divider />
+
                 <Space size={[0, 3]} wrap>
                     <Tag>magenta</Tag>
                     <Tag>red</Tag>
                     <Tag>volcano</Tag>
                 </Space>
+
                 <Row gutter={16} style={{ marginTop: '10px' }}>
                     <Col>
                         <Space>
@@ -72,6 +74,7 @@ function QuestionCard(props) {
                         <Button icon={<StarOutlined />} />
                     </Col>
                 </Row>
+
                 <Button
                     style={{float:'right'}}
                     onClick={handleAnswer}

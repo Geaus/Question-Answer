@@ -1,10 +1,9 @@
-import {Avatar, Button, Card, Col, Divider, Row, Space, Tag, Typography} from "antd";
+import {Avatar, Button, Card, Col, Row, Space, Typography} from "antd";
 import {
     CaretDownOutlined,
     CaretUpOutlined,
     DislikeOutlined,
     LikeOutlined,
-    StarOutlined,
     UserAddOutlined
 } from "@ant-design/icons";
 import React, {useState} from "react";

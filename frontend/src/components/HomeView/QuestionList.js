@@ -13,6 +13,9 @@ const QuestionList =(props)=>{
 
     useEffect(() => {
         getQuestions(setQuestions);
+
+        console.log(questions)
+
     },[]);
 
 
