@@ -5,5 +5,7 @@ import com.example.qa_backend.Entity.FeedbackForQuestion;
 import java.util.List;
 
 public interface FeedbackQuestionDao {
-    List<FeedbackForQuestion> listRelatedQuestion(int userId);
+    List<FeedbackForQuestion> findFeedback(int ques_id);
+    List<FeedbackForQuestion> listRelatedQuestion(int user_id);
+    FeedbackForQuestion findSpecific(int ques_id, int user_id);
 }

@@ -10,4 +10,5 @@ public interface AnswerDao {
     Answer addAnswer(Answer ans);
     List<Answer> findAnswers(Question question);
     List<Answer> findAnswered(User user);
+    Answer findAnswer(int id);
 }

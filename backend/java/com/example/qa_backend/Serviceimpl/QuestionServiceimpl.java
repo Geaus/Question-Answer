@@ -1,15 +1,20 @@
 package com.example.qa_backend.Serviceimpl;
 
+import com.example.qa_backend.Dao.FeedbackQuestionDao;
 import com.example.qa_backend.Dao.QuestionDao;
 import com.example.qa_backend.Dao.TagQuesDao;
 import com.example.qa_backend.Dao.UserDao;
+import com.example.qa_backend.Entity.FeedbackForQuestion;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.Entity.TagQuesRelation;
+import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 public class QuestionServiceimpl implements QuestionService {
@@ -19,14 +24,57 @@ public class QuestionServiceimpl implements QuestionService {
     UserDao userDao;
     @Autowired
     TagQuesDao tagQuesDao;
+    @Autowired
+    FeedbackQuestionDao feedbackQuestionDao;
     @Override
-    public List<Question> listQuestions() {
-        return questionDao.listQuestions();
+    public List<QuestionJSON> listQuestions() {
+        List<Question> ques = questionDao.listQuestions();
+        List<QuestionJSON> resList = new ArrayList<>();
+        for(int i = 0; i < ques.size(); i++) {
+            Question question = ques.get(i);
+            QuestionJSON res = new QuestionJSON();
+            res.setId(question.getId());
+            res.setContent(question.getContent());
+            res.setCreateTime(question.getCreateTime());
+            res.setTags(question.getTags());
+            res.setTitle(question.getTitle());
+            res.setUser(question.getUser());
+            List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+            int like = 0, dislike = 0, mark = 0;
+            for(int j = 0; j < feedback.size(); j++) {
+                if(feedback.get(i).getLike() == -1)dislike++;
+                else if(feedback.get(i).getLike() == 1)like++;
+                if(feedback.get(i).getBookmark() == 1)mark++;
+            }
+            res.setLike(like);
+            res.setDislike(dislike);
+            res.setMark(mark);
+            resList.add(res);
+        }
+        return resList;
     }
 
     @Override
-    public Question findQuestion(int id) {
-        return questionDao.getQuestion(id);
+    public QuestionJSON findQuestion(int id) {
+        Question question = questionDao.getQuestion(id);
+        QuestionJSON res = new QuestionJSON();
+        res.setId(question.getId());
+        res.setContent(question.getContent());
+        res.setCreateTime(question.getCreateTime());
+        res.setTags(question.getTags());
+        res.setTitle(question.getTitle());
+        res.setUser(question.getUser());
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(id);
+        int like = 0, dislike = 0, mark = 0;
+        for(int i = 0; i < feedback.size(); i++) {
+            if(feedback.get(i).getLike() == -1)dislike++;
+            else if(feedback.get(i).getLike() == 1)like++;
+            if(feedback.get(i).getBookmark() == 1)mark++;
+        }
+        res.setLike(like);
+        res.setDislike(dislike);
+        res.setMark(mark);
+        return res;
     }
 
     @Override
@@ -49,5 +97,38 @@ public class QuestionServiceimpl implements QuestionService {
     @Override
     public List<Question> listAsked(int userId) {
         return questionDao.getAsked(userDao.findUser(userId));
+    }
+
+    @Override
+    public List<Question> getLiked(int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+        List<Question> res = new ArrayList<>();
+        for(int i = 0; i < feedback.size(); i++) {
+            if(feedback.get(i).getLike() != 1)continue;
+            res.add(questionDao.getQuestion(feedback.get(i).getQuesId()));
+        }
+        return res;
+    }
+
+    @Override
+    public List<Question> getDisliked(int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+        List<Question> res = new ArrayList<>();
+        for(int i = 0; i < feedback.size(); i++) {
+            if(feedback.get(i).getLike() != -1)continue;
+            res.add(questionDao.getQuestion(feedback.get(i).getQuesId()));
+        }
+        return res;
+    }
+
+    @Override
+    public List<Question> getMarked(int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+        List<Question> res = new ArrayList<>();
+        for(int i = 0; i < feedback.size(); i++) {
+            if(feedback.get(i).getBookmark() != 1)continue;
+            res.add(questionDao.getQuestion(feedback.get(i).getQuesId()));
+        }
+        return res;
     }
 }

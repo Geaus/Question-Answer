@@ -11,8 +11,19 @@ import java.util.List;
 public class FeedbackQuestionDaoimpl implements FeedbackQuestionDao {
     @Autowired
     FeedbackQuestionRepository feedbackQuestionRepository;
+
     @Override
-    public List<FeedbackForQuestion> listRelatedQuestion(int userId) {
-        return feedbackQuestionRepository.findFeedbackForQuestionsByUserId(userId);
+    public List<FeedbackForQuestion> findFeedback(int ques_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionsByQuesId(ques_id);
+    }
+
+    @Override
+    public List<FeedbackForQuestion> listRelatedQuestion(int user_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionsByUserId(user_id);
+    }
+
+    @Override
+    public FeedbackForQuestion findSpecific(int ques_id, int user_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionByQuesIdAndUserId(ques_id, user_id);
     }
 }

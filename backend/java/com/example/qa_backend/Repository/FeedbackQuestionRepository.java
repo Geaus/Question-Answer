@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FeedbackQuestionRepository extends JpaRepository<FeedbackForQuestion, Integer> {
     List<FeedbackForQuestion> findFeedbackForQuestionsByUserId(int id);
+    List<FeedbackForQuestion> findFeedbackForQuestionsByQuesId(int id);
+    FeedbackForQuestion findFeedbackForQuestionByQuesIdAndUserId(int ques_id, int user_id);
 }

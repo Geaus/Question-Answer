@@ -29,4 +29,9 @@ public class AnswerDaoimpl implements AnswerDao {
     public List<Answer> findAnswered(User user) {
         return answerRepository.findAnswersByUser(user);
     }
+
+    @Override
+    public Answer findAnswer(int id) {
+        return answerRepository.findAnswerById(id);
+    }
 }
