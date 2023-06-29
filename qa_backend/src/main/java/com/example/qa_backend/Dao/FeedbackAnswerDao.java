@@ -9,4 +9,5 @@ public interface FeedbackAnswerDao {
     List<FeedbackForAnswer> listRelatedAns(int user_id);
     FeedbackForAnswer findSpecific(int ans_id, int user_id);
     FeedbackForAnswer addOne(FeedbackForAnswer feedback);
+    void deleteSpecific(int ans_id, int user_id);
 }

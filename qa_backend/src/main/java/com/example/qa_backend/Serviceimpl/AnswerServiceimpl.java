@@ -1,11 +1,9 @@
 package com.example.qa_backend.Serviceimpl;
 
-import com.example.qa_backend.Dao.AnswerDao;
-import com.example.qa_backend.Dao.FeedbackAnswerDao;
-import com.example.qa_backend.Dao.QuestionDao;
-import com.example.qa_backend.Dao.UserDao;
+import com.example.qa_backend.Dao.*;
 import com.example.qa_backend.Entity.Answer;
 import com.example.qa_backend.Entity.FeedbackForAnswer;
+import com.example.qa_backend.Entity.Follow;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.JSON.AnswerJSON;
 import com.example.qa_backend.Service.AnswerService;
@@ -27,6 +25,8 @@ public class AnswerServiceimpl implements AnswerService {
     AnswerDao answerDao;
     @Autowired
     FeedbackAnswerDao feedbackAnswerDao;
+    @Autowired
+    FollowDao followDao;
     @Override
     public List<AnswerJSON> getAnswer(int userId, int questionId) {
         Question question = questionDao.getQuestion(questionId);
@@ -46,7 +46,10 @@ public class AnswerServiceimpl implements AnswerService {
                     dislike++;
                 }
             }
+            Follow follow = followDao.check(userId, a.getUser().getId());
             AnswerJSON tmp = new AnswerJSON();
+            if(follow != null)tmp.setFollowFlag(1);
+            else tmp.setFollowFlag(0);
             tmp.setId(a.getId());
             tmp.setContent(a.getContent());
             tmp.setLike(like);
