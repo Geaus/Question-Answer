@@ -5,7 +5,6 @@
 /qa_frontend/.idea
 /qa_frontend/package-lock.json
 /qa_backend/.idea
-/qa_backend/src/main/resources/application.properties
 /.pnp
 .pnp.js
 
