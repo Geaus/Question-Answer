@@ -95,10 +95,10 @@ class App extends React.Component {
             <BrowserRouter>
                 <Routes>
 
-                    <Route path="/" element={<HomeView />} />
+                    <Route path="/home" element={<HomeView />} />
                     <Route path="/ques" element={<QuestionDetailView />} />
                     <Route path="/profile" element={<ProfileView />} />
-                    <Route path="/login" element={<LoginView/>}/>
+                    <Route path="/" element={<LoginView/>}/>
 
                 </Routes>
             </BrowserRouter>

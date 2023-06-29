@@ -21,7 +21,7 @@ const LoginCard = () => {
             .then((data) => {
                 message.success('登录成功');
                 const type=sessionStorage.getItem('type');
-                    navigate('/');
+                    navigate('/home');
             })
             .catch((error) => {
                 message.error(error.message);
@@ -58,12 +58,7 @@ const LoginCard = () => {
                 >
                     Login
                 </Button>
-                <Button
-                    type="link"
-                    onClick={() => {navigate('/register')}}
-                >
-                    Register
-                </Button>
+
             </Card>
         </div>
     );

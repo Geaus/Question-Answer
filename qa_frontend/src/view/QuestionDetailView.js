@@ -37,13 +37,6 @@ function QuestionDetailView(props) {
 
                    <div>
 
-                       {/*<List*/}
-                       {/*    dataSource={answerList}*/}
-                       {/*    renderItem={(answer) => (*/}
-                       {/*        <AnswerCard  info={answer}/>*/}
-                       {/*        // <Card key={question.id}>{question.title}</Card>*/}
-                       {/*    )}*/}
-                       {/*/>*/}
                        <AnswerList info={answerList}/>
 
                    </div>

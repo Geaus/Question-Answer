@@ -13,7 +13,7 @@ const QuestionList =(props)=>{
 
     useEffect(() => {
 
-        sessionStorage.setItem('uid','1');
+        // sessionStorage.setItem('uid','1');
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         getQuestions(params,setQuestions);

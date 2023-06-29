@@ -8,7 +8,7 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-function RegisterForm () {
+function RegisterForm (props) {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -33,9 +33,6 @@ function RegisterForm () {
         console.log(username);
     }
 
-    function handleCancel() {
-        navigate('/login')
-    }
 
     const cardStyle = {
         width: 400,
@@ -75,7 +72,14 @@ function RegisterForm () {
                 <Button type="primary" style={{ marginRight: 8 }} onClick={handleSubmit}>
                     提交
                 </Button>
-                <Button onClick={handleCancel}>取消</Button>
+                <Button  onClick={()=>{
+                    const { onSubmit } = props;
+                    onSubmit();
+
+                }}  style={{ float: 'right' }}
+                >
+                    cancel
+                </Button>
             </Card>
         </div>
     );

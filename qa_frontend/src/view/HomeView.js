@@ -14,23 +14,20 @@ const { Header, Content, Footer } = Layout;
 const HomeView = () => {
 
 
+    const navigate=useNavigate();
+
     useEffect(() => {
 
        const uid=sessionStorage.getItem('uid');
-       // const navigate=useNavigate();
-
        console.log(uid);
-        // if(uid===null){
-        //     navigate("/login")
-        // }
+        if(uid===1){
+            navigate("/login")
+        }
 
     },[]);
 
 
     return (
-
-
-
 
         <Layout>
             <Header style={{backgroundColor:'white'}}>
@@ -53,7 +50,7 @@ const HomeView = () => {
 
                     }}
                 >
-                    <QuestionList info={questionList}/>
+                    <QuestionList/>
                 </div>
 
 

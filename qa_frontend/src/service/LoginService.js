@@ -5,7 +5,7 @@ export const login = (username, password) => {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `username=${username}&password=${password}`,
+        body: `userName=${username}&passWord=${password}`,
     })
         .then((response) => {
             if (response.ok) {
@@ -17,11 +17,10 @@ export const login = (username, password) => {
         })
         .then((data) => {
 
-            if(data.isBlack.toString()==='1'){
-                throw new Error('用户被封禁');
-            }
+
             sessionStorage.setItem('uid', data.id);
-            sessionStorage.setItem('type',data.userType)
+            sessionStorage.setItem('type', data.type);
+
             return data;
         });
 };
