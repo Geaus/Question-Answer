@@ -12,6 +12,7 @@ public class AnswerJSON {
     private int like;
     private int dislike;
     private int likeFlag;
+    private int followFlag;
 
     public int getId() {
         return id;
@@ -75,5 +76,13 @@ public class AnswerJSON {
 
     public void setLikeFlag(int likeFlag) {
         this.likeFlag = likeFlag;
+    }
+
+    public int getFollowFlag() {
+        return followFlag;
+    }
+
+    public void setFollowFlag(int followFlag) {
+        this.followFlag = followFlag;
     }
 }

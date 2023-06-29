@@ -30,4 +30,9 @@ public class FeedbackAnswerDaoimpl implements FeedbackAnswerDao {
     public FeedbackForAnswer addOne(FeedbackForAnswer feedback) {
         return feedbackAnswerRepository.save(feedback);
     }
+
+    @Override
+    public void deleteSpecific(int ans_id, int user_id) {
+        feedbackAnswerRepository.deleteFeedbackForAnswerByAnsIdAndUserId(ans_id, user_id);
+    }
 }

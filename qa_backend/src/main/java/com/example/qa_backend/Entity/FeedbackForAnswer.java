@@ -11,7 +11,7 @@ public class FeedbackForAnswer {
     @Column(name = "id")
     private int id;
     @Basic
-    @Column(name = "like")
+    @Column(name = "`like`")
     private Integer like;
     @Basic
     @Column(name = "user_id")
