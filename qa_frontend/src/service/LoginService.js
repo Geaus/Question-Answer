@@ -1,3 +1,5 @@
+import {message} from "antd";
+
 export const login = (username, password) => {
 
     return fetch('http://localhost:8080/login', {
@@ -17,11 +19,14 @@ export const login = (username, password) => {
         })
         .then((data) => {
 
+            if(data.id===-1){
+
+                throw Error("用户名密码错误")
+            }
 
             sessionStorage.setItem('uid', data.id);
             sessionStorage.setItem('type', data.type);
 
-            return data;
         });
 };
 

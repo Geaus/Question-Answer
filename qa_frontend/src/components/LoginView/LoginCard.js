@@ -20,7 +20,6 @@ const LoginCard = () => {
         login(username, password)
             .then((data) => {
                 message.success('登录成功');
-                const type=sessionStorage.getItem('type');
                     navigate('/home');
             })
             .catch((error) => {

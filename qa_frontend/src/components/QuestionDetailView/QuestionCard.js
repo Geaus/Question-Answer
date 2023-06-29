@@ -33,7 +33,14 @@ function QuestionCard(props) {
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', question.id);
-        params.append('value', '1');
+
+        if(question.likeFlag===0||question.likeFlag===-1){
+            params.append('value', '1');
+        }
+        else if(question.likeFlag===1){
+            params.append('value', '0');
+        }
+
         feedbackQuestion(params,setQuestion);
 
     }
@@ -42,7 +49,14 @@ function QuestionCard(props) {
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', question.id);
-        params.append('value', '-1');
+
+        if(question.likeFlag===1 || question.likeFlag===0){
+            params.append('value', '-1');
+        }
+        else if(question.likeFlag===-1){
+            params.append('value', '0');
+        }
+
         feedbackQuestion(params,setQuestion);
 
     }
@@ -51,7 +65,14 @@ function QuestionCard(props) {
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', question.id);
-        params.append('value', '2');
+
+        if(question.markFlag===0){
+            params.append('value', '2');
+        }
+        else {
+            params.append('value', '-2');
+        }
+
         feedbackQuestion(params,setQuestion);
 
     }

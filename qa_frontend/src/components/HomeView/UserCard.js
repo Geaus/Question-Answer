@@ -59,7 +59,7 @@ function UserCard() {
 
     useEffect(() => {
 
-        sessionStorage.setItem('uid','1');
+        // sessionStorage.setItem('uid','1');
         const uid=sessionStorage.getItem('uid');
         setUid(uid);
 

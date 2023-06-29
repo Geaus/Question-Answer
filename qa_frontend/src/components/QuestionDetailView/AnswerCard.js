@@ -39,24 +39,38 @@ function AnswerCard(props) {
         console.log(answerContent);
     }
 
-    function handleLike() {
+    const  handleLike=()=>{
 
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('aid', answer.id);
-        params.append('value', '1');
+
+        if(answer.likeFlag===0||answer.likeFlag===-1){
+            params.append('value', '1');
+        }
+        else if(answer.likeFlag===1){
+            params.append('value', '0');
+        }
+
         feedbackAnswer(params,setAnswer);
 
     }
-    function handleDislike() {
+    const handleDislike=()=>{
 
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('aid', answer.id);
-        params.append('value', '-1');
-        feedbackAnswer(params,setAnswer);
-    }
 
+        if(answer.likeFlag===1 || answer.likeFlag===0){
+            params.append('value', '-1');
+        }
+        else if(answer.likeFlag===-1){
+            params.append('value', '0');
+        }
+
+        feedbackAnswer(params,setAnswer);
+
+    }
 
     function handleSubscribe() {
 
