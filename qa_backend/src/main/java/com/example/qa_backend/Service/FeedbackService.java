@@ -9,5 +9,5 @@ import com.example.qa_backend.JSON.QuestionJSON;
 public interface FeedbackService {
     QuestionJSON changeQuestionFeedback(int uid, int qid, int value);
     AnswerJSON changeAnswerFeedback(int uid, int aid, int value);
-    void changeFollow(int uid_1, int uid_2, int value);
+    int changeFollow(int uid_1, int uid_2, int value);
 }

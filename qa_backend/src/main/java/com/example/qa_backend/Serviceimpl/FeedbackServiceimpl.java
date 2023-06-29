@@ -110,7 +110,7 @@ public class FeedbackServiceimpl implements FeedbackService {
     }
 
     @Override
-    public void changeFollow(int uid_1, int uid_2, int value) {
+    public int changeFollow(int uid_1, int uid_2, int value) {
         if(value == 1) {
             Follow follow = new Follow();
             follow.setUser1Id(uid_1);
@@ -120,5 +120,9 @@ public class FeedbackServiceimpl implements FeedbackService {
         else {
             followDao.deleteOne(uid_1, uid_2);
         }
+
+        return value;
     }
+
+
 }

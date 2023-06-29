@@ -1,11 +1,19 @@
 import {Avatar, Button, Card, Col, Divider, List, Row, Space, Tag, Typography} from "antd";
-import {CaretDownOutlined, CaretUpOutlined, DislikeOutlined, LikeOutlined, StarOutlined} from "@ant-design/icons";
+import {
+    CaretDownOutlined,
+    CaretUpOutlined, DislikeFilled,
+    DislikeOutlined,
+    LikeFilled,
+    LikeOutlined, StarFilled,
+    StarOutlined
+} from "@ant-design/icons";
 import {useParams} from "react-router";
 import React, {useEffect, useState} from "react";
 import {useLocation} from "react-router";
 import Answer from "./Editor";
 import {getQuestion} from "../../service/QuestionService";
 import QuestionItem from "../HomeView/QuestionItem";
+import {feedbackQuestion} from "../../service/FeedbackService";
 const { Meta } = Card;
 const { Text } = Typography;
 
@@ -15,22 +23,38 @@ function QuestionCard(props) {
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
     const id=searchParams.get('qid')
-
-
     console.log(id);
-    const [question,setQuestion] =useState({tags: []});
+
+    const [question,setQuestion] =useState({tags: [],likeFlag:0,markFlag:0});
     const[answer,setAnswer] =useState(false);
 
-    function handleLike() {
+    const  handleLike=()=>{
+
+        const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('qid', question.id);
+        params.append('value', '1');
+        feedbackQuestion(params,setQuestion);
 
     }
-    function handleDislike() {
+    const handleDislike=()=>{
+
+        const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('qid', question.id);
+        params.append('value', '-1');
+        feedbackQuestion(params,setQuestion);
 
     }
-    function handleStar() {
+    const handleStar=()=>{
+
+        const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('qid', question.id);
+        params.append('value', '2');
+        feedbackQuestion(params,setQuestion);
 
     }
-
     const handleAnswer=()=>{
 
         setAnswer(!answer);
@@ -70,27 +94,44 @@ function QuestionCard(props) {
                             />:null
 
                     }
-
-
                 </Space>
 
                 <Row gutter={16} style={{ marginTop: '10px' }}>
                     <Col>
                         <Space>
-                            <Button icon={<LikeOutlined />} />
-                            <Text type="secondary">10</Text>
+
+                            {
+                                (question.likeFlag===1) ?
+                                    <Button icon={<LikeFilled />} onClick={handleLike}/>
+                                    : <Button icon={<LikeOutlined />} onClick={handleLike}/>
+                            }
+                            <Text type="secondary">{question.like}</Text>
                         </Space>
                     </Col>
                     <Col>
                         <Space>
-                            <Button icon={<DislikeOutlined />} />
-                            <Text type="secondary">5</Text>
+                            {
+                                (question.likeFlag===-1) ?
+                                    <Button icon={<DislikeFilled/>} onClick={handleDislike}/>
+                                    : <Button icon={<DislikeOutlined/>} onClick={handleDislike}/>
+                            }
+                            <Text type="secondary">{question.dislike}</Text>
+
                         </Space>
                     </Col>
                     <Col>
-                        <Button icon={<StarOutlined />} />
+                        <Space>
+                            {
+                                (question.markFlag===1) ?
+                                    <Button icon={<StarFilled/>} onClick={handleStar}/>
+                                    : <Button icon={<StarOutlined/>} onClick={handleStar}/>
+                            }
+                            <Text type="secondary">{question.mark}</Text>
+
+                        </Space>
                     </Col>
                 </Row>
+
 
                 <Button
                     style={{float:'right'}}

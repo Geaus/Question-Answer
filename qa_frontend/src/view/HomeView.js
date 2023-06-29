@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Layout, Card, Button, List } from 'antd';
 import { UserOutlined, SolutionOutlined } from '@ant-design/icons';
 import {questionList} from '../App'
@@ -7,12 +7,31 @@ import QuestionCard from "../components/HomeView/QuestionItem";
 import UserCard from "../components/HomeView/UserCard";
 import QuestionItem from "../components/HomeView/QuestionItem";
 import QuestionList from "../components/HomeView/QuestionList";
-
+import {getQuestions} from "../service/QuestionService";
+import { useNavigate } from "react-router-dom";
 const { Header, Content, Footer } = Layout;
 
 const HomeView = () => {
 
+
+    useEffect(() => {
+
+       const uid=sessionStorage.getItem('uid');
+       // const navigate=useNavigate();
+
+       console.log(uid);
+        // if(uid===null){
+        //     navigate("/login")
+        // }
+
+    },[]);
+
+
     return (
+
+
+
+
         <Layout>
             <Header style={{backgroundColor:'white'}}>
                 <HeaderTest />

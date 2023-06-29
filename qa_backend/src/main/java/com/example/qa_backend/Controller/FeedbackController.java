@@ -23,6 +23,6 @@ public class FeedbackController {
     public AnswerJSON feedbackAnswer(@RequestParam int uid, @RequestParam int aid,
                                      @RequestParam int value) { return feedbackService.changeAnswerFeedback(uid, aid, value); }
     @RequestMapping("/changeFollow")
-    public void changeFollow(@RequestParam int uid_1, @RequestParam int uid_2,
-                             @RequestParam int value) { feedbackService.changeFollow(uid_1, uid_2, value); }
+    public int changeFollow(@RequestParam int uid_1, @RequestParam int uid_2,
+                             @RequestParam int value) {return feedbackService.changeFollow(uid_1, uid_2, value); }
 }
