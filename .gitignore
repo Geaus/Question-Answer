@@ -1,7 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+/qa_frontend/node_modules
+/qa_frontend/.idea
+/qa_frontend/package-lock.json
+/qa_backend/.idea
+/qa_backend/src/main/resources/application.properties
 /.pnp
 .pnp.js
 
