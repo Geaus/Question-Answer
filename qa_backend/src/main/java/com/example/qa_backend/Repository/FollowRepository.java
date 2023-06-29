@@ -12,4 +12,5 @@ public interface FollowRepository extends JpaRepository<Follow, Integer> {
     @Modifying
     @Transactional
     void deleteFollowByUser1IdAndUser2Id(int uid_1, int uid_2);
+    Follow findFollowByUser1IdAndUser2Id(int uid_1, int uid_2);
 }
