@@ -10,4 +10,5 @@ public interface FeedbackAnswerDao {
     FeedbackForAnswer findSpecific(int ans_id, int user_id);
     FeedbackForAnswer addOne(FeedbackForAnswer feedback);
     void deleteSpecific(int ans_id, int user_id);
+    void deleteByAns(int ans_id);
 }

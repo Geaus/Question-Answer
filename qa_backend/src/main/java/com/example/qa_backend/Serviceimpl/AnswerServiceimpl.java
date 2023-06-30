@@ -102,4 +102,10 @@ public class AnswerServiceimpl implements AnswerService {
         }
         return ans;
     }
+
+    @Override
+    public void deleteAnswer(int aid) {
+        feedbackAnswerDao.deleteByAns(aid);
+        answerDao.deleteAnswer(answerDao.findAnswer(aid));
+    }
 }

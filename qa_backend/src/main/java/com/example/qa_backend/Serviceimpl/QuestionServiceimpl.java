@@ -1,12 +1,8 @@
 package com.example.qa_backend.Serviceimpl;
 
-import com.example.qa_backend.Dao.FeedbackQuestionDao;
-import com.example.qa_backend.Dao.QuestionDao;
-import com.example.qa_backend.Dao.TagQuesDao;
-import com.example.qa_backend.Dao.UserDao;
+import com.example.qa_backend.Dao.*;
 import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.QuestionJSON;
-import com.example.qa_backend.Repository.KeywordRepository;
 import com.example.qa_backend.Service.QuestionService;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
@@ -27,7 +23,11 @@ public class QuestionServiceimpl implements QuestionService {
     @Autowired
     FeedbackQuestionDao feedbackQuestionDao;
     @Autowired
-    KeywordRepository keywordRepository;
+    FeedbackAnswerDao feedbackAnswerDao;
+    @Autowired
+    KeywordDao keywordDao;
+    @Autowired
+    AnswerDao answerDao;
 
     @Override
     public List<QuestionJSON> listQuestions(int uid) {
@@ -129,7 +129,7 @@ public class QuestionServiceimpl implements QuestionService {
                 KeywordEntity keywordEntity = new KeywordEntity();
                 keywordEntity.setKeyword(word);
                 keywordEntity.setQuestionId(ques_id);
-                keywordRepository.save(keywordEntity);
+                keywordDao.addOne(keywordEntity);
             }
         }
 
@@ -261,7 +261,7 @@ public class QuestionServiceimpl implements QuestionService {
         }
         List<KeywordEntity> keywordEntities = new ArrayList<>();
         for(String keyword : keywordList){
-            keywordEntities.addAll(keywordRepository.findAllByKeywordContains(keyword));
+            keywordEntities.addAll(keywordDao.findKeyword(keyword));
         }
         List<Question> allQuestions = new ArrayList<>();
         for(KeywordEntity keywordEntity : keywordEntities){
@@ -324,5 +324,15 @@ public class QuestionServiceimpl implements QuestionService {
             resList.add(res);
         }
         return resList;
+    }
+
+    @Override
+    public void deleteQuestion(int qid) {
+        Question question = questionDao.getQuestion(qid);
+        List<Answer> answers = answerDao.findAnswers(question);
+        for(int i = 0; i < answers.size(); i++)feedbackAnswerDao.deleteByAns(answers.get(i).getId());
+        feedbackQuestionDao.deleteByQues(qid);
+        tagQuesDao.deleteRelation(qid);
+        questionDao.deleteQuestion(question);
     }
 }

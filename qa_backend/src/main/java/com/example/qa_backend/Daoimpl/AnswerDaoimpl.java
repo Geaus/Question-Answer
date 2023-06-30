@@ -34,4 +34,9 @@ public class AnswerDaoimpl implements AnswerDao {
     public Answer findAnswer(int id) {
         return answerRepository.findAnswerById(id);
     }
+
+    @Override
+    public void deleteAnswer(Answer answer) {
+        answerRepository.delete(answer);
+    }
 }

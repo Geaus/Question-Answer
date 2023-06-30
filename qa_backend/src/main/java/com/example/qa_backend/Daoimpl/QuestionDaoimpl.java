@@ -32,4 +32,9 @@ public class QuestionDaoimpl implements QuestionDao {
     public List<Question> getAsked(User user) {
         return questionRepository.findQuestionsByUser(user);
     }
+
+    @Override
+    public void deleteQuestion(Question question) {
+        questionRepository.delete(question);
+    }
 }

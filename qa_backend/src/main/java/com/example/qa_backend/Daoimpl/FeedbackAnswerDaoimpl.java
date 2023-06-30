@@ -35,4 +35,9 @@ public class FeedbackAnswerDaoimpl implements FeedbackAnswerDao {
     public void deleteSpecific(int ans_id, int user_id) {
         feedbackAnswerRepository.deleteFeedbackForAnswerByAnsIdAndUserId(ans_id, user_id);
     }
+
+    @Override
+    public void deleteByAns(int ans_id) {
+        feedbackAnswerRepository.deleteFeedbackForAnswersByAnsId(ans_id);
+    }
 }

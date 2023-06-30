@@ -21,4 +21,9 @@ public class UserController {
     public User loginCheck(@RequestParam String userName, @RequestParam String passWord) { return userService.loginCheck(userName, passWord); }
     @RequestMapping("/getUser")
     public User findUser(@RequestParam int uid) { return userService.findUser(uid); }
+    @RequestMapping("/banUser")
+    public User banUser(@RequestParam int uid) { return userService.changeType(uid, -1); }
+    @RequestMapping("/register")
+    public User register(@RequestParam String userName, @RequestParam String passWord,
+                         @RequestParam String email){ return userService.register(userName, passWord, email); }
 }

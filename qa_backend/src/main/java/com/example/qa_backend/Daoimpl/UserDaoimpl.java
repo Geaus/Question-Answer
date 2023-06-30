@@ -19,4 +19,14 @@ public class UserDaoimpl implements UserDao {
     public User loginCheck(String userName, String passWord) {
         return userRepository.findUserByUserNameAndPassWord(userName, passWord);
     }
+
+    @Override
+    public User addOne(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User nameCheck(String userName) {
+        return userRepository.findUserByUserName(userName);
+    }
 }

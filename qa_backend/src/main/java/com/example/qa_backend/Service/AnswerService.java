@@ -11,4 +11,5 @@ public interface AnswerService {
     List<Answer> getAsked(int userId);
     List<Answer> getLiked(int userId);
     List<Answer> getDisliked(int userId);
+    void deleteAnswer(int aid);
 }
