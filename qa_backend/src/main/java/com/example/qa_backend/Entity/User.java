@@ -31,6 +31,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Answer> answers;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinTable(name = "follow",
@@ -52,6 +53,9 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "ques_id", referencedColumnName = "id")})
     private List<Answer> relatedQuestion;
+    @Basic
+    @Column(name = "avatar")
+    private String avatar;
 
     public int getId() {
         return id;
@@ -152,5 +156,13 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, type, questions, answers, followList, fanList, relatedAnswer, relatedQuestion);
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

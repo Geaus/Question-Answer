@@ -20,7 +20,7 @@ const HomeView = () => {
 
        const uid=sessionStorage.getItem('uid');
        console.log(uid);
-        if(uid===1){
+        if(uid===null){
             navigate("/login")
         }
 

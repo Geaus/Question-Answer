@@ -36,6 +36,7 @@ public class FeedbackServiceimpl implements FeedbackService {
         if(value == 0) feedback.setLike(0);
         if(value == -1) feedback.setLike(-1);
         if(value == 2) feedback.setBookmark(1);
+        if(value == -2) feedback.setBookmark(0);
         feedback = feedbackQuestionDao.addOne(feedback);
         if(feedback.getBookmark() == 0 && feedback.getLike() == 0)feedbackQuestionDao.deleteSpecific(qid, uid);
         QuestionJSON res = new QuestionJSON();

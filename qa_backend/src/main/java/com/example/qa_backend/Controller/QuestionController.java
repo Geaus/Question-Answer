@@ -29,4 +29,7 @@ public class QuestionController {
     public List<Question> getDisliked(@RequestParam int uid) { return questionService.getDisliked(uid); }
     @RequestMapping("/getMarkedQuestion")
     public List<Question> getMarked(@RequestParam int uid) { return questionService.getMarked(uid); }
+
+    @RequestMapping("/searchByTitle")
+    public List<QuestionJSON> searchByTitle(@RequestParam String title, @RequestParam int uid) { return questionService.searchByTitle(title, uid); }
 }

@@ -58,3 +58,12 @@ export const addAnswer = (params) => {
             console.log(data);
         })
 }
+
+export const searchQuestion = (params,callback) => {
+
+    fetch('http://localhost:8080/searchByTitle?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+};
