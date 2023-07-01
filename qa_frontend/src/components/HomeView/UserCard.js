@@ -14,7 +14,7 @@ import {askQuestion, getQuestions, listTag} from "../../service/QuestionService"
 // 点赞数量 点踩数量 提问数量 回答数量
 function UserCard() {
 
-    const [uid,setUid]=useState(0);
+    const [uid,setUid]=useState(sessionStorage.getItem('uid'));
 
     const [open,setOpen]=useState(false);
     const [questionTitle, setQuestionTitle] = useState('');
@@ -60,8 +60,6 @@ function UserCard() {
     useEffect(() => {
 
         // sessionStorage.setItem('uid','1');
-        const uid=sessionStorage.getItem('uid');
-        setUid(uid);
 
         listTag(setUnselectedTags);
 

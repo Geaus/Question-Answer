@@ -1,7 +1,7 @@
 import {Avatar, Button, Card, Col, Divider, List, Row, Space, Tag, Typography} from "antd";
 import {
     CaretDownOutlined,
-    CaretUpOutlined, DislikeFilled,
+    CaretUpOutlined, DeleteOutlined, DislikeFilled,
     DislikeOutlined,
     LikeFilled,
     LikeOutlined, StarFilled,
@@ -11,27 +11,49 @@ import {useParams} from "react-router";
 import React, {useEffect, useState} from "react";
 import {useLocation} from "react-router";
 import Answer from "./Editor";
-import {getQuestion} from "../../service/QuestionService";
+import {banUser, deleteQuestion, getQuestion} from "../../service/QuestionService";
 import QuestionItem from "../HomeView/QuestionItem";
 import {feedbackQuestion} from "../../service/FeedbackService";
+import {useNavigate} from "react-router-dom";
 const { Meta } = Card;
 const { Text } = Typography;
 
 function QuestionCard(props) {
 
+    const navigate = useNavigate();
 
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
     const id=searchParams.get('qid')
-    console.log(id);
 
-    const [question,setQuestion] =useState({tags: [],likeFlag:0,markFlag:0});
-    const[answer,setAnswer] =useState(false);
+    const [uid,setUid]=useState(sessionStorage.getItem('uid'));
+    const [question,setQuestion] =useState({user:{},tags: [],likeFlag:0,markFlag:0});
+    const [user,setUser]=useState({});
+    const [exist,setExist]=useState(true);
+    const [admin,setAdmin]=useState(sessionStorage.getItem('type')==='1');
+    console.log(admin);
+    const [showEditor,setShowEditor] =useState(false);
+
+    useEffect(() => {
+
+        const params = new URLSearchParams();
+        params.append('uid', uid);
+        params.append('qid', id);
+
+        const callback=(data)=>{
+
+            setQuestion(data);
+            setUser(data.user);
+        }
+        // eslint-disable-next-line array-callback-return
+        getQuestion(params,callback);
+
+    }, [id]);
 
     const  handleLike=()=>{
 
         const params = new URLSearchParams();
-        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('uid', uid);
         params.append('qid', question.id);
 
         if(question.likeFlag===0||question.likeFlag===-1){
@@ -41,13 +63,14 @@ function QuestionCard(props) {
             params.append('value', '0');
         }
 
+
         feedbackQuestion(params,setQuestion);
 
     }
     const handleDislike=()=>{
 
         const params = new URLSearchParams();
-        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('uid', uid);
         params.append('qid', question.id);
 
         if(question.likeFlag===1 || question.likeFlag===0){
@@ -63,7 +86,7 @@ function QuestionCard(props) {
     const handleStar=()=>{
 
         const params = new URLSearchParams();
-        params.append('uid', sessionStorage.getItem('uid'));
+        params.append('uid', uid);
         params.append('qid', question.id);
 
         if(question.markFlag===0){
@@ -76,31 +99,57 @@ function QuestionCard(props) {
         feedbackQuestion(params,setQuestion);
 
     }
-    const handleAnswer=()=>{
+    const handleShowEditor=()=>{
 
-        setAnswer(!answer);
+        setShowEditor(!showEditor);
+
     }
 
-    useEffect(() => {
+   const handleDelete=()=>{
 
-        const params = new URLSearchParams();
-        params.append('uid', sessionStorage.getItem('uid'));
-        params.append('qid', id);
+       const params = new URLSearchParams();
+       params.append('qid', question.id);
 
-        // eslint-disable-next-line array-callback-return
-       getQuestion(params,setQuestion);
+        deleteQuestion(params,navigate("/?title="));
+   }
 
-    }, [id]);
+   const handleBan=()=>{
+
+       const params = new URLSearchParams();
+       params.append('uid',user.id);
+
+       banUser(params,setUser);
+
+   }
 
 
     return (
-        <div>
+        exist===true ?<div>
             <Card>
+
+                <Meta
+                    avatar={<Avatar src={user.avatar} />}
+                    title={
+                        <div>
+                            { user.type===-1 ? '该用户已被封禁' :user.userName}
+                            {
+
+                                admin===true&&user.type!==1&&user.type!==-1?
+                                <Button onClick={handleBan} style={{float:'right'}}>封禁</Button>
+                                    :null
+                            }
+                        </div>
+                    }
+                />
+
+                <br/>
+
                 <Meta
                     title={question.title}
                     description={question.content}
+                    //description={expanded ? answerContent : truncatedContent}
                 />
-                <Divider />
+                <br/>
 
                 <Space  wrap>
 
@@ -151,27 +200,36 @@ function QuestionCard(props) {
 
                         </Space>
                     </Col>
+                    <Col>
+                        <Space>
+                            {
+                                (admin===true) ?
+                                    <Button icon={<DeleteOutlined/>} onClick={handleDelete}/>
+                                    : null
+                            }
+                        </Space>
+                    </Col>
                 </Row>
 
 
                 <Button
                     style={{float:'right'}}
-                    onClick={handleAnswer}
+                    onClick={handleShowEditor}
                 >
                     回答问题
                 </Button>
             </Card>
 
             {
-                answer&&(
+                showEditor&&(
                     <div >
-                        <Answer setAnswer={setAnswer}/>
+                        <Answer setAnswer={setShowEditor}/>
                     </div>
 
                 )
             }
 
-        </div>
+        </div>:null
     );
 }
 export default QuestionCard;
