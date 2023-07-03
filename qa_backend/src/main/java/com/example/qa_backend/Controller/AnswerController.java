@@ -27,4 +27,6 @@ public class AnswerController {
     public List<Answer> getLiked(@RequestParam int uid){ return answerService.getLiked(uid); }
     @RequestMapping("/getDislikedAnswer")
     public List<Answer> getDisliked(@RequestParam int uid){ return answerService.getDisliked(uid); }
+    @RequestMapping("/deleteAnswer")
+    public void deleteAns(@RequestParam int aid){ answerService.deleteAnswer(aid); }
 }

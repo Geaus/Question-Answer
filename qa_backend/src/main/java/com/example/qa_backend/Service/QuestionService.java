@@ -14,4 +14,6 @@ public interface QuestionService {
     List<Question> getLiked(int userId);
     List<Question> getDisliked(int userId);
     List<Question> getMarked(int userId);
+    List<QuestionJSON> searchByTitle(String searchTerm, int uid);
+    void deleteQuestion(int qid);
 }

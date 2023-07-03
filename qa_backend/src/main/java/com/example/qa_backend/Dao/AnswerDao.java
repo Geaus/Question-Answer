@@ -11,4 +11,5 @@ public interface AnswerDao {
     List<Answer> findAnswers(Question question);
     List<Answer> findAnswered(User user);
     Answer findAnswer(int id);
+    void deleteAnswer(Answer answer);
 }

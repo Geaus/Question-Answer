@@ -73,3 +73,13 @@ export const getFollowed = (params,callback) => {
             callback(data);
         })
 };
+
+export const getUser = (params,callback) => {
+
+    fetch('http://localhost:8080/getUser?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+};
+

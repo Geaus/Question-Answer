@@ -14,4 +14,9 @@ public class TagQuesDaoimpl implements TagQuesDao {
     public TagQuesRelation addRelation(TagQuesRelation tagQuesRelation) {
         return tagQuesRepository.save(tagQuesRelation);
     }
+
+    @Override
+    public void deleteRelation(int ques_id) {
+        tagQuesRepository.deleteTagQuesRelationsByQuesId(ques_id);
+    }
 }

@@ -36,4 +36,9 @@ public class FeedbackQuestionDaoimpl implements FeedbackQuestionDao {
     public void deleteSpecific(int ques_id, int user_id) {
         feedbackQuestionRepository.deleteFeedbackForQuestionByQuesIdAndUserId(ques_id, user_id);
     }
+
+    @Override
+    public void deleteByQues(int ques_id) {
+        feedbackQuestionRepository.deleteFeedbackForQuestionsByQuesId(ques_id);
+    }
 }

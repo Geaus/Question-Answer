@@ -23,6 +23,7 @@ public class FeedbackForQuestion {
     @Column(name = "ques_id")
     private Integer quesId;
 
+
     public int getId() {
         return id;
     }

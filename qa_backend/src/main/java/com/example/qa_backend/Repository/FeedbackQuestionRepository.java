@@ -14,4 +14,7 @@ public interface FeedbackQuestionRepository extends JpaRepository<FeedbackForQue
     @Modifying
     @Transactional
     void deleteFeedbackForQuestionByQuesIdAndUserId(int ques_id, int user_id);
+    @Modifying
+    @Transactional
+    void deleteFeedbackForQuestionsByQuesId(int ques_id);
 }

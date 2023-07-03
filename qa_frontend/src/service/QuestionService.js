@@ -58,3 +58,35 @@ export const addAnswer = (params) => {
             console.log(data);
         })
 }
+
+export const searchQuestion = (params,callback) => {
+
+    fetch('http://localhost:8080/searchByTitle?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+};
+
+export const deleteQuestion = (params,callback) => {
+
+    fetch('http://localhost:8080/deleteQuestion?'+params.toString())
+        .then(callback)
+
+};
+
+export const deleteAnswer = (params,callback) => {
+
+    fetch('http://localhost:8080/deleteAnswer?'+params.toString())
+        .then(callback)
+
+};
+
+export const banUser= (params,callback) => {
+
+    fetch('http://localhost:8080/banUser?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+};
