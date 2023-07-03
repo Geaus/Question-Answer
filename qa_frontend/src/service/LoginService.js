@@ -25,6 +25,9 @@ export const login = (username, password) => {
             }
 
             sessionStorage.setItem('uid', data.id);
+            if(data.type===-1){
+                throw Error("用户已被封禁")
+            }
             sessionStorage.setItem('type', data.type);
 
         });
