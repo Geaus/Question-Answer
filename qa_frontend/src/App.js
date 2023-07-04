@@ -1,14 +1,14 @@
 
-import React from 'react';
+import React, {useEffect, useReducer} from 'react';
 import {Button, DatePicker, Space} from 'antd';
 import "./App.css"
-import HomeView from "./view/HomeView";
-import ProfileView from "./view/ProfileView";
+import HomeView from "./view/HomeView/HomeView";
+import ProfileView from "./view/ProfileView/ProfileView";
 import {Route, Routes} from "react-router";
 import {BrowserRouter} from "react-router-dom";
-import QuestionDetailView from "./view/QuestionDetailView";
-import LoginView from "./view/LoginView";
-import Answer from "./components/QuestionDetailView/Editor";
+import QuestionDetailView from "./view/QuestionDetailView/QuestionDetailView";
+import LoginView from "./view/LoginView/LoginView";
+import Answer from "./components/QuestionDetailView/Editor/Editor";
 export const questionList = [
     {
         id: 1,
@@ -87,6 +87,7 @@ export const answerList = [
     },
 
 ];
+
 class App extends React.Component {
 
     render() {
