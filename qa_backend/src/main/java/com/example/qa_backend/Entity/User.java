@@ -3,6 +3,7 @@ package com.example.qa_backend.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,6 +57,10 @@ public class User {
     @Basic
     @Column(name = "avatar")
     private String avatar;
+
+    @Basic
+    @Column(name = "expire_time")
+    private String expire_time;
 
     public int getId() {
         return id;
@@ -145,6 +150,14 @@ public class User {
         this.email = email;
     }
 
+    public String getExpire_time() {
+        return expire_time;
+    }
+
+    public void setExpire_time(String expire_time) {
+        this.expire_time = expire_time;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -164,5 +177,14 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\":" + id +
+                ", \"type\":" + type +
+                ", \"userName\":\"" + userName + '\"' +
+                '}';
     }
 }
