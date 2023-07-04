@@ -9,17 +9,19 @@ import {
 } from "@ant-design/icons";
 import Meta from "antd/es/card/Meta";
 import React, {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {askQuestion, getQuestions, listTag} from "../../service/QuestionService";
 // 点赞数量 点踩数量 提问数量 回答数量
 function UserCard() {
 
-    const [uid,setUid]=useState(0);
+    const navigate = useNavigate();
+
+    const [uid,setUid]=useState(sessionStorage.getItem('uid'));
 
     const [open,setOpen]=useState(false);
+
     const [questionTitle, setQuestionTitle] = useState('');
     const [questionContent, setQuestionContent] = useState('');
-
     const [selectedTags, setSelectedTags] = useState([]); // 上方已选择的标签
     const [unselectedTags, setUnselectedTags] = useState([]); // 下方未选择的标签
 
@@ -40,6 +42,10 @@ function UserCard() {
 
     const handleAsk=()=>{
 
+        const callback=(data)=>{
+            navigate("/ques?qid="+data.id);
+        }
+
         const title = questionTitle;
         const content = questionContent;
 
@@ -48,20 +54,21 @@ function UserCard() {
         params.append('title',title);
         params.append('content', content);
 
-        askQuestion(params,selectedTags);
+        askQuestion(params,selectedTags,callback);
+
         setOpen(false);
         setSelectedTags([]);
         listTag(setUnselectedTags);
         setQuestionTitle('');
         setQuestionContent('');
 
+
+
     }
 
     useEffect(() => {
 
         // sessionStorage.setItem('uid','1');
-        const uid=sessionStorage.getItem('uid');
-        setUid(uid);
 
         listTag(setUnselectedTags);
 
@@ -100,7 +107,6 @@ function UserCard() {
                                 <Button type="primary"  onClick={()=>{setOpen(true)}}>去提问！</Button>
                             </Col>
                             <Col span={12}>
-
 
                                 <Link to={{pathname:'/profile',search:'?uid='+uid}}>
                                     <Button  >查看我的主页</Button>

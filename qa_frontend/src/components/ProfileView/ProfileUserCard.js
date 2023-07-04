@@ -7,6 +7,7 @@ import {changeFollow} from "../../service/FeedbackService";
 
 function ProfileUserCard(props) {
 
+
     const [follow,setFollow]=useState(props.info);
     const [exist,setExist]=useState(true);
     const handleUnfollow=()=>{

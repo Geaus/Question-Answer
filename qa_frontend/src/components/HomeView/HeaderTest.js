@@ -50,18 +50,16 @@ const greetingStyle = {
 };
 const HeaderTest = () => {
 
-
-    const [uid ,setUid] =useState(0);
     const navigate=useNavigate();
 
+    const [uid ,setUid] =useState(sessionStorage.getItem('uid'));
     const [user,setUser]=useState({});
+
 
     useEffect(() => {
 
         // sessionStorage.setItem('uid','1');
         const params = new URLSearchParams();
-        const uid=sessionStorage.getItem('uid');
-        setUid(uid)
         params.append('uid', uid);
         getUser(params,setUser);
 
@@ -69,12 +67,16 @@ const HeaderTest = () => {
     },[user]);
 
 
-
-
     const handleSearch = (e) =>{
         console.log(e);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-       navigate("/?title="+e);
+
+        if(e===""){
+            navigate("/");
+        }else{
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            navigate("/?title="+e);
+        }
+
 
     }
 

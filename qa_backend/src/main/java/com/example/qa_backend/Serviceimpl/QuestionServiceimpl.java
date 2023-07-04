@@ -265,6 +265,7 @@ public class QuestionServiceimpl implements QuestionService {
         }
         List<Question> allQuestions = new ArrayList<>();
         for(KeywordEntity keywordEntity : keywordEntities){
+            System.out.println(keywordEntity.getQuestionId());
             Question question = questionDao.getQuestion(keywordEntity.getQuestionId());
 
             if (!allQuestions.contains(question)) {
@@ -277,6 +278,10 @@ public class QuestionServiceimpl implements QuestionService {
         for (Question question : allQuestions) {
 //            List<String> questionKeywords = getSplitWords(question.getTitle());
 //            System.out.println(questionKeywords);
+            if(question == null){
+                List<QuestionJSON> resList = new ArrayList<>();
+                return resList;
+            }
             double similarity = calculateSimilarity(searchTerm, question.getTitle());
             System.out.println(question.getTitle()+" similarity:"+similarity);
             if(similarity > 0.2

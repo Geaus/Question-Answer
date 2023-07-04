@@ -27,14 +27,13 @@ function ProfileMenu() {
     const searchParams=new URLSearchParams(location.search);
     const uid=searchParams.get('uid')
 
+
     const self= uid===sessionStorage.getItem('uid');
     console.log(self)
 
-    const [currentMenuItem,  setCurrentMenuItem] = useState('questions'); // 初始选中的菜单项，默认为 'menu1'
-
+    const [currentMenuItem,  setCurrentMenuItem] = useState('questions');
     const [questions,setQuestions] =useState([]);
     const [answers,setAnswers] =useState([]);
-
     const [follows,setFollows]=useState([]);
 
     useEffect(() => {

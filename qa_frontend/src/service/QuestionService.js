@@ -32,7 +32,7 @@ export const listTag = (callback) => {
         .then((data) => {callback(data)})
 
 }
-export const askQuestion = (params, tags) => {
+export const askQuestion = (params, tags,callback) => {
     let opts = {
         method: 'POST',
         headers: {
@@ -47,7 +47,7 @@ export const askQuestion = (params, tags) => {
     // params.append('uid', uid);
     fetch('http://localhost:8080/askQuestion?' + params.toString(), opts)
         .then((response) => response.json())
-        .then((data) => {console.log(data)})
+        .then((data) => {callback(data)})
 
 }
 
@@ -62,6 +62,29 @@ export const addAnswer = (params) => {
 export const searchQuestion = (params,callback) => {
 
     fetch('http://localhost:8080/searchByTitle?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+};
+
+export const deleteQuestion = (params,callback) => {
+
+    fetch('http://localhost:8080/deleteQuestion?'+params.toString())
+        .then(callback)
+
+};
+
+export const deleteAnswer = (params,callback) => {
+
+    fetch('http://localhost:8080/deleteAnswer?'+params.toString())
+        .then(callback)
+
+};
+
+export const banUser= (params,callback) => {
+
+    fetch('http://localhost:8080/banUser?'+params.toString())
         .then(response => response.json())
         .then((data) => {
             callback(data);

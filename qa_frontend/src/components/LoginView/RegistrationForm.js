@@ -9,7 +9,7 @@ function validateEmail(email) {
 }
 
 function RegisterForm (props) {
-    const navigate = useNavigate();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rePassword, setRePassword] = useState('');
