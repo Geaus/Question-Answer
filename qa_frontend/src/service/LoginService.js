@@ -33,11 +33,19 @@ export const login = (username, password) => {
         });
 };
 
-export const newUser = (params,callback) => {
-
-    fetch('http://localhost:8080/newUser?'+params.toString())
-        .then(response => response.json())
-        .then((data) => {
-            callback(data);
-        })
+export const register = (username, password, email) => {
+    return fetch('http://localhost:8080/register?',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `userName=${username}&passWord=${password}&email=${email}`,
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('注册错误！')
+            }
+        });
 };

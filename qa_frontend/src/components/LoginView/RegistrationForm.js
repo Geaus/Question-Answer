@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import {Input, Button, message, Card} from 'antd';
+import {Input, Button, message, Card, Row, Col} from 'antd';
 import {useNavigate} from "react-router-dom";
+import {register} from "../../service/LoginService";
 
 
 function validateEmail(email) {
@@ -9,7 +10,6 @@ function validateEmail(email) {
 }
 
 function RegisterForm (props) {
-
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rePassword, setRePassword] = useState('');
@@ -29,8 +29,13 @@ function RegisterForm (props) {
             message.error("邮箱格式不正确");
             return;
         }
-
-        console.log(username);
+        register(username, password, email)
+            .then(() => {
+                message.success('注册成功');
+                props.setShowRegistrationForm(false);
+            }).catch((error) => {
+                message.error(error.message);
+            });
     }
 
 
@@ -69,17 +74,21 @@ function RegisterForm (props) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
-                <Button type="primary" style={{ marginRight: 8 }} onClick={handleSubmit}>
-                    提交
-                </Button>
-                <Button  onClick={()=>{
-                    const { onSubmit } = props;
-                    onSubmit();
-
-                }}  style={{ float: 'right' }}
-                >
-                    cancel
-                </Button>
+                <Row>
+                    <Col span={12}>
+                        <Button type="primary" style={{ marginRight: 8 }} onClick={handleSubmit}>
+                            提交
+                        </Button>
+                    </Col>
+                    <Col span={6}>
+                        <Button  onClick={()=>{
+                            props.setShowRegistrationForm(false);
+                        }}  style={{ float: 'right' }}
+                        >
+                            cancel
+                        </Button>
+                    </Col>
+                </Row>
             </Card>
         </div>
     );
