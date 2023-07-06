@@ -37,4 +37,7 @@ public class QuestionDaoimpl implements QuestionDao {
     public void deleteQuestion(Question question) {
         questionRepository.delete(question);
     }
+
+    @Override
+    public List<Question> findQuestionsByTitleOrContentContaining(String keyword){ return questionRepository.findQuestionsByTitleLikeOrContentLike(keyword, keyword);}
 }

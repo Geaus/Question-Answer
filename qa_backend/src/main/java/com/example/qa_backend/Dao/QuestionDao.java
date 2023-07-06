@@ -11,4 +11,6 @@ public interface QuestionDao {
     Question addQuestion(Question question);
     List<Question> getAsked(User user);
     void deleteQuestion(Question question);
+
+    List<Question> findQuestionsByTitleOrContentContaining(String keyword);
 }

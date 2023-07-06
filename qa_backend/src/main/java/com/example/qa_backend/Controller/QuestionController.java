@@ -7,6 +7,7 @@ import com.example.qa_backend.Service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin
@@ -20,7 +21,7 @@ public class QuestionController {
     public QuestionJSON findQuestion(@RequestParam int uid, @RequestParam int qid) { return questionService.findQuestion(uid, qid); }
     @RequestMapping("/askQuestion")
     public Question askQuestion(@RequestParam int uid, @RequestParam String content, @RequestParam String title,
-                                @RequestBody List<Tag> tags) { return questionService.askQuestion(uid, content, title, tags); }
+                                @RequestBody List<Tag> tags) throws IOException { return questionService.askQuestion(uid, content, title, tags); }
     @RequestMapping("/getAsked")
     public List<Question> listAsked(@RequestParam int uid) { return questionService.listAsked(uid); }
     @RequestMapping("/getLikedQuestion")
@@ -35,4 +36,6 @@ public class QuestionController {
     public void deleteQuestion(@RequestParam int qid) { questionService.deleteQuestion(qid); }
     @RequestMapping("/searchByTag")
     public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}
+    @RequestMapping("/fullTextSearch")
+    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid){return questionService.fullTextSearch(keyword, uid);}
 }

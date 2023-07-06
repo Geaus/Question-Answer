@@ -4,12 +4,13 @@ import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.QuestionJSON;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface QuestionService {
     List<QuestionJSON> listQuestions(int uid);
     QuestionJSON findQuestion(int uid, int id);
-    Question askQuestion(int userId, String content, String title, List<Tag> tags);
+    Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException;
     List<Question> listAsked(int userId);
     List<Question> getLiked(int userId);
     List<Question> getDisliked(int userId);
@@ -18,4 +19,6 @@ public interface QuestionService {
     void deleteQuestion(int qid);
 
     List<QuestionJSON> searchByTag(int tagId, int uid);
+
+    List<QuestionJSON> fullTextSearch(String keyWord, int uid);
 }

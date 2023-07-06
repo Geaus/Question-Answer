@@ -67,7 +67,7 @@ export const addAnswer = (params, content) => {
 
 export const searchQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/searchByTitle?'+params.toString())
+    fetch('http://localhost:8080/fullTextSearch?'+params.toString())
         .then(response => response.json())
         .then((data) => {
             callback(data);

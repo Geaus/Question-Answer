@@ -27,7 +27,7 @@ const QuestionList =(props)=>{
             const params = new URLSearchParams();
             params.append('uid', uid);
             console.log(title);
-            params.append('title', title);
+            params.append('keyword', title);
             searchQuestion(params, updateQuestion);
 
 
