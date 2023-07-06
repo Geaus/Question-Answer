@@ -75,6 +75,7 @@ const HeaderTest = () => {
         }else{
             // eslint-disable-next-line react-hooks/rules-of-hooks
             navigate("/?title="+e);
+            window.location.reload();
         }
 
 

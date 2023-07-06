@@ -6,6 +6,7 @@ import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.lucene.HanLPAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
@@ -491,46 +492,32 @@ public class QuestionServiceimpl implements QuestionService {
         Directory directory = null;
         try (Analyzer analyzer = new HanLPAnalyzer()) {
             directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
-            //多项查询条件
-            QueryParser queryParser = new MultiFieldQueryParser(new String[]{"title", "content"}, analyzer);
-            //单项
-            //QueryParser queryParser = new QueryParser("title", analyzer);
-            Query query = queryParser.parse(keyWord);
-            BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            indexReader = DirectoryReader.open(directory);
 
             List<Term> termList = HanLP.segment(keyWord.toLowerCase());
             List<String> keywordList = new ArrayList<>();
             System.out.println(termList);
+            CoreStopWordDictionary.apply(termList);
+            String sentence = "";
             //遍历分词结果
             for (Term term : termList) {
                 String word = term.toString().substring(0, term.length());      //词
-                String nature = term.toString().substring(term.length() + 1);   //词性
-
-                if (nature.contains("n") || nature.contains("g") || nature.contains("m") || nature.contains("r")) {
-                    org.apache.lucene.index.Term t1 = new org.apache.lucene.index.Term("title",word);
-                    TermQuery q1 = new TermQuery(t1);
-                    builder.add(q1, BooleanClause.Occur.MUST);
-                }
+                sentence += word;
             }
+            System.out.println(sentence);
 
-            BooleanQuery finalQuery = builder.build();
-            //索引查询对象
+            //多项查询条件
+            QueryParser queryParser = new MultiFieldQueryParser(new String[]{"title", "content"}, analyzer);
+            //单项
+            Query query = queryParser.parse(!StringUtils.isEmpty(sentence) ? sentence : "*:*");
+            indexReader = DirectoryReader.open(directory);
             IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-            TopDocs topDocs = indexSearcher.search(finalQuery, 10);
+            TopDocs topDocs = indexSearcher.search(query, 10);
 
             System.out.println("totalHints"+topDocs.totalHits);
 
-            if(topDocs.totalHits > 0) {
+            if(topDocs.totalHits > 0 && sentence != "") {
                 for (ScoreDoc sd : topDocs.scoreDocs) {
-                    int docId = sd.doc;
-                    Document document = indexSearcher.doc(docId);
-
-                    Explanation explanation = indexSearcher.explain(query, docId);
-                    System.out.println("Explanation: " + explanation.toString());
-
                     Document doc = indexSearcher.doc(sd.doc);
-                    System.out.println("id"+Integer.parseInt(doc.get("id")));
                     Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
                     QuestionJSON res = new QuestionJSON();
                     res.setId(question.getId());
@@ -564,65 +551,64 @@ public class QuestionServiceimpl implements QuestionService {
                 }
             }
 
-            System.out.println(termList);
-            //遍历分词结果
-            for (Term term : termList) {
-                String word = term.toString().substring(0, term.length());      //词
-                String nature = term.toString().substring(term.length() + 1);   //词性
-
-                if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
-                    System.out.println(nature);
-                    keywordList.add(word);
-                }
-            }
-
-            List<Question> questions = new ArrayList<>();
-            for (String keyword : keywordList){
-                System.out.println(keyword);
-                questions.addAll(questionDao.findQuestionsByTitleOrContentContaining("%" + keyword + "%"));
-            }
-
-            for(int i = 0; i < questions.size(); i++) {
-                Question question = questions.get(i);
-                QuestionJSON res = new QuestionJSON();
-                int id = question.getId();
-                boolean flag = false;
-                for (QuestionJSON questionJSON : searchList) {
-                    if (questionJSON.getId() == id) {
-                        flag = true;
-                        break;
+            if(topDocs.totalHits<10 || sentence == "") {
+                termList = HanLP.segment(keyWord.toLowerCase());
+                System.out.println(termList);
+                //遍历分词结果
+                for (Term term : termList) {
+                    String word = term.toString().substring(0, term.length());      //词
+                    String nature = term.toString().substring(term.length() + 1);   //词性
+                    if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
+                        keywordList.add(word);
                     }
                 }
-                if(flag) break;
-                System.out.println(question.getTitle());
-                res.setId(question.getId());
-                res.setContent(question.getContent());
-                res.setCreateTime(question.getCreateTime());
-                res.setTags(question.getTags());
-                res.setTitle(question.getTitle());
-                res.setUser(question.getUser());
-                List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-                int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-                for(int j = 0; j < feedback.size(); j++) {
-                    if(feedback.get(j).getLike() == -1){
-                        if(feedback.get(j).getUserId() == uid)likeFlag = -1;
-                        dislike++;
-                    }
-                    else if(feedback.get(j).getLike() == 1){
-                        if(feedback.get(j).getUserId() == uid)likeFlag = 1;
-                        like++;
-                    }
-                    if(feedback.get(j).getBookmark() == 1){
-                        if(feedback.get(j).getUserId() == uid)markFlag = 1;
-                        mark++;
-                    }
+
+                List<Question> questions = new ArrayList<>();
+                for (String keyword : keywordList) {
+                    questions.addAll(questionDao.findQuestionsByTitleOrContentContaining("%" + keyword + "%"));
                 }
-                res.setLike(like);
-                res.setDislike(dislike);
-                res.setMark(mark);
-                res.setLikeFlag(likeFlag);
-                res.setMarkFlag(markFlag);
-                searchList.add(res);
+
+                for (int i = 0; i < questions.size(); i++) {
+                    Question question = questions.get(i);
+                    QuestionJSON res = new QuestionJSON();
+                    int id = question.getId();
+                    boolean flag = false;
+                    for (QuestionJSON questionJSON : searchList) {
+                        if (questionJSON.getId() == id) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag) break;
+                    System.out.println(question.getTitle());
+                    res.setId(question.getId());
+                    res.setContent(question.getContent());
+                    res.setCreateTime(question.getCreateTime());
+                    res.setTags(question.getTags());
+                    res.setTitle(question.getTitle());
+                    res.setUser(question.getUser());
+                    List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+                    int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+                    for (int j = 0; j < feedback.size(); j++) {
+                        if (feedback.get(j).getLike() == -1) {
+                            if (feedback.get(j).getUserId() == uid) likeFlag = -1;
+                            dislike++;
+                        } else if (feedback.get(j).getLike() == 1) {
+                            if (feedback.get(j).getUserId() == uid) likeFlag = 1;
+                            like++;
+                        }
+                        if (feedback.get(j).getBookmark() == 1) {
+                            if (feedback.get(j).getUserId() == uid) markFlag = 1;
+                            mark++;
+                        }
+                    }
+                    res.setLike(like);
+                    res.setDislike(dislike);
+                    res.setMark(mark);
+                    res.setLikeFlag(likeFlag);
+                    res.setMarkFlag(markFlag);
+                    searchList.add(res);
+                }
             }
             return searchList;
         } catch (Exception e) {
