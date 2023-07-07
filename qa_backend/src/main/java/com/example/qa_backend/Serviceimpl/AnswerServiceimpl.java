@@ -35,17 +35,11 @@ public class AnswerServiceimpl implements AnswerService {
         List<AnswerJSON> res = new ArrayList<>();
         for(int i = 0; i < ans.size(); i++) {
             Answer a = ans.get(i);
-            List<FeedbackForAnswer> feedback = feedbackAnswerDao.findFeedback(a.getId());
-            int like = 0, dislike = 0, flag = 0;
-            for(int j = 0; j < feedback.size(); j++) {
-                if(feedback.get(j).getLike() == 1) {
-                    if(feedback.get(j).getUserId() == userId)flag = 1;
-                    like++;
-                }
-                else {
-                    if(feedback.get(j).getUserId() == userId)flag = -1;
-                    dislike++;
-                }
+            int flag = 0;
+            FeedbackForAnswer feedback = feedbackAnswerDao.findSpecific(a.getId(), userId);
+            if(feedback != null) {
+                if(feedback.getLike() == 1)flag = 1;
+                else if(feedback.getLike() == -1)flag = -1;
             }
             Follow follow = followDao.check(userId, a.getUser().getId());
             AnswerJSON tmp = new AnswerJSON();
@@ -53,11 +47,11 @@ public class AnswerServiceimpl implements AnswerService {
             else tmp.setFollowFlag(0);
             tmp.setId(a.getId());
             tmp.setContent(a.getContent());
-            tmp.setLike(like);
+            tmp.setLike(a.getLike());
             tmp.setQuestion(a.getQuestion());
             tmp.setUser(a.getUser());
             tmp.setCreateTime(a.getCreateTime());
-            tmp.setDislike(dislike);
+            tmp.setDislike(a.getDislike());
             tmp.setLikeFlag(flag);
             res.add(tmp);
         }

@@ -21,6 +21,15 @@ public class Question {
     @Basic
     @Column(name = "time")
     private String createTime;
+    @Basic
+    @Column(name = "likenum")
+    private int like;
+    @Basic
+    @Column(name = "dislikenum")
+    private int dislike;
+    @Basic
+    @Column(name = "marknum")
+    private int mark;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -95,6 +104,30 @@ public class Question {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public int getLike() {
+        return like;
+    }
+
+    public void setLike(int like) {
+        this.like = like;
+    }
+
+    public int getDislike() {
+        return dislike;
+    }
+
+    public void setDislike(int dislike) {
+        this.dislike = dislike;
+    }
+
+    public int getMark() {
+        return mark;
+    }
+
+    public void setMark(int mark) {
+        this.mark = mark;
     }
 
     @Override

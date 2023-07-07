@@ -43,25 +43,16 @@ public class QuestionServiceimpl implements QuestionService {
             res.setTags(question.getTags());
             res.setTitle(question.getTitle());
             res.setUser(question.getUser());
-            List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-            int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-            for(int j = 0; j < feedback.size(); j++) {
-                if(feedback.get(j).getLike() == -1){
-                    if(feedback.get(j).getUserId() == uid)likeFlag = -1;
-                    dislike++;
-                }
-                else if(feedback.get(j).getLike() == 1){
-                    if(feedback.get(j).getUserId() == uid)likeFlag = 1;
-                    like++;
-                }
-                if(feedback.get(j).getBookmark() == 1){
-                    if(feedback.get(j).getUserId() == uid)markFlag = 1;
-                    mark++;
-                }
+            int likeFlag = 0, markFlag = 0;
+            FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
+            if(feedback != null) {
+                if(feedback.getLike() == 1)likeFlag = 1;
+                else if(feedback.getLike() == -1)likeFlag = -1;
+                if(feedback.getBookmark() == 1)markFlag = 1;
             }
-            res.setLike(like);
-            res.setDislike(dislike);
-            res.setMark(mark);
+            res.setLike(question.getLike());
+            res.setDislike(question.getDislike());
+            res.setMark(question.getMark());
             res.setLikeFlag(likeFlag);
             res.setMarkFlag(markFlag);
             resList.add(res);
@@ -79,25 +70,16 @@ public class QuestionServiceimpl implements QuestionService {
         res.setTags(question.getTags());
         res.setTitle(question.getTitle());
         res.setUser(question.getUser());
-        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(id);
-        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-        for(int i = 0; i < feedback.size(); i++) {
-            if(feedback.get(i).getLike() == -1){
-                if(feedback.get(i).getUserId() == uid)likeFlag = -1;
-                dislike++;
-            }
-            else if(feedback.get(i).getLike() == 1){
-                if(feedback.get(i).getUserId() == uid)likeFlag = 1;
-                like++;
-            }
-            if(feedback.get(i).getBookmark() == 1){
-                if(feedback.get(i).getUserId() == uid)markFlag = 1;
-                mark++;
-            }
+        int likeFlag = 0, markFlag = 0;
+        FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(id, uid);
+        if(feedback != null) {
+            if(feedback.getLike() == 1)likeFlag = 1;
+            else if(feedback.getLike() == -1)likeFlag = -1;
+            if(feedback.getBookmark() == 1)markFlag = 1;
         }
-        res.setLike(like);
-        res.setDislike(dislike);
-        res.setMark(mark);
+        res.setLike(question.getLike());
+        res.setDislike(question.getDislike());
+        res.setMark(question.getMark());
         res.setLikeFlag(likeFlag);
         res.setMarkFlag(markFlag);
         return res;
