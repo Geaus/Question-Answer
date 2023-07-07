@@ -4,7 +4,7 @@ export const getAsked = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -19,7 +19,7 @@ export const getAnswered = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -34,7 +34,7 @@ export const getLikedQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -50,7 +50,7 @@ export const getDislikedQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -66,7 +66,7 @@ export const getMarkedQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -82,7 +82,7 @@ export const getLikedAnswer = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -98,7 +98,7 @@ export const getDislikedAnswer = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -113,7 +113,7 @@ export const getFollowed = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -128,7 +128,7 @@ export const getUser = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())

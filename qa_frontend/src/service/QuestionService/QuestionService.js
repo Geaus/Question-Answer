@@ -4,7 +4,7 @@ export const getQuestions = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -19,7 +19,7 @@ export const getQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -34,7 +34,7 @@ export const getAnswers = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -49,7 +49,7 @@ export const listTag = (callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then((response) => response.json())
@@ -66,7 +66,7 @@ export const askQuestion = (params, tags,callback) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            token:'1231231',
+            'token' : sessionStorage.getItem('token'),
         },
         body: JSON.stringify(tags)
 
@@ -82,7 +82,7 @@ export const addAnswer = (params) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -97,7 +97,7 @@ export const searchQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -112,7 +112,7 @@ export const deleteQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(callback)
@@ -125,7 +125,7 @@ export const deleteAnswer = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(callback)
@@ -138,7 +138,7 @@ export const banUser= (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())

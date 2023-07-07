@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button} from "antd";
+import {Button, message} from "antd";
 import LoginCard from "../../components/LoginView/LoginCard/LoginCard";
 import RegistrationForm from "../../components/LoginView/RegistrationForm/RegistrationForm";
 
@@ -8,8 +8,11 @@ function LoginView () {
 
     const [showRegistrationForm,setShowRegistrationForm] =useState(false);
 
-    const handleRegistrationSubmit = () => {
-       setShowRegistrationForm(false);
+    const handleRegistrationSubmit = (data) => {
+        if(data != null && data.id === -1) {
+            message.error(data.userName);
+        }
+        else setShowRegistrationForm(false);
     };
 
     return (

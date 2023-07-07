@@ -5,7 +5,7 @@ export const feedbackQuestion = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -20,7 +20,7 @@ export const feedbackAnswer = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())
@@ -35,7 +35,7 @@ export const changeFollow = (params,callback) => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
+            'token' : sessionStorage.getItem('token'),
         },
     })
         .then(response => response.json())

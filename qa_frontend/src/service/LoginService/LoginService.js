@@ -18,31 +18,43 @@ export const login = (username, password) => {
             }
         })
         .then((data) => {
-
-            if(data.id===-1){
-
-                throw Error("用户名密码错误")
+            console.log(data);
+            if(data.code != null && data.code === 401) {
+                throw Error("用户名或密码错误");
             }
-
-            sessionStorage.setItem('uid', data.id);
-
-            if(data.type===-1){
-                throw Error("用户已被封禁")
+            else {
+                if(data.user.id === -1) {
+                    throw Error(data.result.token);
+                }
+                else {
+                    sessionStorage.setItem('uid', data.user.id);
+                    sessionStorage.setItem('token', data.result.token)
+                }
             }
-            sessionStorage.setItem('type', data.type);
-
         });
 };
 
-export const register = (params) => {
+export const register = (params, callback) => {
 
     fetch('http://localhost:8080/register?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            token:'1231231'
         },
     })
         .then(response => response.json())
-
+        .then(data => callback(data))
 };
+
+export const logout = (params, callback) => {
+    fetch('http://localhost:8080/logoutSystem?'+params.toString() ,{
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'token' : sessionStorage.getItem('token'),
+        },
+    })
+        .then(() => {
+            callback();
+        })
+}

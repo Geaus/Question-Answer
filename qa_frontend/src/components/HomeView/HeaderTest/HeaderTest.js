@@ -6,6 +6,7 @@ import {Link} from "react-router-dom";
 import {getQuestions, searchQuestion} from "../../../service/QuestionService/QuestionService";
 import { useNavigate } from 'react-router-dom';
 import {getUser} from "../../../service/ProfileService/ProfileService";
+import {logout} from "../../../service/LoginService/LoginService";
 
 const {Search} = Input;
 
@@ -82,11 +83,16 @@ const HeaderTest = () => {
         }
     }
 
-    const handleLogout=()=>{
-
+    const logoutCallback = () => {
         sessionStorage.removeItem('uid');
         sessionStorage.removeItem('type');
         navigate("/login");
+    }
+
+    const handleLogout = () => {
+        const params = new URLSearchParams();
+        params.append('uid', sessionStorage.getItem('uid'));
+        logout(params, logoutCallback);
     }
 
     return (

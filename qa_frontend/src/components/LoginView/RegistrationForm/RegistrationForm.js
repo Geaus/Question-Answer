@@ -36,11 +36,8 @@ function RegisterForm (props) {
         params.append('userName', username);
         params.append('passWord',password);
         params.append('email',email);
-        register(params);
+        register(params, props.onSubmit);
 
-        const onSubmit =props.onSubmit;
-        onSubmit();
-        console.log(username);
     }
 
 

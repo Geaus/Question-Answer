@@ -23,6 +23,8 @@ const QuestionList =(props)=>{
             // sessionStorage.setItem('uid','1');
             const params = new URLSearchParams();
             params.append('uid', uid);
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', 0);
             getQuestions(params,setQuestions);
             console.log(questions)
         }
