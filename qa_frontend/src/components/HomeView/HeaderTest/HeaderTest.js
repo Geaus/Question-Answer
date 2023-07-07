@@ -11,7 +11,7 @@ const {Search} = Input;
 
 const menuItems = [
     {
-        label: <Link to={"/"} >"首页"</Link>,
+        label: <Link to={"/"} >首页</Link>,
         key: "home",
         icon:<HomeOutlined />
 
@@ -90,9 +90,9 @@ const HeaderTest = () => {
     }
 
     return (
-        <div style={headerBarStyle}>
-            <div style={{ fontSize: '20px' }}>My App</div>
-            <Menu mode="horizontal" theme="light" style={menuStyle} items={menuItems}>
+        <div  style={headerBarStyle}>
+            <div data-testid="logo" style={{ fontSize: '20px' }}>My App</div>
+            <Menu data-testid="menu" mode="horizontal" theme="light" style={menuStyle} items={menuItems}>
                 {/*<Menu.Item key="home" icon={<HomeOutlined />}>*/}
                 {/*    <Link to={"/"} >首页</Link>*/}
                 {/*</Menu.Item>*/}
@@ -103,16 +103,16 @@ const HeaderTest = () => {
                 {/*    热榜*/}
                 {/*</Menu.Item>*/}
             </Menu>
-            <Input.Search placeholder="搜索" style={searchInputStyle} onSearch={(e)=>handleSearch(e)}/>
+            <Input.Search data-testid="search" placeholder="搜索" style={searchInputStyle} onSearch={(e)=>handleSearch(e)}/>
 
-            <div style={greetingStyle}>你好</div>
+            <div data-testid="hello" style={greetingStyle}>你好</div>
             <span style={{width: "2vw"}}></span>
 
             <Link to={{pathname:'/profile',search:'?uid='+uid}}>
-               <Avatar src={user.avatar}/>
+               <Avatar data-testid="avatar" src={user.avatar}/>
             </Link>
 
-            <span onClick={handleLogout} style={{marginLeft:"2vw", fontSize:'1.2vw',}}>Log out</span>
+            <span data-testid="logout" onClick={handleLogout} style={{marginLeft:"2vw", fontSize:'1.2vw',}}>Log out</span>
 
         </div>
     );
