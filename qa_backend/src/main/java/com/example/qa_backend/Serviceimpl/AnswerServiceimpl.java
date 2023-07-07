@@ -7,6 +7,7 @@ import com.example.qa_backend.Entity.Follow;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.JSON.AnswerJSON;
 import com.example.qa_backend.Service.AnswerService;
+import com.example.qa_backend.Service.SensitiveWordService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,9 @@ public class AnswerServiceimpl implements AnswerService {
     @Autowired
     FollowDao followDao;
     @Override
-    public List<AnswerJSON> getAnswer(int userId, int questionId) {
+    public List<AnswerJSON> getAnswer(int page_id, int userId, int questionId) {
         Question question = questionDao.getQuestion(questionId);
-        List<Answer> ans = answerDao.findAnswers(question);
+        List<Answer> ans = answerDao.findAnswersByPage(page_id, question);
         List<AnswerJSON> res = new ArrayList<>();
         for(int i = 0; i < ans.size(); i++) {
             Answer a = ans.get(i);
@@ -77,13 +78,13 @@ public class AnswerServiceimpl implements AnswerService {
     }
 
     @Override
-    public List<Answer> getAsked(int userId) {
-        return answerDao.findAnswered(userDao.findUser(userId));
+    public List<Answer> getAsked(int page_id, int userId) {
+        return answerDao.findAnswered(page_id, userDao.findUser(userId));
     }
 
     @Override
-    public List<Answer> getLiked(int userId) {
-        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAns(userId);
+    public List<Answer> getLiked(int page_id, int userId) {
+        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAnsLike(page_id, userId);
         List<Answer> ans = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != 1)continue;
@@ -93,8 +94,8 @@ public class AnswerServiceimpl implements AnswerService {
     }
 
     @Override
-    public List<Answer> getDisliked(int userId) {
-        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAns(userId);
+    public List<Answer> getDisliked(int page_id, int userId) {
+        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAnsDislike(page_id, userId);
         List<Answer> ans = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != -1)continue;

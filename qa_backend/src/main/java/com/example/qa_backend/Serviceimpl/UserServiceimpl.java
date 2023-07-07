@@ -29,8 +29,8 @@ public class UserServiceimpl implements UserService {
     @Autowired
     AuthenticationManager authenticationManager;
     @Override
-    public List<User> getFollowList(int uid) {
-        List<Follow> follows = followDao.findFollowList(uid);
+    public List<User> getFollowList(int page_id, int uid) {
+        List<Follow> follows = followDao.findFollowList(page_id, uid);
         List<User> users = new ArrayList<>();
         for(int i = 0; i < follows.size(); i++) {
             users.add(userDao.findUser(follows.get(i).getUser2Id()));

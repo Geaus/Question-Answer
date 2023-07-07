@@ -2,12 +2,14 @@ package com.example.qa_backend.Repository;
 
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Integer> {
-    List<Question> findAll();
+    Page<Question> findAll(Pageable pageable);
     Question findQuestionById(int id);
-    List<Question> findQuestionsByUser(User user);
+    Page<Question> findQuestionsByUser(Pageable pageable, User user);
 }

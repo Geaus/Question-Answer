@@ -6,9 +6,9 @@ import com.example.qa_backend.Entity.User;
 import java.util.List;
 
 public interface QuestionDao {
-    List<Question> listQuestions();
+    List<Question> listQuestions(int page_id);
     Question getQuestion(int id);
     Question addQuestion(Question question);
-    List<Question> getAsked(User user);
+    List<Question> getAsked(int page_id, User user);
     void deleteQuestion(Question question);
 }

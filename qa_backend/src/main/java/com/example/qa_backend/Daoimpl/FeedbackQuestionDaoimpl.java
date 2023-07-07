@@ -4,6 +4,7 @@ import com.example.qa_backend.Dao.FeedbackQuestionDao;
 import com.example.qa_backend.Entity.FeedbackForQuestion;
 import com.example.qa_backend.Repository.FeedbackQuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,8 +19,16 @@ public class FeedbackQuestionDaoimpl implements FeedbackQuestionDao {
     }
 
     @Override
-    public List<FeedbackForQuestion> listRelatedQuestion(int user_id) {
-        return feedbackQuestionRepository.findFeedbackForQuestionsByUserId(user_id);
+    public List<FeedbackForQuestion> listRelatedQuestionLike(int page_id, int user_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionsByUserIdAndLike(PageRequest.of(page_id, 10), user_id, 1).toList();
+    }
+    @Override
+    public List<FeedbackForQuestion> listRelatedQuestionDislike(int page_id, int user_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionsByUserIdAndLike(PageRequest.of(page_id, 10), user_id, -1).toList();
+    }
+    @Override
+    public List<FeedbackForQuestion> listRelatedQuestionMark(int page_id, int user_id) {
+        return feedbackQuestionRepository.findFeedbackForQuestionsByUserIdAndBookmark(PageRequest.of(page_id, 10), user_id, 1).toList();
     }
 
     @Override

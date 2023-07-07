@@ -7,6 +7,7 @@ import com.example.qa_backend.Service.QuestionService;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,8 +31,8 @@ public class QuestionServiceimpl implements QuestionService {
     AnswerDao answerDao;
 
     @Override
-    public List<QuestionJSON> listQuestions(int uid) {
-        List<Question> ques = questionDao.listQuestions();
+    public List<QuestionJSON> listQuestions(int page_id, int uid) {
+        List<Question> ques = questionDao.listQuestions(page_id);
         List<QuestionJSON> resList = new ArrayList<>();
         for(int i = 0; i < ques.size(); i++) {
             Question question = ques.get(i);
@@ -137,13 +138,13 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public List<Question> listAsked(int userId) {
-        return questionDao.getAsked(userDao.findUser(userId));
+    public List<Question> listAsked(int page_id, int userId) {
+        return questionDao.getAsked(page_id, userDao.findUser(userId));
     }
 
     @Override
-    public List<Question> getLiked(int userId) {
-        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+    public List<Question> getLiked(int page_id, int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestionLike(page_id, userId);
         List<Question> res = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != 1)continue;
@@ -153,8 +154,8 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public List<Question> getDisliked(int userId) {
-        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+    public List<Question> getDisliked(int page_id, int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestionDislike(page_id, userId);
         List<Question> res = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != -1)continue;
@@ -164,8 +165,8 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public List<Question> getMarked(int userId) {
-        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestion(userId);
+    public List<Question> getMarked(int page_id, int userId) {
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.listRelatedQuestionMark(page_id, userId);
         List<Question> res = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getBookmark() != 1)continue;
@@ -265,7 +266,6 @@ public class QuestionServiceimpl implements QuestionService {
         }
         List<Question> allQuestions = new ArrayList<>();
         for(KeywordEntity keywordEntity : keywordEntities){
-            System.out.println(keywordEntity.getQuestionId());
             Question question = questionDao.getQuestion(keywordEntity.getQuestionId());
 
             if (!allQuestions.contains(question)) {
@@ -278,10 +278,6 @@ public class QuestionServiceimpl implements QuestionService {
         for (Question question : allQuestions) {
 //            List<String> questionKeywords = getSplitWords(question.getTitle());
 //            System.out.println(questionKeywords);
-            if(question == null){
-                List<QuestionJSON> resList = new ArrayList<>();
-                return resList;
-            }
             double similarity = calculateSimilarity(searchTerm, question.getTitle());
             System.out.println(question.getTitle()+" similarity:"+similarity);
             if(similarity > 0.2

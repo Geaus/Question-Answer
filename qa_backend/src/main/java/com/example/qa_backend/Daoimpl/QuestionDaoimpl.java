@@ -5,6 +5,7 @@ import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.User;
 import com.example.qa_backend.Repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public class QuestionDaoimpl implements QuestionDao {
     @Autowired
     QuestionRepository questionRepository;
     @Override
-    public List<Question> listQuestions() {
-        return questionRepository.findAll();
+    public List<Question> listQuestions(int page_id) {
+        return questionRepository.findAll(PageRequest.of(page_id, 10)).toList();
     }
 
     @Override
@@ -29,8 +30,8 @@ public class QuestionDaoimpl implements QuestionDao {
     }
 
     @Override
-    public List<Question> getAsked(User user) {
-        return questionRepository.findQuestionsByUser(user);
+    public List<Question> getAsked(int page_id, User user) {
+        return questionRepository.findQuestionsByUser(PageRequest.of(page_id, 10), user).toList();
     }
 
     @Override
