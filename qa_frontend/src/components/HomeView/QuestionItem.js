@@ -92,7 +92,7 @@ const QuestionPage =(props)=>{
             <Card
                 title={
                     <Link to={{pathname:'/ques',search:'?qid='+question.id}}>
-                        {question.title}
+                        <div dangerouslySetInnerHTML={{ __html: question.title }} />
                     </Link>
                 }
                 extra={

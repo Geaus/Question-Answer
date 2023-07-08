@@ -1,5 +1,6 @@
 package com.example.qa_backend.JSON;
 
+import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.Entity.User;
 
@@ -105,5 +106,13 @@ public class QuestionJSON {
 
     public void setMarkFlag(int markFlag) {
         this.markFlag = markFlag;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuestionJSON questionJSON = (QuestionJSON) o;
+        return id == questionJSON.id;
     }
 }

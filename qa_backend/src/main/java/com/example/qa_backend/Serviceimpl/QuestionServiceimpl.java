@@ -7,6 +7,8 @@ import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
+import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
+import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.lucene.HanLPAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
@@ -21,12 +23,14 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.highlight.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -51,6 +55,19 @@ public class QuestionServiceimpl implements QuestionService {
     AnswerDao answerDao;
     @Autowired
     Config config;
+
+    private WordVectorModel wordVectorModel;
+    private DocVectorModel docVectorModel;
+
+    @PostConstruct
+    public void init() throws IOException {
+        this.wordVectorModel = new WordVectorModel("src/main/resources/polyglot-zh.txt");
+        this.docVectorModel = new DocVectorModel(wordVectorModel);
+        List<Question> questions = questionDao.listQuestions();
+        for(Question question : questions){
+            docVectorModel.addDocument(question.getId(), question.getTitle());
+        }
+    }
 
     @Override
     public List<QuestionJSON> listQuestions(int uid) {
@@ -478,7 +495,11 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public List<QuestionJSON> fullTextSearch(String keyWord, int uid) {
+    public List<QuestionJSON> fullTextSearch(String keyWord, int uid) throws IOException {
+//        Word2VecTrainer trainerBuilder = new Word2VecTrainer();
+//        WordVectorModel wordVectorModel = trainerBuilder.train("D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/polyglot-zh.txt", "D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/result.txt");
+//        WordVectorModel wordVectorModel = new WordVectorModel("src/main/resources/polyglot-zh.txt");
+
         List<QuestionJSON> searchList = new ArrayList<>(10);
         //PageData<ArticleEntity> pageData = new PageData<>();
         File indexFile = new File("D:/web/Qa/indexLibrary");
@@ -512,6 +533,11 @@ public class QuestionServiceimpl implements QuestionService {
             indexReader = DirectoryReader.open(directory);
             IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             TopDocs topDocs = indexSearcher.search(query, 10);
+            //高亮显示
+            SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span style='color:red'>", "</span>");
+            Highlighter highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(query));
+            Fragmenter fragmenter = new SimpleFragmenter(100);   //高亮后的段落范围在100字内
+            highlighter.setTextFragmenter(fragmenter);
 
             System.out.println("totalHints"+topDocs.totalHits);
 
@@ -524,7 +550,7 @@ public class QuestionServiceimpl implements QuestionService {
                     res.setContent(question.getContent());
                     res.setCreateTime(question.getCreateTime());
                     res.setTags(question.getTags());
-                    res.setTitle(question.getTitle());
+                    res.setTitle(highlighter.getBestFragment(new HanLPAnalyzer(), "title", doc.get("title")));
                     res.setUser(question.getUser());
                     List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
                     int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
@@ -552,62 +578,62 @@ public class QuestionServiceimpl implements QuestionService {
             }
 
             if(topDocs.totalHits<10 || sentence == "") {
-                termList = HanLP.segment(keyWord.toLowerCase());
-                System.out.println(termList);
-                //遍历分词结果
-                for (Term term : termList) {
-                    String word = term.toString().substring(0, term.length());      //词
-                    String nature = term.toString().substring(term.length() + 1);   //词性
-                    if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
-                        keywordList.add(word);
-                    }
-                }
+//                termList = HanLP.segment(keyWord.toLowerCase());
+//                System.out.println(termList);
+//                //遍历分词结果
+//                for (Term term : termList) {
+//                    String word = term.toString().substring(0, term.length());      //词
+//                    String nature = term.toString().substring(term.length() + 1);   //词性
+//                    if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
+//                        keywordList.add(word);
+//                    }
+//                }
 
-                List<Question> questions = new ArrayList<>();
-                for (String keyword : keywordList) {
-                    questions.addAll(questionDao.findQuestionsByTitleOrContentContaining("%" + keyword + "%"));
-                }
+                List<Question> questions = new ArrayList<>(questionDao.listQuestions());
 
-                for (int i = 0; i < questions.size(); i++) {
-                    Question question = questions.get(i);
-                    QuestionJSON res = new QuestionJSON();
-                    int id = question.getId();
-                    boolean flag = false;
-                    for (QuestionJSON questionJSON : searchList) {
-                        if (questionJSON.getId() == id) {
-                            flag = true;
-                            break;
+                List<Map.Entry<Integer, Float>> entryList = this.docVectorModel.nearest(keyWord);
+                for (Map.Entry<Integer, Float> entry : entryList)
+                {
+                    if(entry.getValue()>0.7) {
+                        Question question = questionDao.getQuestion(entry.getKey());
+                        System.out.println(entry.getValue());
+                        QuestionJSON res = new QuestionJSON();
+
+                        System.out.println(docVectorModel.similarity(keyWord, question.getTitle()));
+                        System.out.println(question.getTitle());
+
+                        res.setId(question.getId());
+                        res.setContent(question.getContent());
+                        res.setCreateTime(question.getCreateTime());
+                        res.setTags(question.getTags());
+                        res.setTitle(question.getTitle());
+                        res.setUser(question.getUser());
+                        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+                        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+                        for (int j = 0; j < feedback.size(); j++) {
+                            if (feedback.get(j).getLike() == -1) {
+                                if (feedback.get(j).getUserId() == uid) likeFlag = -1;
+                                dislike++;
+                            } else if (feedback.get(j).getLike() == 1) {
+                                if (feedback.get(j).getUserId() == uid) likeFlag = 1;
+                                like++;
+                            }
+                            if (feedback.get(j).getBookmark() == 1) {
+                                if (feedback.get(j).getUserId() == uid) markFlag = 1;
+                                mark++;
+                            }
+                        }
+                        res.setLike(like);
+                        res.setDislike(dislike);
+                        res.setMark(mark);
+                        res.setLikeFlag(likeFlag);
+                        res.setMarkFlag(markFlag);
+                        System.out.println(searchList.size());
+                        if (!searchList.contains(res)) {
+                            System.out.println(searchList.size());
+                            searchList.add(res);
                         }
                     }
-                    if (flag) break;
-                    System.out.println(question.getTitle());
-                    res.setId(question.getId());
-                    res.setContent(question.getContent());
-                    res.setCreateTime(question.getCreateTime());
-                    res.setTags(question.getTags());
-                    res.setTitle(question.getTitle());
-                    res.setUser(question.getUser());
-                    List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-                    int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-                    for (int j = 0; j < feedback.size(); j++) {
-                        if (feedback.get(j).getLike() == -1) {
-                            if (feedback.get(j).getUserId() == uid) likeFlag = -1;
-                            dislike++;
-                        } else if (feedback.get(j).getLike() == 1) {
-                            if (feedback.get(j).getUserId() == uid) likeFlag = 1;
-                            like++;
-                        }
-                        if (feedback.get(j).getBookmark() == 1) {
-                            if (feedback.get(j).getUserId() == uid) markFlag = 1;
-                            mark++;
-                        }
-                    }
-                    res.setLike(like);
-                    res.setDislike(dislike);
-                    res.setMark(mark);
-                    res.setLikeFlag(likeFlag);
-                    res.setMarkFlag(markFlag);
-                    searchList.add(res);
                 }
             }
             return searchList;

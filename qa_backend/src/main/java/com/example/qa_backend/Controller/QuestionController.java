@@ -37,5 +37,5 @@ public class QuestionController {
     @RequestMapping("/searchByTag")
     public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}
     @RequestMapping("/fullTextSearch")
-    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid){return questionService.fullTextSearch(keyword, uid);}
+    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid) throws IOException {return questionService.fullTextSearch(keyword, uid);}
 }

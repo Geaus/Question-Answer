@@ -20,5 +20,5 @@ public interface QuestionService {
 
     List<QuestionJSON> searchByTag(int tagId, int uid);
 
-    List<QuestionJSON> fullTextSearch(String keyWord, int uid);
+    List<QuestionJSON> fullTextSearch(String keyWord, int uid) throws IOException;
 }
