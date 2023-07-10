@@ -73,8 +73,9 @@ export const getAnswers = (params,callback) => {
 };
 
 export const listTag = (callback) => {
-
-    fetch('http://localhost:8080/listTag' ,{
+    const params = new URLSearchParams();
+    params.append('uid', sessionStorage.getItem('uid'));
+    fetch('http://localhost:8080/listTag?' + params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

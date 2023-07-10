@@ -9,7 +9,8 @@ function ProfileUserInfo(props) {
 
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
-    const uid=searchParams.get('uid')
+    const userId=searchParams.get('uid')
+    const uid = sessionStorage.getItem('uid')
 
     const [user,setUser]=useState({});
 
@@ -17,6 +18,7 @@ function ProfileUserInfo(props) {
 
         // sessionStorage.setItem('uid','1');
         const params = new URLSearchParams();
+        params.append('userId', userId);
         params.append('uid', uid);
 
         getUser(params,setUser);

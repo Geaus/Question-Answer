@@ -97,7 +97,7 @@ function AnswerCard(props) {
 
         const params = new URLSearchParams();
         params.append('aid', answer.id);
-
+        params.append('uid', sessionStorage.getItem('uid'));
         deleteAnswer(params,setExist(false));
 
     }
@@ -105,7 +105,8 @@ function AnswerCard(props) {
     const handleBan=()=>{
 
         const params = new URLSearchParams();
-        params.append('uid',user.id);
+        params.append('userId',user.id);
+        params.append('uid', sessionStorage.getItem('uid'))
 
         banUser(params,setUser);
 

@@ -38,13 +38,13 @@ public class AnswerController {
     }
     @RequestMapping("/getAnswered")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Answer> listAsked(@RequestParam int uid, @RequestParam int page_id){ return answerService.getAsked(page_id, uid); }
+    public List<Answer> listAsked(@RequestParam int userId, @RequestParam int page_id){ return answerService.getAsked(page_id, userId); }
     @RequestMapping("/getLikedAnswer")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Answer> getLiked(@RequestParam int page_id, @RequestParam int uid){ return answerService.getLiked(page_id, uid); }
+    public List<Answer> getLiked(@RequestParam int page_id, @RequestParam int userId){ return answerService.getLiked(page_id, userId); }
     @RequestMapping("/getDislikedAnswer")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Answer> getDisliked(@RequestParam int page_id, @RequestParam int uid){ return answerService.getDisliked(page_id, uid); }
+    public List<Answer> getDisliked(@RequestParam int page_id, @RequestParam int userId){ return answerService.getDisliked(page_id, userId); }
     @RequestMapping("/deleteAnswer")
     @PreAuthorize("@authCheck.authorityCheck(1)")
     public void deleteAns(@RequestParam int aid){ answerService.deleteAnswer(aid); }

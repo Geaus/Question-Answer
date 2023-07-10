@@ -23,15 +23,15 @@ public class UserController {
     SensitiveWordService sensitiveWordService;
     @RequestMapping("/getFollowed")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<User> getFollowed(@RequestParam int page_id, @RequestParam int uid) { return userService.getFollowList(page_id, uid); }
+    public List<User> getFollowed(@RequestParam int page_id, @RequestParam int userId) { return userService.getFollowList(page_id, userId); }
     @RequestMapping("/login")
     public UserJSON loginCheck(@RequestParam String userName, @RequestParam String passWord) { return userService.loginCheck(userName, passWord); }
     @RequestMapping("/getUser")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public User findUser(@RequestParam int uid) { return userService.findUser(uid); }
+    public User findUser(@RequestParam int userId) { return userService.findUser(userId); }
     @RequestMapping("/banUser")
     @PreAuthorize("@authCheck.authorityCheck(1)")
-    public User banUser(@RequestParam int uid) { return userService.changeType(uid, -1); }
+    public User banUser(@RequestParam int userId) { return userService.changeType(userId, -1); }
     @RequestMapping("/register")
     public User register(@RequestParam String userName, @RequestParam String passWord,
                          @RequestParam String email){
@@ -43,6 +43,10 @@ public class UserController {
         }
         return userService.register(userName, passWord, email);
     }
-    @RequestMapping("/logout")
-    public void logout(@RequestParam int uid) { userService.logout(uid); }
+    @RequestMapping("/logoutSystem")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
+    public void logout(@RequestParam int uid) {
+        System.out.println(1);
+        userService.logout(uid);
+    }
 }

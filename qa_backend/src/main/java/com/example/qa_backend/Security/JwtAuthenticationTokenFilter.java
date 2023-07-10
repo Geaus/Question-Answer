@@ -38,9 +38,14 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException("token非法");
         }
         User user = userDao.findUser(userId);
-        if(id != 0 && userId != id)user = null;
+        if(id != 0 && userId != id){
+            throw new RuntimeException("用户非法");
+        }
         if(user == null) {
             throw new RuntimeException("用户未登录");
+        }
+        else if(!token.equals(user.getToken())){
+            throw new RuntimeException("token非法");
         }
         //将用户信息存放在SecurityContextHolder.getContext()，后面的过滤器就可以获得用户信息了。
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user,null,null);

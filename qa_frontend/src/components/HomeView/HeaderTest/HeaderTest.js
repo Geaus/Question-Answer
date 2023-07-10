@@ -65,6 +65,7 @@ const HeaderTest = () => {
         // sessionStorage.setItem('uid','1');
         const params = new URLSearchParams();
         params.append('uid', uid);
+        params.append('userId', uid);
         getUser(params,setUser);
 
         // console.log(user);

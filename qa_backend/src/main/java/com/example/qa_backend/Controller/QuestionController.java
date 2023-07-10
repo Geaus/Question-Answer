@@ -38,16 +38,16 @@ public class QuestionController {
     }
     @RequestMapping("/getAsked")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Question> listAsked(@RequestParam int page_id, @RequestParam int uid) { return questionService.listAsked(page_id, uid); }
+    public List<Question> listAsked(@RequestParam int page_id, @RequestParam int userId) { return questionService.listAsked(page_id, userId); }
     @RequestMapping("/getLikedQuestion")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Question> getLiked(@RequestParam int page_id, @RequestParam int uid) { return questionService.getLiked(page_id, uid); }
+    public List<Question> getLiked(@RequestParam int page_id, @RequestParam int userId) { return questionService.getLiked(page_id, userId); }
     @RequestMapping("/getDislikedQuestion")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Question> getDisliked(@RequestParam int page_id, @RequestParam int uid) { return questionService.getDisliked(page_id, uid); }
+    public List<Question> getDisliked(@RequestParam int page_id, @RequestParam int userId) { return questionService.getDisliked(page_id, userId); }
     @RequestMapping("/getMarkedQuestion")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<Question> getMarked(@RequestParam int page_id, @RequestParam int uid) { return questionService.getMarked(page_id, uid); }
+    public List<Question> getMarked(@RequestParam int page_id, @RequestParam int userId) { return questionService.getMarked(page_id, userId); }
     @RequestMapping("/searchByTitle")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> searchByTitle(@RequestParam String title, @RequestParam int uid) { return questionService.searchByTitle(title, uid); }

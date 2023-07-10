@@ -86,6 +86,7 @@ public class UserServiceimpl implements UserService {
             Date exp = new Date(System.currentTimeMillis() + 1800000);
             String formattedDate = formatter.format(exp);
             user.setExpire_time(formattedDate);
+            user.setToken(token);
             userDao.addOne(user);
             loginResult.setToken(token);
             loginResult.setCode(200);
@@ -110,7 +111,10 @@ public class UserServiceimpl implements UserService {
     public User register(String userName, String passWord, String email) {
         User user = userDao.nameCheck(userName);
         User res = new User();
-        if(user != null)res.setId(-1);
+        if(user != null){
+            res.setId(-1);
+            res.setUserName("用户名已被占用");
+        }
         else {
             res.setUserName(userName);
             res.setPassWord(passWord);
@@ -123,7 +127,9 @@ public class UserServiceimpl implements UserService {
     @Override
     public void logout(int uid) {
         User user = userDao.findUser(uid);
+        System.out.println(user.getExpire_time());
         user.setExpire_time("1999-01-01 00:00:00");
+        user.setToken("");
         userDao.addOne(user);
     }
 }

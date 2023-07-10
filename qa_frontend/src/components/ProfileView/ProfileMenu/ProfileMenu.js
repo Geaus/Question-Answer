@@ -25,10 +25,11 @@ function ProfileMenu() {
 
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
-    const uid=searchParams.get('uid')
+    const userId=searchParams.get('uid')
+    const uid=sessionStorage.getItem('uid')
 
 
-    const self= uid===sessionStorage.getItem('uid');
+    const self= userId===sessionStorage.getItem('uid');
     console.log(self)
 
     const [currentMenuItem,  setCurrentMenuItem] = useState('questions');
@@ -40,7 +41,8 @@ function ProfileMenu() {
 
 
         const params = new URLSearchParams();
-        params.append('uid', uid);
+        params.append('userId', userId);
+        params.append('uid', uid)
         //TODO:增加page_id的相关逻辑
         params.append('page_id', 0);
 

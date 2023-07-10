@@ -109,15 +109,15 @@ function QuestionCard(props) {
 
        const params = new URLSearchParams();
        params.append('qid', question.id);
-
-        deleteQuestion(params,navigate("/?title="));
+       params.append('uid', sessionStorage.getItem('uid'));
+       deleteQuestion(params,navigate("/?title="));
    }
 
    const handleBan=()=>{
 
        const params = new URLSearchParams();
-       params.append('uid',user.id);
-
+       params.append('userId',user.id);
+       params.append('uid', uid);
        banUser(params,setUser);
 
    }

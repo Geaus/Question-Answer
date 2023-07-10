@@ -34,9 +34,9 @@ public class FeedbackServiceimpl implements FeedbackService {
             feedback.setBookmark(0);
         }
         else {
-            if(feedback.getLike() == 1)question.setLike(question.getLike() - 1);
-            if(feedback.getLike() == -1)question.setDislike(question.getDislike() - 1);
-            if(feedback.getBookmark() == 1)question.setMark(question.getMark() - 1);
+            if(feedback.getLike() == 1 && ((value != 2) && (value != -2)))question.setLike(question.getLike() - 1);
+            if(feedback.getLike() == -1 && ((value != 2) && (value != -2)))question.setDislike(question.getDislike() - 1);
+            if(feedback.getBookmark() == 1 && ((value == 2) || (value == -2)))question.setMark(question.getMark() - 1);
         }
         feedback.setQuesId(qid);
         feedback.setUserId(uid);
@@ -58,6 +58,8 @@ public class FeedbackServiceimpl implements FeedbackService {
             markFlag = 1;
         }
         if(value == -2) feedback.setBookmark(0);
+        if(feedback.getBookmark() == 1)markFlag = 1;
+        likeFlag = feedback.getLike();
 
         feedback = feedbackQuestionDao.addOne(feedback);
         question = questionDao.addQuestion(question);
