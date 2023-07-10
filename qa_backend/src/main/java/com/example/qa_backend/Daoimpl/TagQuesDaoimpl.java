@@ -6,6 +6,8 @@ import com.example.qa_backend.Repository.TagQuesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class TagQuesDaoimpl implements TagQuesDao {
     @Autowired
@@ -19,4 +21,7 @@ public class TagQuesDaoimpl implements TagQuesDao {
     public void deleteRelation(int ques_id) {
         tagQuesRepository.deleteTagQuesRelationsByQuesId(ques_id);
     }
+
+    @Override
+    public List<TagQuesRelation> searchByTagId(int tagId){return tagQuesRepository.findAllByTagId(tagId);}
 }

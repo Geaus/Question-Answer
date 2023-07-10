@@ -14,7 +14,7 @@ import Answer from "../Editor/Editor";
 import {banUser, deleteQuestion, getQuestion} from "../../../service/QuestionService/QuestionService";
 import QuestionItem from "../../HomeView/QuestionItem/QuestionItem";
 import {feedbackQuestion} from "../../../service/FeedbackService/FeedbackService";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 const { Meta } = Card;
 const { Text } = Typography;
 
@@ -158,8 +158,9 @@ function QuestionCard(props) {
                             <List
                                 dataSource={question.tags}
                                 renderItem={(tag) => (
-                                    <Tag >{tag.content} </Tag>
-                                    // <Card key={question.id}>{question.title}</Card>
+                                    <Link to={`/?tag=${tag.id}`}>
+                                        <Tag color="#1677ff">{tag.content}</Tag>
+                                    </Link>
                                 )}
                             />:null
 

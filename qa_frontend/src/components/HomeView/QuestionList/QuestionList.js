@@ -9,17 +9,38 @@ const QuestionList =(props)=>{
 
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
-    const title=searchParams.get('title')
-    console.log(title);
+    const title=searchParams.get('title');
+    const tag = searchParams.get('tag');
+    const [reload, setReload] = useState(false);
+
 
     const [uid,setUid]=useState(sessionStorage.getItem('uid'));
     const [questions,setQuestions] =useState([]);
     const [empty,setEmpty]=useState(false);
     const [count,setCount]=useState(0);
 
+    const updateQuestion = (data) =>{
+        setQuestions(data);
+    }
     useEffect(() => {
 
-        if(title==="" || title===null){
+        if(title){
+            const params = new URLSearchParams();
+            params.append('uid', uid);
+            console.log(title);
+            params.append('keyword', title);
+            searchQuestion(params, updateQuestion);
+
+
+        }
+        else if(tag){
+            const params = new URLSearchParams();
+            params.append('uid', uid);
+            console.log(tag);
+            params.append('tag', tag);
+            searchQuestionByTag(params, setQuestions);
+        }
+       else{
             // sessionStorage.setItem('uid','1');
             const params = new URLSearchParams();
             params.append('uid', uid);
@@ -28,16 +49,29 @@ const QuestionList =(props)=>{
             getQuestions(params,setQuestions);
             console.log(questions)
         }
-        else{
+
+    },[title, tag]);
+
+    useEffect(() => {
+
+    },[questions]);
+
+    useEffect(() => {
+        if (new URLSearchParams(location.search).get('reload') === 'true') {
             const params = new URLSearchParams();
             params.append('uid', uid);
-            params.append('title', title);
-            searchQuestion(params,setQuestions);
+            getQuestions(params,setQuestions);
             console.log(questions)
+            setReload(true);
         }
+    }, [location.search, tag]);
 
-    },[title]);
+    useEffect(() => {
+        if (reload) {
 
+            setReload(false); // 重置标志，避免重复加载
+        }
+    }, [reload]);
 
     return (
 

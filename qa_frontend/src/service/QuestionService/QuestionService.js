@@ -249,3 +249,11 @@ export const banUser= (params,callback) => {
             else callback(data);
         })
 };
+
+export const searchQuestionByTag = (params, callback) => {
+    fetch('http://localhost:8080/searchByTag?'+params.toString())
+        .then(response => response.json())
+        .then((data) => {
+            callback(data);
+        })
+}
