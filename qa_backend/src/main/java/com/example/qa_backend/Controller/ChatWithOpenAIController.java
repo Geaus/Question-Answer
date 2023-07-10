@@ -10,6 +10,7 @@ import com.theokanning.openai.service.OpenAiService;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Retrofit;
 
@@ -53,6 +54,7 @@ public class ChatWithOpenAIController {
     }
 
     @RequestMapping("/chat")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
     public String chat(@RequestBody Map<String, String> requestBody) {
         String question = requestBody.get("question");
 

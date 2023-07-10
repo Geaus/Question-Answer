@@ -56,7 +56,9 @@ public class QuestionController {
     @PreAuthorize("@authCheck.authorityCheck(1)")
     public void deleteQuestion(@RequestParam int qid) { questionService.deleteQuestion(qid); }
     @RequestMapping("/searchByTag")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}
     @RequestMapping("/fullTextSearch")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid) throws IOException {return questionService.fullTextSearch(keyword, uid);}
 }

@@ -154,7 +154,7 @@ export const addAnswer = (params) => {
 
 export const searchQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/searchByTitle?'+params.toString() ,{
+    fetch('http://localhost:8080/fullTextSearch?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
