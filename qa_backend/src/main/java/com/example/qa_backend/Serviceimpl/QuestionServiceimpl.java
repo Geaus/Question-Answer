@@ -61,7 +61,7 @@ public class QuestionServiceimpl implements QuestionService {
 
     @PostConstruct
     public void init() throws IOException {
-        this.wordVectorModel = new WordVectorModel("src/main/resources/polyglot-zh.txt");
+        this.wordVectorModel = new WordVectorModel("src/main/resources/word2vec.txt");
         this.docVectorModel = new DocVectorModel(wordVectorModel);
         List<Question> questions = questionDao.listQuestions();
         for(Question question : questions){
@@ -194,22 +194,6 @@ public class QuestionServiceimpl implements QuestionService {
                 directory.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-        }
-
-        List<Term> termList = HanLP.segment(title.toLowerCase());
-        System.out.println(termList);
-        //遍历分词结果
-        for (Term term : termList) {
-            String word = term.toString().substring(0, term.length());      //词
-            String nature = term.toString().substring(term.length() + 1);   //词性
-
-            if (nature.contains("n")) {
-                System.out.println(nature);
-                KeywordEntity keywordEntity = new KeywordEntity();
-                keywordEntity.setKeyword(word);
-                keywordEntity.setQuestionId(ques_id);
-                keywordDao.addOne(keywordEntity);
             }
         }
 
