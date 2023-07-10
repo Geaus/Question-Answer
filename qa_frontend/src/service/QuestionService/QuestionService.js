@@ -1,5 +1,7 @@
-export const getQuestions = (params,callback) => {
+import {useNavigate} from "react-router-dom";
+import {message} from "antd";
 
+export const getQuestions = (params,callback) => {
     fetch('http://localhost:8080/getQuestions?'+params.toString(),{
         method: 'GET',
         headers: {
@@ -9,7 +11,16 @@ export const getQuestions = (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
-            callback(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data);
         })
 };
 
@@ -24,7 +35,16 @@ export const getQuestion = (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
-            callback(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data);
         })
 };
 
@@ -39,7 +59,16 @@ export const getAnswers = (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
-            callback(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data);
         })
 };
 
@@ -53,7 +82,18 @@ export const listTag = (callback) => {
         },
     })
         .then((response) => response.json())
-        .then((data) => {callback(data)})
+        .then((data) => {
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data)
+        })
 
 }
 export const askQuestion = (params, tags,callback) => {
@@ -72,7 +112,18 @@ export const askQuestion = (params, tags,callback) => {
 
     })
         .then((response) => response.json())
-        .then((data) => {callback(data)})
+        .then((data) => {
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data)
+        })
 
 }
 
@@ -87,7 +138,16 @@ export const addAnswer = (params) => {
     })
         .then(response => response.json())
         .then((data) => {
-            console.log(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else console.log(data);
         })
 }
 
@@ -102,7 +162,16 @@ export const searchQuestion = (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
-            callback(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data);
         })
 };
 
@@ -115,7 +184,19 @@ export const deleteQuestion = (params,callback) => {
             'token' : sessionStorage.getItem('token'),
         },
     })
-        .then(callback)
+        .then(response => response.json())
+        .then((data) => {
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback();
+        })
 
 };
 
@@ -128,7 +209,19 @@ export const deleteAnswer = (params,callback) => {
             'token' : sessionStorage.getItem('token'),
         },
     })
-        .then(callback)
+        .then(response => response.json())
+        .then((data) => {
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback()
+        })
 
 };
 
@@ -143,6 +236,15 @@ export const banUser= (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
-            callback(data);
+            if(data != null && data.code != null && data.code === 401) {
+                window.location.pathname = '/login'
+                message.error("用户认证失败，请重新登录")
+            }
+            else if(data != null && data.code != null && data.code === 403) {
+                if(window.location.pathname !== '/')window.location.pathname = '/'
+                else window.location.pathname = '/login'
+                message.error("用户权限错误")
+            }
+            else callback(data);
         })
 };
