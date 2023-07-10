@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1688456948464" clover="3.2.0">
+  <project timestamp="1688456948464" name="All files">
+    <metrics statements="11" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="4" coveredmethods="0" elements="17" coveredelements="0" complexity="0" loc="11" ncloc="11" packages="1" files="3" classes="3"/>
+    <file name="HomeView.js" path="/Users/lfwang/code/Qa/qa_frontend/src/view/HomeView.js">
+      <metrics statements="9" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
+      <line num="12" count="0" type="stmt"/>
+      <line num="14" count="0" type="stmt"/>
+      <line num="15" count="0" type="stmt"/>
+      <line num="17" count="0" type="stmt"/>
+      <line num="19" count="0" type="stmt"/>
+      <line num="20" count="0" type="stmt"/>
+      <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="22" count="0" type="stmt"/>
+      <line num="27" count="0" type="stmt"/>
+    </file>
+    <file name="ProfileView.js" path="/Users/lfwang/code/Qa/qa_frontend/src/view/ProfileView.js">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <line num="13" count="0" type="stmt"/>
+    </file>
+    <file name="QuestionDetailView.js" path="/Users/lfwang/code/Qa/qa_frontend/src/view/QuestionDetailView.js">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <line num="12" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>
