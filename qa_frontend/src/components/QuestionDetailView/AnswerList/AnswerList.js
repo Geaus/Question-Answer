@@ -27,8 +27,11 @@ function AnswerList(props) {
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', id);
+<<<<<<< HEAD
         //TODO:增加page_id的相关逻辑
         params.append('page_id', 0);
+=======
+>>>>>>> Gao
 
         // eslint-disable-next-line array-callback-return
        getAnswers(params,setAnswers);

@@ -7,7 +7,7 @@ import RegistrationForm from "../../components/LoginView/RegistrationForm/Regist
 function LoginView () {
 
     const [showRegistrationForm,setShowRegistrationForm] =useState(false);
-
+    
     const handleRegistrationSubmit = (data) => {
         if(data != null && data.id === -1) {
             message.error(data.userName);

@@ -46,7 +46,12 @@ export default function Answer(props) {
         const params = new URLSearchParams();
         params.append('uid', sessionStorage.getItem('uid'));
         params.append('qid', id);
+<<<<<<< HEAD
         addAnswer(params, content);
+=======
+        params.append('content', content);
+        addAnswer(params);
+>>>>>>> Gao
         props.setAnswer(false);
     }
 
