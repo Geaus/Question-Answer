@@ -68,7 +68,7 @@ public class QuestionServiceimpl implements QuestionService {
     public void init() throws IOException {
         this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
         this.docVectorModel = new DocVectorModel(wordVectorModel);
-        List<Question> questions = questionDao.listQuestions(0);
+        List<Question> questions = questionDao.listAll();
         for(Question question : questions){
             docVectorModel.addDocument(question.getId(), question.getTitle());
         }
@@ -153,7 +153,7 @@ public class QuestionServiceimpl implements QuestionService {
 
         analyzer = new HanLPAnalyzer();
         // 2. 创建Directory对象,声明索引库的位置
-        directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
+        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
         // 3. 创建IndexWriteConfig对象，写入索引需要的配置
         IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
         // 4.创建IndexWriter写入对象
@@ -664,7 +664,7 @@ public class QuestionServiceimpl implements QuestionService {
         }
 
         List<QuestionJSON> searchList = new ArrayList<>(10);
-        File indexFile = new File("D:/web/Qa/indexLibrary");
+        File indexFile = new File("src/main/resources/indexLibrary");
         File[] files = indexFile.listFiles();
         // 没有索引文件，没有查询结果
         if (files == null || files.length == 0) {
@@ -672,7 +672,7 @@ public class QuestionServiceimpl implements QuestionService {
         }
 
         try (Analyzer analyzer = new HanLPAnalyzer();
-             Directory directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
+             Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
              IndexReader indexReader = DirectoryReader.open(directory)) {
 
             List<Term> termList = HanLP.segment(keyWord.toLowerCase());

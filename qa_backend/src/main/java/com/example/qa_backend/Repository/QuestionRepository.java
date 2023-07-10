@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Page<Question> findAll(Pageable pageable);
+    List<Question> findAll();
     Question findQuestionById(int id);
     Page<Question> findQuestionsByUser(Pageable pageable, User user);
 }

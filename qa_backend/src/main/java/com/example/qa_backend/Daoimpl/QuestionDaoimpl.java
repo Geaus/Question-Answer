@@ -20,6 +20,11 @@ public class QuestionDaoimpl implements QuestionDao {
     }
 
     @Override
+    public List<Question> listAll() {
+        return questionRepository.findAll();
+    }
+
+    @Override
     public Question getQuestion(int id) {
         return questionRepository.findQuestionById(id);
     }
@@ -39,6 +44,4 @@ public class QuestionDaoimpl implements QuestionDao {
         questionRepository.delete(question);
     }
 
-    @Override
-    public List<Question> findQuestionsByTitleOrContentContaining(String keyword){ return questionRepository.findQuestionsByTitleLikeOrContentLike(keyword, keyword);}
 }

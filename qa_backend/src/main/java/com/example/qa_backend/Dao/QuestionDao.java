@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface QuestionDao {
     List<Question> listQuestions(int page_id);
+    List<Question> listAll();
     Question getQuestion(int id);
     Question addQuestion(Question question);
     List<Question> getAsked(int page_id, User user);
     void deleteQuestion(Question question);
-    List<Question> findQuestionsByTitleOrContentContaining(String keyword);
 }
