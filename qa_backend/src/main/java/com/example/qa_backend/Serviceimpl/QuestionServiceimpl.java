@@ -35,7 +35,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
+
 
 @Service
 public class QuestionServiceimpl implements QuestionService {
@@ -58,10 +60,12 @@ public class QuestionServiceimpl implements QuestionService {
 
     private WordVectorModel wordVectorModel;
     private DocVectorModel docVectorModel;
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() throws IOException {
-        this.wordVectorModel = new WordVectorModel("src/main/resources/word2vec.txt");
+        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
         this.docVectorModel = new DocVectorModel(wordVectorModel);
         List<Question> questions = questionDao.listQuestions();
         for(Question question : questions){
@@ -478,43 +482,232 @@ public class QuestionServiceimpl implements QuestionService {
         return resList;
     }
 
+//    private QuestionJSON questionToQuestionJSON(Question question)
+
+//    @Override
+//    public List<QuestionJSON> fullTextSearch(String keyWord, int uid) throws IOException {
+////        Word2VecTrainer trainerBuilder = new Word2VecTrainer();
+////        WordVectorModel wordVectorModel = trainerBuilder.train("D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/polyglot-zh.txt", "D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/result.txt");
+////        WordVectorModel wordVectorModel = new WordVectorModel("src/main/resources/polyglot-zh.txt");
+//
+//        List<QuestionJSON> searchList = new ArrayList<>(10);
+//        //PageData<ArticleEntity> pageData = new PageData<>();
+//        File indexFile = new File("D:/web/Qa/indexLibrary");
+//        File[] files = indexFile.listFiles();
+//        //沒有索引文件，不然沒有查詢結果
+//        if (files == null || files.length == 0) {
+//            List<QuestionJSON> questionJSONS = null;
+//            return questionJSONS;
+//        }
+//        IndexReader indexReader = null;
+//        Directory directory = null;
+//        try (Analyzer analyzer = new HanLPAnalyzer()) {
+//            directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
+//
+//            List<Term> termList = HanLP.segment(keyWord.toLowerCase());
+//            System.out.println(termList);
+//            CoreStopWordDictionary.apply(termList);
+//            String sentence = "";
+//            //遍历分词结果
+//            for (Term term : termList) {
+//                String word = term.toString().substring(0, term.length());      //词
+//                sentence += word;
+//            }
+//            System.out.println(sentence);
+//
+//            //多项查询条件
+//            QueryParser queryParser = new MultiFieldQueryParser(new String[]{"title", "content"}, analyzer);
+//            //单项
+//            Query query = queryParser.parse(!StringUtils.isEmpty(sentence) ? sentence : "*:*");
+//            indexReader = DirectoryReader.open(directory);
+//            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+//            TopDocs topDocs = indexSearcher.search(query, 10);
+//            //高亮显示
+//            SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span style='color:red'>", "</span>");
+//            Highlighter highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(query));
+//            Fragmenter fragmenter = new SimpleFragmenter(100);   //高亮后的段落范围在100字内
+//            highlighter.setTextFragmenter(fragmenter);
+//
+//            System.out.println("totalHints"+topDocs.totalHits);
+//
+//            if(topDocs.totalHits > 0 && sentence != "") {
+//                for (ScoreDoc sd : topDocs.scoreDocs) {
+//                    Document doc = indexSearcher.doc(sd.doc);
+//                    Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
+//                    QuestionJSON res = new QuestionJSON();
+//                    res.setId(question.getId());
+//                    res.setContent(question.getContent());
+//                    res.setCreateTime(question.getCreateTime());
+//                    res.setTags(question.getTags());
+//                    res.setTitle(highlighter.getBestFragment(new HanLPAnalyzer(), "title", doc.get("title")));
+//                    res.setUser(question.getUser());
+//                    List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+//                    int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+//                    for (int j = 0; j < feedback.size(); j++) {
+//                        if (feedback.get(j).getLike() == -1) {
+//                            if (feedback.get(j).getUserId() == uid) likeFlag = -1;
+//                            dislike++;
+//                        } else if (feedback.get(j).getLike() == 1) {
+//                            if (feedback.get(j).getUserId() == uid) likeFlag = 1;
+//                            like++;
+//                        }
+//                        if (feedback.get(j).getBookmark() == 1) {
+//                            if (feedback.get(j).getUserId() == uid) markFlag = 1;
+//                            mark++;
+//                        }
+//                    }
+//                    res.setLike(like);
+//                    res.setDislike(dislike);
+//                    res.setMark(mark);
+//                    res.setLikeFlag(likeFlag);
+//                    res.setMarkFlag(markFlag);
+//                    searchList.add(res);
+//
+//                }
+//            }
+//
+//            if(topDocs.totalHits<10 || sentence == "") {
+////                termList = HanLP.segment(keyWord.toLowerCase());
+////                System.out.println(termList);
+////                //遍历分词结果
+////                for (Term term : termList) {
+////                    String word = term.toString().substring(0, term.length());      //词
+////                    String nature = term.toString().substring(term.length() + 1);   //词性
+////                    if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
+////                        keywordList.add(word);
+////                    }
+////                }
+//
+//                List<Question> questions = new ArrayList<>(questionDao.listQuestions());
+//
+//                List<Map.Entry<Integer, Float>> entryList = this.docVectorModel.nearest(keyWord);
+//                for (Map.Entry<Integer, Float> entry : entryList)
+//                {
+//                    if(entry.getValue()>0.7) {
+//                        Question question = questionDao.getQuestion(entry.getKey());
+//                        System.out.println(entry.getValue());
+//                        QuestionJSON res = new QuestionJSON();
+//
+//                        System.out.println(docVectorModel.similarity(keyWord, question.getTitle()));
+//                        System.out.println(question.getTitle());
+//
+//                        res.setId(question.getId());
+//                        res.setContent(question.getContent());
+//                        res.setCreateTime(question.getCreateTime());
+//                        res.setTags(question.getTags());
+//                        res.setTitle(question.getTitle());
+//                        res.setUser(question.getUser());
+//                        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+//                        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+//                        for (int j = 0; j < feedback.size(); j++) {
+//                            if (feedback.get(j).getLike() == -1) {
+//                                if (feedback.get(j).getUserId() == uid) likeFlag = -1;
+//                                dislike++;
+//                            } else if (feedback.get(j).getLike() == 1) {
+//                                if (feedback.get(j).getUserId() == uid) likeFlag = 1;
+//                                like++;
+//                            }
+//                            if (feedback.get(j).getBookmark() == 1) {
+//                                if (feedback.get(j).getUserId() == uid) markFlag = 1;
+//                                mark++;
+//                            }
+//                        }
+//                        res.setLike(like);
+//                        res.setDislike(dislike);
+//                        res.setMark(mark);
+//                        res.setLikeFlag(likeFlag);
+//                        res.setMarkFlag(markFlag);
+//                        System.out.println(searchList.size());
+//                        if (!searchList.contains(res)) {
+//                            System.out.println(searchList.size());
+//                            searchList.add(res);
+//                        }
+//                    }
+//                }
+//            }
+//            return searchList;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("全文檢索出错：" + e.getMessage());
+//        } finally {
+//            if (indexReader != null) {
+//                try {
+//                    indexReader.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            if (directory != null) {
+//                try {
+//                    directory.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
+
+    QuestionJSON questionToQuestionJSON (Question question, int uid, boolean isHighLighter){
+
+        QuestionJSON res = new QuestionJSON();
+        res.setId(question.getId());
+        res.setContent(question.getContent());
+        res.setCreateTime(question.getCreateTime());
+        res.setTags(question.getTags());
+        if(!isHighLighter) res.setTitle(question.getTitle());
+        res.setUser(question.getUser());
+        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+        for (FeedbackForQuestion feedbackForQuestion : feedback) {
+            if (feedbackForQuestion.getLike() == -1) {
+                if (feedbackForQuestion.getUserId() == uid) likeFlag = -1;
+                dislike++;
+            } else if (feedbackForQuestion.getLike() == 1) {
+                if (feedbackForQuestion.getUserId() == uid) likeFlag = 1;
+                like++;
+            }
+            if (feedbackForQuestion.getBookmark() == 1) {
+                if (feedbackForQuestion.getUserId() == uid) markFlag = 1;
+                mark++;
+            }
+        }
+        res.setLike(like);
+        res.setDislike(dislike);
+        res.setMark(mark);
+        res.setLikeFlag(likeFlag);
+        res.setMarkFlag(markFlag);
+        return res;
+    }
+
     @Override
     public List<QuestionJSON> fullTextSearch(String keyWord, int uid) throws IOException {
-//        Word2VecTrainer trainerBuilder = new Word2VecTrainer();
-//        WordVectorModel wordVectorModel = trainerBuilder.train("D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/polyglot-zh.txt", "D:/web/Qa/qa_backend/src/main/resources/polyglot-zh/result.txt");
-//        WordVectorModel wordVectorModel = new WordVectorModel("src/main/resources/polyglot-zh.txt");
+        if (searchCache.containsKey(keyWord)) {
+            return searchCache.get(keyWord);
+        }
 
         List<QuestionJSON> searchList = new ArrayList<>(10);
-        //PageData<ArticleEntity> pageData = new PageData<>();
         File indexFile = new File("D:/web/Qa/indexLibrary");
         File[] files = indexFile.listFiles();
-        //沒有索引文件，不然沒有查詢結果
+        // 没有索引文件，没有查询结果
         if (files == null || files.length == 0) {
-            List<QuestionJSON> questionJSONS = null;
-            return questionJSONS;
+            return searchList;
         }
-        IndexReader indexReader = null;
-        Directory directory = null;
-        try (Analyzer analyzer = new HanLPAnalyzer()) {
-            directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
+
+        try (Analyzer analyzer = new HanLPAnalyzer();
+             Directory directory = FSDirectory.open(Paths.get("D:/web/Qa/indexLibrary"));
+             IndexReader indexReader = DirectoryReader.open(directory)) {
 
             List<Term> termList = HanLP.segment(keyWord.toLowerCase());
-            List<String> keywordList = new ArrayList<>();
-            System.out.println(termList);
             CoreStopWordDictionary.apply(termList);
-            String sentence = "";
-            //遍历分词结果
+            StringBuilder sentenceBuilder = new StringBuilder();
             for (Term term : termList) {
-                String word = term.toString().substring(0, term.length());      //词
-                sentence += word;
+                String word = term.toString().substring(0, term.length());
+                sentenceBuilder.append(word);
             }
-            System.out.println(sentence);
+            String sentence = sentenceBuilder.toString();
 
-            //多项查询条件
             QueryParser queryParser = new MultiFieldQueryParser(new String[]{"title", "content"}, analyzer);
-            //单项
             Query query = queryParser.parse(!StringUtils.isEmpty(sentence) ? sentence : "*:*");
-            indexReader = DirectoryReader.open(directory);
             IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             TopDocs topDocs = indexSearcher.search(query, 10);
             //高亮显示
@@ -523,122 +716,54 @@ public class QuestionServiceimpl implements QuestionService {
             Fragmenter fragmenter = new SimpleFragmenter(100);   //高亮后的段落范围在100字内
             highlighter.setTextFragmenter(fragmenter);
 
-            System.out.println("totalHints"+topDocs.totalHits);
-
-            if(topDocs.totalHits > 0 && sentence != "") {
+            if (topDocs.totalHits > 0 && !StringUtils.isEmpty(sentence)) {
                 for (ScoreDoc sd : topDocs.scoreDocs) {
                     Document doc = indexSearcher.doc(sd.doc);
                     Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
-                    QuestionJSON res = new QuestionJSON();
-                    res.setId(question.getId());
-                    res.setContent(question.getContent());
-                    res.setCreateTime(question.getCreateTime());
-                    res.setTags(question.getTags());
+                    QuestionJSON res = questionToQuestionJSON(question, uid, true);
                     res.setTitle(highlighter.getBestFragment(new HanLPAnalyzer(), "title", doc.get("title")));
-                    res.setUser(question.getUser());
-                    List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-                    int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-                    for (int j = 0; j < feedback.size(); j++) {
-                        if (feedback.get(j).getLike() == -1) {
-                            if (feedback.get(j).getUserId() == uid) likeFlag = -1;
-                            dislike++;
-                        } else if (feedback.get(j).getLike() == 1) {
-                            if (feedback.get(j).getUserId() == uid) likeFlag = 1;
-                            like++;
-                        }
-                        if (feedback.get(j).getBookmark() == 1) {
-                            if (feedback.get(j).getUserId() == uid) markFlag = 1;
-                            mark++;
-                        }
-                    }
-                    res.setLike(like);
-                    res.setDislike(dislike);
-                    res.setMark(mark);
-                    res.setLikeFlag(likeFlag);
-                    res.setMarkFlag(markFlag);
                     searchList.add(res);
-
                 }
             }
 
-            if(topDocs.totalHits<10 || sentence == "") {
-//                termList = HanLP.segment(keyWord.toLowerCase());
-//                System.out.println(termList);
-//                //遍历分词结果
-//                for (Term term : termList) {
-//                    String word = term.toString().substring(0, term.length());      //词
-//                    String nature = term.toString().substring(term.length() + 1);   //词性
-//                    if (nature.contains("n") || nature.contains("g") || nature.contains("m")) {
-//                        keywordList.add(word);
-//                    }
-//                }
+            if (topDocs.totalHits < 10 || StringUtils.isEmpty(sentence)) {
 
-                List<Question> questions = new ArrayList<>(questionDao.listQuestions());
+                List<Callable<Void>> tasks = new ArrayList<>();
+                for (Map.Entry<Integer, Float> entry : this.docVectorModel.nearest(keyWord)) {
+                    if (entry.getValue() > 0.7) {
+                        Callable<Void> task = () -> {
+                            Question question = questionDao.getQuestion(entry.getKey());
+                            System.out.println(entry.getValue());
+                            System.out.println(question.getTitle());
 
-                List<Map.Entry<Integer, Float>> entryList = this.docVectorModel.nearest(keyWord);
-                for (Map.Entry<Integer, Float> entry : entryList)
-                {
-                    if(entry.getValue()>0.7) {
-                        Question question = questionDao.getQuestion(entry.getKey());
-                        System.out.println(entry.getValue());
-                        QuestionJSON res = new QuestionJSON();
-
-                        System.out.println(docVectorModel.similarity(keyWord, question.getTitle()));
-                        System.out.println(question.getTitle());
-
-                        res.setId(question.getId());
-                        res.setContent(question.getContent());
-                        res.setCreateTime(question.getCreateTime());
-                        res.setTags(question.getTags());
-                        res.setTitle(question.getTitle());
-                        res.setUser(question.getUser());
-                        List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
-                        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-                        for (int j = 0; j < feedback.size(); j++) {
-                            if (feedback.get(j).getLike() == -1) {
-                                if (feedback.get(j).getUserId() == uid) likeFlag = -1;
-                                dislike++;
-                            } else if (feedback.get(j).getLike() == 1) {
-                                if (feedback.get(j).getUserId() == uid) likeFlag = 1;
-                                like++;
+                            QuestionJSON res = questionToQuestionJSON(question, uid, false);
+                            if (!searchList.contains(res)) {
+                                searchList.add(res);
                             }
-                            if (feedback.get(j).getBookmark() == 1) {
-                                if (feedback.get(j).getUserId() == uid) markFlag = 1;
-                                mark++;
-                            }
-                        }
-                        res.setLike(like);
-                        res.setDislike(dislike);
-                        res.setMark(mark);
-                        res.setLikeFlag(likeFlag);
-                        res.setMarkFlag(markFlag);
-                        System.out.println(searchList.size());
-                        if (!searchList.contains(res)) {
-                            System.out.println(searchList.size());
-                            searchList.add(res);
-                        }
+                            return null;
+                        };
+                        tasks.add(task);
                     }
                 }
+
+                try {
+                    List<Future<Void>> results = executorService.invokeAll(tasks);
+                    for (Future<Void> result : results) {
+                        result.get(); // 等待任务执行完成
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
+
+            // 将结果添加到缓存
+            searchCache.put(keyWord, searchList);
+
             return searchList;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("全文檢索出错：" + e.getMessage());
-        } finally {
-            if (indexReader != null) {
-                try {
-                    indexReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (directory != null) {
-                try {
-                    directory.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            throw new RuntimeException("全文检索出错：" + e.getMessage());
         }
     }
+
 }
