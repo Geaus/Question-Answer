@@ -1,7 +1,7 @@
 import React, {Component, useEffect, useState} from 'react';
 import {Card, Button, Collapse, List} from 'antd';
 import QuestionItem from "../QuestionItem/QuestionItem";
-import {getQuestions, searchQuestion} from "../../../service/QuestionService/QuestionService";
+import {getQuestions, searchQuestion, searchQuestionByTag} from "../../../service/QuestionService/QuestionService";
 import {useLocation, useParams} from "react-router";
 const QuestionList =(props)=>{
 

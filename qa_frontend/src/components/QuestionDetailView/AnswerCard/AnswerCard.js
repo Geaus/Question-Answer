@@ -97,11 +97,7 @@ function AnswerCard(props) {
 
         const params = new URLSearchParams();
         params.append('aid', answer.id);
-<<<<<<< HEAD
         params.append('uid', sessionStorage.getItem('uid'));
-=======
-
->>>>>>> Gao
         deleteAnswer(params,setExist(false));
 
     }
@@ -109,12 +105,8 @@ function AnswerCard(props) {
     const handleBan=()=>{
 
         const params = new URLSearchParams();
-<<<<<<< HEAD
         params.append('userId',user.id);
         params.append('uid', sessionStorage.getItem('uid'))
-=======
-        params.append('uid',user.id);
->>>>>>> Gao
 
         banUser(params,setUser);
 

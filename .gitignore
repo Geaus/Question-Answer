@@ -6,6 +6,7 @@
 /qa_frontend/package-lock.json
 /qa_backend/.idea
 /qa_backend/target
+/qa_backend/src/main/resources
 /.pnp
 .pnp.js
 

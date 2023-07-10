@@ -14,11 +14,7 @@ import Answer from "../Editor/Editor";
 import {banUser, deleteQuestion, getQuestion} from "../../../service/QuestionService/QuestionService";
 import QuestionItem from "../../HomeView/QuestionItem/QuestionItem";
 import {feedbackQuestion} from "../../../service/FeedbackService/FeedbackService";
-<<<<<<< HEAD
 import {Link, useNavigate} from "react-router-dom";
-=======
-import {useNavigate} from "react-router-dom";
->>>>>>> Gao
 const { Meta } = Card;
 const { Text } = Typography;
 
@@ -113,25 +109,15 @@ function QuestionCard(props) {
 
        const params = new URLSearchParams();
        params.append('qid', question.id);
-<<<<<<< HEAD
        params.append('uid', sessionStorage.getItem('uid'));
        deleteQuestion(params,navigate("/?title="));
-=======
-
-        deleteQuestion(params,navigate("/?title="));
->>>>>>> Gao
    }
 
    const handleBan=()=>{
 
        const params = new URLSearchParams();
-<<<<<<< HEAD
        params.append('userId',user.id);
        params.append('uid', uid);
-=======
-       params.append('uid',user.id);
-
->>>>>>> Gao
        banUser(params,setUser);
 
    }
@@ -172,14 +158,9 @@ function QuestionCard(props) {
                             <List
                                 dataSource={question.tags}
                                 renderItem={(tag) => (
-<<<<<<< HEAD
                                     <Link to={`/?tag=${tag.id}`}>
                                         <Tag color="#1677ff">{tag.content}</Tag>
                                     </Link>
-=======
-                                    <Tag >{tag.content} </Tag>
-                                    // <Card key={question.id}>{question.title}</Card>
->>>>>>> Gao
                                 )}
                             />:null
 
