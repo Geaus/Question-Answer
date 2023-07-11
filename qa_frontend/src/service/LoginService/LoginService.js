@@ -28,6 +28,7 @@ export const login = (username, password) => {
                 }
                 else {
                     sessionStorage.setItem('uid', data.user.id);
+                    sessionStorage.setItem('type', data.user.type);
                     sessionStorage.setItem('token', data.result.token)
                 }
             }

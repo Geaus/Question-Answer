@@ -2,6 +2,7 @@ package com.example.qa_backend.Controller;
 
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
+import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.example.qa_backend.Service.SensitiveWordService;
@@ -29,7 +30,7 @@ public class QuestionController {
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public Question askQuestion(@RequestParam int uid, @RequestParam String content, @RequestParam String title,
                                 @RequestBody List<Tag> tags)  throws IOException {
-        if(!sensitiveWordService.isTextValid(content)) {
+        if(!sensitiveWordService.isTextValid(content) || !sensitiveWordService.isTextValid(title)) {
             Question question = new Question();
             question.setId(-1);
             question.setContent("提问内容不合法");
@@ -54,7 +55,13 @@ public class QuestionController {
     public List<QuestionJSON> searchByTitle(@RequestParam String title, @RequestParam int uid) { return questionService.searchByTitle(title, uid); }
     @RequestMapping("/deleteQuestion")
     @PreAuthorize("@authCheck.authorityCheck(1)")
-    public void deleteQuestion(@RequestParam int qid) { questionService.deleteQuestion(qid); }
+    public LoginResult deleteQuestion(@RequestParam int qid) {
+        questionService.deleteQuestion(qid);
+        LoginResult result = new LoginResult();
+        result.setCode(200);
+        result.setToken("删除成功");
+        return result;
+    }
     @RequestMapping("/searchByTag")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}

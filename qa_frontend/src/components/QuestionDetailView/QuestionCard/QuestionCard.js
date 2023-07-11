@@ -110,7 +110,9 @@ function QuestionCard(props) {
        const params = new URLSearchParams();
        params.append('qid', question.id);
        params.append('uid', sessionStorage.getItem('uid'));
-       deleteQuestion(params,navigate("/?title="));
+       deleteQuestion(params, () => {
+           navigate("/?title=")
+       });
    }
 
    const handleBan=()=>{

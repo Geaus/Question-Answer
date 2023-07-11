@@ -2,14 +2,12 @@ package com.example.qa_backend.Controller;
 
 import com.example.qa_backend.Entity.Answer;
 import com.example.qa_backend.JSON.AnswerJSON;
+import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.Service.AnswerService;
 import com.example.qa_backend.Service.SensitiveWordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public class AnswerController {
     @RequestMapping("/addAnswer")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public Answer addAnswer(@RequestParam int uid, @RequestParam int qid,
-                            @RequestParam String content) {
+                            @RequestBody String content) {
         if(!sensitiveWordService.isTextValid(content)) {
             Answer answer = new Answer();
             answer.setId(-1);
@@ -47,5 +45,11 @@ public class AnswerController {
     public List<Answer> getDisliked(@RequestParam int page_id, @RequestParam int userId){ return answerService.getDisliked(page_id, userId); }
     @RequestMapping("/deleteAnswer")
     @PreAuthorize("@authCheck.authorityCheck(1)")
-    public void deleteAns(@RequestParam int aid){ answerService.deleteAnswer(aid); }
+    public LoginResult deleteAns(@RequestParam int aid) {
+        answerService.deleteAnswer(aid);
+        LoginResult result = new LoginResult();
+        result.setCode(200);
+        result.setToken("删除成功");
+        return result;
+    }
 }

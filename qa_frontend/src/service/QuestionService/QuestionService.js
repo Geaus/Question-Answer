@@ -123,19 +123,23 @@ export const askQuestion = (params, tags,callback) => {
                 else window.location.pathname = '/login'
                 message.error("用户权限错误")
             }
+            else if(data != null && data.id === -1) {
+                message.error(data.content);
+            }
             else callback(data)
         })
 
 }
 
-export const addAnswer = (params) => {
+export const addAnswer = (params, content) => {
 
     fetch('http://localhost:8080/addAnswer?'+params.toString() ,{
         method: 'GET',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
             'token' : sessionStorage.getItem('token'),
         },
+        body: content
     })
         .then(response => response.json())
         .then((data) => {
@@ -148,7 +152,10 @@ export const addAnswer = (params) => {
                 else window.location.pathname = '/login'
                 message.error("用户权限错误")
             }
-            else console.log(data);
+            else if(data != null && data.id === -1) {
+                message.error(data.content)
+            }
+            else window.location.reload();
         })
 }
 
