@@ -38,6 +38,7 @@ function QuestionDetailView(props) {
                 }}
             >
                 <div
+                    data-testId="question-detail-content"
                     style={{
                         flex: 1,
                         overflow: 'auto',

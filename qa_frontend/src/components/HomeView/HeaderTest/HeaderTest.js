@@ -69,7 +69,7 @@ const HeaderTest = () => {
         getUser(params,setUser);
 
         // console.log(user);
-    },[user]);
+    },[]);
 
 
     const handleSearch = (e) =>{

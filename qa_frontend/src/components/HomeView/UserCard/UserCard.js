@@ -139,6 +139,7 @@ function UserCard() {
                     <div>
                         {selectedTags.map((tag) => (
                             <Tag
+                                data-testId="ask-select-key"
                                 key={tag.id}
                                 closable
                                 onClose={() => handleRemoveTag(tag)}
@@ -151,9 +152,9 @@ function UserCard() {
                     <div>
                         {unselectedTags.map((tag) => (
                             <Tag
+                                data-testId="ask-unselect-key"
                                 key={tag.id}
                                 onClick={() => handleAddTagToQuestion(tag)} // 添加点击事件
-
                             >
                                 {tag.content}
                             </Tag>

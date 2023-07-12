@@ -106,7 +106,6 @@ const QuestionItem =(props)=>{
                         </Button>
                     )
                 }
-
             >
                 {question.user.userName+' : '}
                 {expanded ? questionContent : truncatedContent}

@@ -110,10 +110,10 @@ export default function Answer(props) {
         <div style={{ backgroundColor: 'white' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <h1 style={{ marginLeft: '2vw' }}>Answer Editors</h1>
-                <Button onClick={handlePublish} style={{ marginLeft: 'auto' }}>发布</Button>
+                <Button data-testId="answer-submit" onClick={handlePublish} style={{ marginLeft: 'auto' }}>发布</Button>
             </div>
             <div >
-                <ReactEditor editor={editor} />
+                <ReactEditor data-testId="answer-editor" editor={editor} />
             </div>
         </div>
 

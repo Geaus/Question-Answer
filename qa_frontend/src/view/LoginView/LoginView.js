@@ -14,6 +14,9 @@ function LoginView () {
         if(data != null && data.id === -1) {
             message.error(data.userName);
         }
+        else if(data == null) {
+            setShowRegistrationForm(false);
+        }
         else {
             message.success("注册成功")
             setShowRegistrationForm(false);

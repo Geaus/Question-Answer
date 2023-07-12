@@ -134,7 +134,7 @@ export const askQuestion = (params, tags,callback) => {
 export const addAnswer = (params, content) => {
 
     fetch('http://localhost:8080/addAnswer?'+params.toString() ,{
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'token' : sessionStorage.getItem('token'),
