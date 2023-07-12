@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -117,8 +118,13 @@ public class UserServiceimpl implements UserService {
         }
         else {
             res.setUserName(userName);
-            res.setPassWord(passWord);
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String encodedPasswd = encoder.encode(passWord);
+            res.setPassWord(encodedPasswd);
             res.setEmail(email);
+            res.setType(0);
+            res.setAvatar("https://xsgames.co/randomusers/avatar.php?g=pixel");
+            res.setExpire_time("1999-01-01 00:00:00");
             res = userDao.addOne(res);
         }
         return res;

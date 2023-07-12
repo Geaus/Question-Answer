@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Input, Button, message, Card} from 'antd';
+import {Input, Button, message, Card, Row, Col} from 'antd';
 import {useNavigate} from "react-router-dom";
 import {register} from "../../../service/LoginService/LoginService";
 
@@ -51,42 +51,48 @@ function RegisterForm (props) {
 
     return (
         <div>
-            <Card style={cardStyle} title="Register">
+            <Card style={cardStyle} title="注册" hoverable>
                 <Input
-                    placeholder="Username"
+                    placeholder="用户名"
                     style={{ marginBottom: 16 }}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
                 <Input.Password
-                    placeholder="Password"
+                    placeholder="密码"
                     style={{ marginBottom: 16 }}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <Input.Password
-                    placeholder="Repeat Password"
+                    placeholder="重复密码"
                     style={{ marginBottom: 16 }}
                     value={rePassword}
                     onChange={(e) => setRePassword(e.target.value)}
                 />
                 <Input
-                    placeholder="Email"
+                    placeholder="邮箱"
                     style={{ marginBottom: 16 }}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
-                <Button type="primary" style={{ marginRight: 8 }} onClick={handleSubmit}>
-                    提交
-                </Button>
-                <Button  onClick={()=>{
-                    const { onSubmit } = props;
-                    onSubmit();
+                <Row>
+                    <Col span={12}>
+                        <Button data-testid="register-submit-button" type="primary" style={{ marginRight: 8 }} onClick={handleSubmit}>
+                            提交
+                        </Button>
+                    </Col>
+                    <Col span={12}>
+                        <Button  onClick={()=>{
+                            const { onSubmit } = props;
+                            onSubmit();
 
-                }}  style={{ float: 'right' }}
-                >
-                    cancel
-                </Button>
+                        }}  style={{ float: 'right' }}
+                        >
+                            取消
+                        </Button>
+                    </Col>
+                </Row>
             </Card>
         </div>
     );
