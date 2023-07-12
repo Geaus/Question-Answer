@@ -175,20 +175,20 @@ function QuestionCard(props) {
 
                             {
                                 (question.likeFlag===1) ?
-                                    <Button icon={<LikeFilled />} onClick={handleLike}/>
-                                    : <Button icon={<LikeOutlined />} onClick={handleLike}/>
+                                    <Button data-testId="like-question-button" icon={<LikeFilled />} onClick={handleLike}/>
+                                    : <Button data-testId="like-question-button" icon={<LikeOutlined />} onClick={handleLike}/>
                             }
-                            <Text type="secondary">{question.like}</Text>
+                            <Text data-testId="like-question-count" type="secondary">{question.like}</Text>
                         </Space>
                     </Col>
                     <Col>
                         <Space>
                             {
                                 (question.likeFlag===-1) ?
-                                    <Button icon={<DislikeFilled/>} onClick={handleDislike}/>
-                                    : <Button icon={<DislikeOutlined/>} onClick={handleDislike}/>
+                                    <Button data-testId="dislike-question-button" icon={<DislikeFilled/>} onClick={handleDislike}/>
+                                    : <Button data-testId="dislike-question-button" icon={<DislikeOutlined/>} onClick={handleDislike}/>
                             }
-                            <Text type="secondary">{question.dislike}</Text>
+                            <Text data-testId="dislike-question-count" type="secondary">{question.dislike}</Text>
 
                         </Space>
                     </Col>
@@ -196,10 +196,10 @@ function QuestionCard(props) {
                         <Space>
                             {
                                 (question.markFlag===1) ?
-                                    <Button icon={<StarFilled/>} onClick={handleStar}/>
-                                    : <Button icon={<StarOutlined/>} onClick={handleStar}/>
+                                    <Button data-testId="mark-question-button" icon={<StarFilled/>} onClick={handleStar}/>
+                                    : <Button data-testId="mark-question-button" icon={<StarOutlined/>} onClick={handleStar}/>
                             }
-                            <Text type="secondary">{question.mark}</Text>
+                            <Text data-testId="mark-question-count" type="secondary">{question.mark}</Text>
 
                         </Space>
                     </Col>
@@ -207,7 +207,7 @@ function QuestionCard(props) {
                         <Space>
                             {
                                 (admin===true) ?
-                                    <Button icon={<DeleteOutlined/>} onClick={handleDelete}/>
+                                    <Button data-testId="delete-question-button" icon={<DeleteOutlined/>} onClick={handleDelete}/>
                                     : null
                             }
                         </Space>
