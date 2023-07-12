@@ -62,7 +62,7 @@ class QuestionServiceimplTest {
         question2.setId(2);
         expectedQuestionList.add(question1);
         expectedQuestionList.add(question2);
-        when(questionDao.listQuestions()).thenReturn(expectedQuestionList);
+        when(questionDao.listQuestions(1)).thenReturn(expectedQuestionList);
 
         List<FeedbackForQuestion> expectedFeedbackList1 = new ArrayList<>();
         FeedbackForQuestion feedback1 = new FeedbackForQuestion();
