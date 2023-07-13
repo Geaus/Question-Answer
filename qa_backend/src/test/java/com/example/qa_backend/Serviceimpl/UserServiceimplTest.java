@@ -2,17 +2,24 @@ package com.example.qa_backend.Serviceimpl;
 
 import com.example.qa_backend.Dao.FollowDao;
 import com.example.qa_backend.Dao.UserDao;
+import com.example.qa_backend.Data.LoginUser;
 import com.example.qa_backend.Entity.Follow;
 import com.example.qa_backend.Entity.User;
+import com.example.qa_backend.JSON.UserJSON;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,12 +33,17 @@ class UserServiceimplTest {
     private UserDao userDao;
     @Mock
     private FollowDao followDao;
+    @Mock
+    AuthenticationManager authenticationManager;
+    @Mock
+    Authentication authentication;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         userServiceimpl = new UserServiceimpl();
         userServiceimpl.userDao = userDao;
         userServiceimpl.followDao = followDao;
+        userServiceimpl.authenticationManager = authenticationManager;
     }
 
     @AfterEach
@@ -52,7 +64,7 @@ class UserServiceimplTest {
         follow2.setUser1Id(1);
         follow2.setUser2Id(3);
         expectedFollowList.add(follow2);
-        when(followDao.findFollowList(1)).thenReturn(expectedFollowList);
+        when(followDao.findFollowList(1,1)).thenReturn(expectedFollowList);
 
         User expectedUser1 = new User();
         expectedUser1.setId(1);
@@ -64,7 +76,7 @@ class UserServiceimplTest {
         when(userDao.findUser(2)).thenReturn(expectedUser2);
         when(userDao.findUser(3)).thenReturn(expectedUser3);
 
-        List<User> followList = userServiceimpl.getFollowList(1);
+        List<User> followList = userServiceimpl.getFollowList(1,1);
 
         assertEquals(followList.size(), expectedFollowList.size());
 
@@ -79,15 +91,36 @@ class UserServiceimplTest {
         expectedUser.setId(1);
         expectedUser.setUserName("user1");
         expectedUser.setPassWord("1");
-        User expectedBadUser = null;
-        when(userDao.loginCheck("user1", "1")).thenReturn(expectedUser);
-        when(userDao.loginCheck("user1", "2")).thenReturn(expectedBadUser);
+        expectedUser.setType(0);
+        Date exp = new Date(System.currentTimeMillis() - 1800000);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = formatter.format(exp);
+        expectedUser.setExpire_time(formattedDate);
 
-        User user = userServiceimpl.loginCheck("user1", "1");
-        User badUser = userServiceimpl.loginCheck("user1", "2");
+        User expectedBlockedUser = new User();
+        expectedBlockedUser.setId(1);
+        expectedBlockedUser.setUserName("user1");
+        expectedBlockedUser.setPassWord("1");
+        expectedBlockedUser.setType(-1);
+        Date exp1 = new Date(System.currentTimeMillis() + 1800000);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate1 = simpleDateFormat.format(exp1);
+        expectedBlockedUser.setExpire_time(formattedDate1);
 
-        assertEquals(user.getId(), 1);
-        assertEquals(badUser.getId(), -1);
+        LoginUser expectedLoginUser = new LoginUser(expectedUser);
+        LoginUser expectedLoginBlockedUser = new LoginUser(expectedBlockedUser);
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken("user1", "1");
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken1 = new UsernamePasswordAuthenticationToken("user1", "2");
+        when(authenticationManager.authenticate(usernamePasswordAuthenticationToken)).thenReturn(authentication);
+        when(authenticationManager.authenticate(usernamePasswordAuthenticationToken1)).thenReturn(null);
+        when(authentication.getPrincipal()).thenReturn(expectedLoginUser);
+        when(userDao.addOne(expectedUser)).thenReturn(expectedUser);
+        UserJSON user = userServiceimpl.loginCheck("user1", "1");
+        UserJSON badUser = userServiceimpl.loginCheck("user1", "2");
+
+        assertEquals(user.getUser().getId(), 1);
+        assertEquals(badUser.getUser().getId(), -1);
 
     }
 

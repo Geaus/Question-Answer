@@ -54,7 +54,6 @@ class AnswerServiceimplTest {
         when(questionDao.getQuestion(1)).thenReturn(expectedQuestion);
 
         List<Answer> expectedAnswers = new ArrayList<>();
-
         Answer answer1 = new Answer();
         answer1.setId(1);
         User user2 = new User();
@@ -68,12 +67,14 @@ class AnswerServiceimplTest {
         user3.setId(3);
         answer2.setUser(user3);
         expectedAnswers.add(answer2);
+        when(answerDao.findAnswersByPage(1, expectedQuestion)).thenReturn(expectedAnswers);
 
-        when(answerDao.findAnswers(expectedQuestion)).thenReturn(expectedAnswers);
-
-        List<FeedbackForAnswer> feedbackForAnswers = new ArrayList<>();
-        when(feedbackAnswerDao.findFeedback(1)).thenReturn(feedbackForAnswers);
-        when(feedbackAnswerDao.findFeedback(2)).thenReturn(feedbackForAnswers);
+        FeedbackForAnswer feedbackForAnswer1 = new FeedbackForAnswer();
+        feedbackForAnswer1.setLike(3);
+        FeedbackForAnswer feedbackForAnswer2 = new FeedbackForAnswer();
+        feedbackForAnswer2.setLike(2);
+        when(feedbackAnswerDao.findSpecific(1,1)).thenReturn(feedbackForAnswer1);
+        when(feedbackAnswerDao.findSpecific(2,1)).thenReturn(feedbackForAnswer2);
 
         Follow follow12 = new Follow();
         follow12.setId(1);
@@ -86,7 +87,7 @@ class AnswerServiceimplTest {
         when(followDao.check(1,2)).thenReturn(follow12);
         when(followDao.check(1,3)).thenReturn(follow13);
 
-        List<AnswerJSON> answerJSONS = answerServiceimpl.getAnswer(1, 1);
+        List<AnswerJSON> answerJSONS = answerServiceimpl.getAnswer(1,1, 1);
 
         assertEquals(answerJSONS.size(), 2);
         assertEquals(answerJSONS.get(0).getId(), 1);
@@ -129,9 +130,9 @@ class AnswerServiceimplTest {
         answer2.setId(2);
         expectedAnswers.add(answer1);
         expectedAnswers.add(answer2);
-        when(answerDao.findAnswered(expectedUser)).thenReturn(expectedAnswers);
+        when(answerDao.findAnswered(1, expectedUser)).thenReturn(expectedAnswers);
 
-        List<Answer> answers = answerServiceimpl.getAsked(1);
+        List<Answer> answers = answerServiceimpl.getAsked(1,1);
 
         assertEquals(answers.size(), 2);
         assertEquals(answers.get(0).getId(), 1);
@@ -153,7 +154,7 @@ class AnswerServiceimplTest {
         feedbackForAnswer2.setUserId(1);
         feedbackForAnswer2.setAnsId(2);
         expectedFeedback.add(feedbackForAnswer2);
-        when(feedbackAnswerDao.listRelatedAns(1)).thenReturn(expectedFeedback);
+        when(feedbackAnswerDao.listRelatedAnsLike(1,1)).thenReturn(expectedFeedback);
 
         Answer answer1 = new Answer();
         answer1.setId(1);
@@ -162,7 +163,7 @@ class AnswerServiceimplTest {
         answer2.setId(2);
         when(answerDao.findAnswer(2)).thenReturn(answer2);
 
-        List<Answer> answers = answerServiceimpl.getLiked(1);
+        List<Answer> answers = answerServiceimpl.getLiked(1,1);
 
         assertEquals(answers.size(), 2);
         assertEquals(answers.get(0).getId(), 1);
@@ -184,7 +185,7 @@ class AnswerServiceimplTest {
         feedbackForAnswer2.setUserId(1);
         feedbackForAnswer2.setAnsId(2);
         expectedFeedback.add(feedbackForAnswer2);
-        when(feedbackAnswerDao.listRelatedAns(1)).thenReturn(expectedFeedback);
+        when(feedbackAnswerDao.listRelatedAnsDislike(1,1)).thenReturn(expectedFeedback);
 
         Answer answer1 = new Answer();
         answer1.setId(1);
@@ -193,7 +194,7 @@ class AnswerServiceimplTest {
         answer2.setId(2);
         when(answerDao.findAnswer(2)).thenReturn(answer2);
 
-        List<Answer> answers = answerServiceimpl.getDisliked(1);
+        List<Answer> answers = answerServiceimpl.getDisliked(1,1);
 
         assertEquals(answers.size(), 2);
         assertEquals(answers.get(0).getId(), 1);
