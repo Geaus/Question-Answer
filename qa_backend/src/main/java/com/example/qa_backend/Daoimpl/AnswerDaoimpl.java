@@ -6,6 +6,8 @@ import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.User;
 import com.example.qa_backend.Repository.AnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,13 +23,18 @@ public class AnswerDaoimpl implements AnswerDao {
     }
 
     @Override
+    public List<Answer> findAnswersByPage(int page_id, Question question) {
+        return answerRepository.findAnswersByQuestion(PageRequest.of(page_id, 10), question).toList();
+    }
+
+    @Override
     public List<Answer> findAnswers(Question question) {
         return answerRepository.findAnswersByQuestion(question);
     }
 
     @Override
-    public List<Answer> findAnswered(User user) {
-        return answerRepository.findAnswersByUser(user);
+    public List<Answer> findAnswered(int page_id, User user) {
+        return answerRepository.findAnswersByUser(PageRequest.of(page_id, 10), user).toList();
     }
 
     @Override

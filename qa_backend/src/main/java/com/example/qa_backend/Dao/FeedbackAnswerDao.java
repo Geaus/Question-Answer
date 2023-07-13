@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface FeedbackAnswerDao {
     List<FeedbackForAnswer> findFeedback(int ans_id);
-    List<FeedbackForAnswer> listRelatedAns(int user_id);
+    List<FeedbackForAnswer> listRelatedAnsLike(int page_id, int user_id);
+    List<FeedbackForAnswer> listRelatedAnsDislike(int page_id, int user_id);
     FeedbackForAnswer findSpecific(int ans_id, int user_id);
     FeedbackForAnswer addOne(FeedbackForAnswer feedback);
     void deleteSpecific(int ans_id, int user_id);

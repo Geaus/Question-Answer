@@ -4,6 +4,7 @@ import com.example.qa_backend.Dao.FeedbackAnswerDao;
 import com.example.qa_backend.Entity.FeedbackForAnswer;
 import com.example.qa_backend.Repository.FeedbackAnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,8 +18,12 @@ public class FeedbackAnswerDaoimpl implements FeedbackAnswerDao {
     }
 
     @Override
-    public List<FeedbackForAnswer> listRelatedAns(int user_id) {
-        return feedbackAnswerRepository.findFeedbackForAnswersByUserId(user_id);
+    public List<FeedbackForAnswer> listRelatedAnsLike(int page_id, int user_id) {
+        return feedbackAnswerRepository.findFeedbackForAnswersByUserIdAndLike(PageRequest.of(page_id, 10), user_id, 1).toList();
+    }
+    @Override
+    public List<FeedbackForAnswer> listRelatedAnsDislike(int page_id, int user_id) {
+        return feedbackAnswerRepository.findFeedbackForAnswersByUserIdAndLike(PageRequest.of(page_id, 10), user_id, -1).toList();
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -29,8 +30,8 @@ public class UserServiceimpl implements UserService {
     @Autowired
     AuthenticationManager authenticationManager;
     @Override
-    public List<User> getFollowList(int uid) {
-        List<Follow> follows = followDao.findFollowList(uid);
+    public List<User> getFollowList(int page_id, int uid) {
+        List<Follow> follows = followDao.findFollowList(page_id, uid);
         List<User> users = new ArrayList<>();
         for(int i = 0; i < follows.size(); i++) {
             users.add(userDao.findUser(follows.get(i).getUser2Id()));
@@ -86,6 +87,7 @@ public class UserServiceimpl implements UserService {
             Date exp = new Date(System.currentTimeMillis() + 1800000);
             String formattedDate = formatter.format(exp);
             user.setExpire_time(formattedDate);
+            user.setToken(token);
             userDao.addOne(user);
             loginResult.setToken(token);
             loginResult.setCode(200);
@@ -110,11 +112,19 @@ public class UserServiceimpl implements UserService {
     public User register(String userName, String passWord, String email) {
         User user = userDao.nameCheck(userName);
         User res = new User();
-        if(user != null)res.setId(-1);
+        if(user != null){
+            res.setId(-1);
+            res.setUserName("用户名已被占用");
+        }
         else {
             res.setUserName(userName);
-            res.setPassWord(passWord);
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String encodedPasswd = encoder.encode(passWord);
+            res.setPassWord(encodedPasswd);
             res.setEmail(email);
+            res.setType(0);
+            res.setAvatar("https://xsgames.co/randomusers/avatar.php?g=pixel");
+            res.setExpire_time("1999-01-01 00:00:00");
             res = userDao.addOne(res);
         }
         return res;
@@ -123,7 +133,9 @@ public class UserServiceimpl implements UserService {
     @Override
     public void logout(int uid) {
         User user = userDao.findUser(uid);
+        System.out.println(user.getExpire_time());
         user.setExpire_time("1999-01-01 00:00:00");
+        user.setToken("");
         userDao.addOne(user);
     }
 }

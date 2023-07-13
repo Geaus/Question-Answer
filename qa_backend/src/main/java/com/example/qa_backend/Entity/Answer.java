@@ -24,6 +24,12 @@ public class Answer {
     @Basic
     @Column(name = "time")
     private String createTime;
+    @Basic
+    @Column(name = "likenum")
+    private int like;
+    @Basic
+    @Column(name = "dislikenum")
+    private int dislike;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "relatedAnswer")
     @JsonIgnore
     private List<User> relatedUser;
@@ -74,6 +80,22 @@ public class Answer {
 
     public void setCreateTime(String createTime) {
         this.createTime = createTime;
+    }
+
+    public int getLike() {
+        return like;
+    }
+
+    public void setLike(int like) {
+        this.like = like;
+    }
+
+    public int getDislike() {
+        return dislike;
+    }
+
+    public void setDislike(int dislike) {
+        this.dislike = dislike;
     }
 
     @Override

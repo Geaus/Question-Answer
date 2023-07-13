@@ -6,7 +6,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @SpringBootApplication
 public class QaBackendApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(QaBackendApplication.class, args);
     }

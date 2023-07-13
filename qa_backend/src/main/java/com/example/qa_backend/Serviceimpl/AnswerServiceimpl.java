@@ -7,6 +7,7 @@ import com.example.qa_backend.Entity.Follow;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.JSON.AnswerJSON;
 import com.example.qa_backend.Service.AnswerService;
+import com.example.qa_backend.Service.SensitiveWordService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,23 +29,17 @@ public class AnswerServiceimpl implements AnswerService {
     @Autowired
     FollowDao followDao;
     @Override
-    public List<AnswerJSON> getAnswer(int userId, int questionId) {
+    public List<AnswerJSON> getAnswer(int page_id, int userId, int questionId) {
         Question question = questionDao.getQuestion(questionId);
-        List<Answer> ans = answerDao.findAnswers(question);
+        List<Answer> ans = answerDao.findAnswersByPage(page_id, question);
         List<AnswerJSON> res = new ArrayList<>();
         for(int i = 0; i < ans.size(); i++) {
             Answer a = ans.get(i);
-            List<FeedbackForAnswer> feedback = feedbackAnswerDao.findFeedback(a.getId());
-            int like = 0, dislike = 0, flag = 0;
-            for(int j = 0; j < feedback.size(); j++) {
-                if(feedback.get(j).getLike() == 1) {
-                    if(feedback.get(j).getUserId() == userId)flag = 1;
-                    like++;
-                }
-                else {
-                    if(feedback.get(j).getUserId() == userId)flag = -1;
-                    dislike++;
-                }
+            int flag = 0;
+            FeedbackForAnswer feedback = feedbackAnswerDao.findSpecific(a.getId(), userId);
+            if(feedback != null) {
+                if(feedback.getLike() == 1)flag = 1;
+                else if(feedback.getLike() == -1)flag = -1;
             }
             Follow follow = followDao.check(userId, a.getUser().getId());
             AnswerJSON tmp = new AnswerJSON();
@@ -52,11 +47,11 @@ public class AnswerServiceimpl implements AnswerService {
             else tmp.setFollowFlag(0);
             tmp.setId(a.getId());
             tmp.setContent(a.getContent());
-            tmp.setLike(like);
+            tmp.setLike(a.getLike());
             tmp.setQuestion(a.getQuestion());
             tmp.setUser(a.getUser());
             tmp.setCreateTime(a.getCreateTime());
-            tmp.setDislike(dislike);
+            tmp.setDislike(a.getDislike());
             tmp.setLikeFlag(flag);
             res.add(tmp);
         }
@@ -77,13 +72,13 @@ public class AnswerServiceimpl implements AnswerService {
     }
 
     @Override
-    public List<Answer> getAsked(int userId) {
-        return answerDao.findAnswered(userDao.findUser(userId));
+    public List<Answer> getAsked(int page_id, int userId) {
+        return answerDao.findAnswered(page_id, userDao.findUser(userId));
     }
 
     @Override
-    public List<Answer> getLiked(int userId) {
-        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAns(userId);
+    public List<Answer> getLiked(int page_id, int userId) {
+        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAnsLike(page_id, userId);
         List<Answer> ans = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != 1)continue;
@@ -93,8 +88,8 @@ public class AnswerServiceimpl implements AnswerService {
     }
 
     @Override
-    public List<Answer> getDisliked(int userId) {
-        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAns(userId);
+    public List<Answer> getDisliked(int page_id, int userId) {
+        List<FeedbackForAnswer> feedback = feedbackAnswerDao.listRelatedAnsDislike(page_id, userId);
         List<Answer> ans = new ArrayList<>();
         for(int i = 0; i < feedback.size(); i++) {
             if(feedback.get(i).getLike() != -1)continue;

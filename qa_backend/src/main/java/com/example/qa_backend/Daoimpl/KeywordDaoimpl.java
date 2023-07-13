@@ -20,4 +20,8 @@ public class KeywordDaoimpl implements KeywordDao {
     public KeywordEntity addOne(KeywordEntity keyword) {
         return keywordRepository.save(keyword);
     }
+
+    @Override
+    public void deleteKeyword(Integer ques_id){ keywordRepository.deleteKeywordEntitiesByQuestionId(ques_id); }
+
 }

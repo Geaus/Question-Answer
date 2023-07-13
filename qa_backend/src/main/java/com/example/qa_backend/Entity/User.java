@@ -26,6 +26,9 @@ public class User {
     @Basic
     @Column(name = "email")
     private String email;
+    @Basic
+    @Column(name = "token")
+    private String token;
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Question> questions;
@@ -156,6 +159,14 @@ public class User {
 
     public void setExpire_time(String expire_time) {
         this.expire_time = expire_time;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override

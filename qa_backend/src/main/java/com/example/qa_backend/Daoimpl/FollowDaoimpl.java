@@ -4,6 +4,7 @@ import com.example.qa_backend.Dao.FollowDao;
 import com.example.qa_backend.Entity.Follow;
 import com.example.qa_backend.Repository.FollowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public class FollowDaoimpl implements FollowDao {
     FollowRepository followRepository;
 
     @Override
-    public List<Follow> findFollowList(int id) {
-        return followRepository.findFollowsByUser1Id(id);
+    public List<Follow> findFollowList(int page_id, int id) {
+        return followRepository.findFollowsByUser1Id(PageRequest.of(page_id, 10), id).toList();
     }
 
     @Override

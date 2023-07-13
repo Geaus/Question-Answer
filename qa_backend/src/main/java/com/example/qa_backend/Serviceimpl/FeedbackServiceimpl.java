@@ -24,48 +24,57 @@ public class FeedbackServiceimpl implements FeedbackService {
     AnswerDao answerDao;
     @Override
     public QuestionJSON changeQuestionFeedback(int uid, int qid, int value) {
+        int likeFlag = 0, markFlag = 0;
         FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(qid, uid);
+        Question question = questionDao.getQuestion(qid);
+
         if(feedback == null){
             feedback = new FeedbackForQuestion();
             feedback.setLike(0);
             feedback.setBookmark(0);
         }
+        else {
+            if(feedback.getLike() == 1 && ((value != 2) && (value != -2)))question.setLike(question.getLike() - 1);
+            if(feedback.getLike() == -1 && ((value != 2) && (value != -2)))question.setDislike(question.getDislike() - 1);
+            if(feedback.getBookmark() == 1 && ((value == 2) || (value == -2)))question.setMark(question.getMark() - 1);
+        }
         feedback.setQuesId(qid);
         feedback.setUserId(uid);
-        if(value == 1) feedback.setLike(1);
+
+        if(value == 1) {
+            feedback.setLike(1);
+            question.setLike(question.getLike() + 1);
+            likeFlag = 1;
+        }
         if(value == 0) feedback.setLike(0);
-        if(value == -1) feedback.setLike(-1);
-        if(value == 2) feedback.setBookmark(1);
+        if(value == -1) {
+            feedback.setLike(-1);
+            question.setDislike(question.getDislike() + 1);
+            likeFlag = -1;
+        }
+        if(value == 2) {
+            feedback.setBookmark(1);
+            question.setMark(question.getMark() + 1);
+            markFlag = 1;
+        }
         if(value == -2) feedback.setBookmark(0);
+        if(feedback.getBookmark() == 1)markFlag = 1;
+        likeFlag = feedback.getLike();
+
         feedback = feedbackQuestionDao.addOne(feedback);
+        question = questionDao.addQuestion(question);
         if(feedback.getBookmark() == 0 && feedback.getLike() == 0)feedbackQuestionDao.deleteSpecific(qid, uid);
+
         QuestionJSON res = new QuestionJSON();
-        Question question = questionDao.getQuestion(qid);
         res.setId(question.getId());
         res.setContent(question.getContent());
         res.setCreateTime(question.getCreateTime());
         res.setTags(question.getTags());
         res.setTitle(question.getTitle());
         res.setUser(question.getUser());
-        List<FeedbackForQuestion> feedbacks = feedbackQuestionDao.findFeedback(qid);
-        int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
-        for(int i = 0; i < feedbacks.size(); i++) {
-            if(feedbacks.get(i).getLike() == -1){
-                if(feedbacks.get(i).getUserId() == uid)likeFlag = -1;
-                dislike++;
-            }
-            else if(feedbacks.get(i).getLike() == 1){
-                if(feedbacks.get(i).getUserId() == uid)likeFlag = 1;
-                like++;
-            }
-            if(feedbacks.get(i).getBookmark() == 1){
-                if(feedbacks.get(i).getUserId() == uid)markFlag = 1;
-                mark++;
-            }
-        }
-        res.setLike(like);
-        res.setDislike(dislike);
-        res.setMark(mark);
+        res.setLike(question.getLike());
+        res.setDislike(question.getDislike());
+        res.setMark(question.getMark());
         res.setLikeFlag(likeFlag);
         res.setMarkFlag(markFlag);
         return res;
@@ -74,38 +83,40 @@ public class FeedbackServiceimpl implements FeedbackService {
     @Override
     public AnswerJSON changeAnswerFeedback(int uid, int aid, int value) {
         FeedbackForAnswer feedback = feedbackAnswerDao.findSpecific(aid, uid);
+        Answer a = answerDao.findAnswer(aid);
+        int flag = 0;
         if(feedback == null)feedback = new FeedbackForAnswer();
+        else {
+            if(feedback.getLike() == 1)a.setLike(a.getLike() - 1);
+            else if(feedback.getLike() == -1)a.setDislike(a.getDislike() - 1);
+        }
         feedback.setAnsId(aid);
         feedback.setUserId(uid);
-        if(value == 1) feedback.setLike(1);
-        if(value == 0) feedback.setLike(0);
-        if(value == -1) feedback.setLike(-1);
-        feedback = feedbackAnswerDao.addOne(feedback);
-        if(feedback.getLike() == 0)feedbackAnswerDao.deleteSpecific(aid, uid);
-        Answer a = answerDao.findAnswer(aid);
-        List<FeedbackForAnswer> feedbacks = feedbackAnswerDao.findFeedback(a.getId());
-        int like = 0, dislike = 0, flag = 0;
-        for(int j = 0; j < feedbacks.size(); j++) {
-            if(feedbacks.get(j).getLike() == 1) {
-                if(feedbacks.get(j).getUserId() == uid)flag = 1;
-                like++;
-            }
-            else {
-                if(feedbacks.get(j).getUserId() == uid)flag = -1;
-                dislike++;
-            }
+        if(value == 1) {
+            feedback.setLike(1);
+            a.setLike(a.getLike() + 1);
+            flag = 1;
         }
+        if(value == 0) feedback.setLike(0);
+        if(value == -1) {
+            feedback.setLike(-1);
+            a.setDislike(a.getDislike() + 1);
+            flag = -1;
+        }
+        feedback = feedbackAnswerDao.addOne(feedback);
+        a = answerDao.addAnswer(a);
+        if(feedback.getLike() == 0)feedbackAnswerDao.deleteSpecific(aid, uid);
         Follow follow = followDao.check(uid, a.getUser().getId());
         AnswerJSON tmp = new AnswerJSON();
         if(follow != null)tmp.setFollowFlag(1);
         else tmp.setFollowFlag(0);
         tmp.setId(a.getId());
         tmp.setContent(a.getContent());
-        tmp.setLike(like);
+        tmp.setLike(a.getLike());
         tmp.setQuestion(a.getQuestion());
         tmp.setUser(a.getUser());
         tmp.setCreateTime(a.getCreateTime());
-        tmp.setDislike(dislike);
+        tmp.setDislike(a.getDislike());
         tmp.setLikeFlag(flag);
         return tmp;
     }

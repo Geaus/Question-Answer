@@ -7,4 +7,6 @@ import java.util.List;
 public interface KeywordDao {
     List<KeywordEntity> findKeyword(String keyword);
     KeywordEntity addOne(KeywordEntity keyword);
+
+    void deleteKeyword(Integer ques_id);
 }
