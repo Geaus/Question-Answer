@@ -390,7 +390,7 @@ public class QuestionServiceimpl implements QuestionService {
         IndexWriter indexWriter = null;
         Directory directory = null;
         try (Analyzer analyzer = new HanLPAnalyzer()) {
-            directory = FSDirectory.open(Paths.get(config.getIndexLibrary()));
+            directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
             IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(directory, writerConfig);
             //根据id字段进行删除
