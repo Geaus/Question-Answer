@@ -26,7 +26,7 @@ describe("对相关动作的测试", () => {
     cy.get("[data-testId=\"mark-question-button\"]").click()
     cy.get("[data-testId=\"mark-question-count\"]").should("have.text", "0")
     cy.get("[data-testId=\"delete-question-button\"]").click()
-    cy.url().should("eq", "http://localhost:3000/?title=")
+    cy.url().should("eq", "http://localhost:3000/")
     cy.get("[data-testid=\"logout\"]").click()
     cy.url().should("include", "/login")
   })
