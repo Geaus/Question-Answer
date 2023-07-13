@@ -61,8 +61,8 @@ public class QuestionController {
     }
     @RequestMapping("/searchByTag")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}
+    public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid, @RequestParam int page_id){return questionService.searchByTag(tag, uid, page_id);}
     @RequestMapping("/fullTextSearch")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid,@RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid,page_id);}
+    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid, @RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid, page_id);}
 }

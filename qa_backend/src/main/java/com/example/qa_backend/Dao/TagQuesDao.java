@@ -8,5 +8,5 @@ public interface TagQuesDao {
     TagQuesRelation addRelation(TagQuesRelation tagQuesRelation);
     void deleteRelation(int ques_id);
 
-    List<TagQuesRelation> searchByTagId(int tagId);
+    List<TagQuesRelation> searchByTagId(int tagId, int page_id);
 }
