@@ -98,7 +98,11 @@ function AnswerCard(props) {
         const params = new URLSearchParams();
         params.append('aid', answer.id);
         params.append('uid', sessionStorage.getItem('uid'));
-        deleteAnswer(params,setExist(false));
+
+        const callback=()=>{
+            setExist(false);
+        }
+        deleteAnswer(params,callback);
 
     }
 

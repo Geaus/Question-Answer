@@ -20,7 +20,7 @@ const LoginCard = () => {
         login(username, password)
             .then((data) => {
                 message.success('登录成功');
-                    navigate('/');
+                    navigate('/?page=0');
             })
             .catch((error) => {
                 message.error(error.message);

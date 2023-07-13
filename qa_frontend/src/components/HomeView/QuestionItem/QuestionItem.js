@@ -91,8 +91,8 @@ const QuestionItem =(props)=>{
         exist===true? <div>
             <Card
                 title={
-                    <Link to={{pathname:'/ques',search:'?qid='+question.id}}>
-                        <div dangerouslySetInnerHTML={{ __html: question.title }} />
+                    <Link to={{pathname:'/ques',search:'?qid='+question.id+'&page=0'}}>
+                        <div  dangerouslySetInnerHTML={{ __html: question.title }} />
                     </Link>
                 }
                 extra={

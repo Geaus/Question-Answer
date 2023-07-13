@@ -109,7 +109,7 @@ function UserCard() {
                             </Col>
                             <Col span={12}>
 
-                                <Link to={{pathname:'/profile',search:'?uid='+uid}}>
+                                <Link to={{pathname:'/profile',search:'?uid='+uid+'&menu=questions'}}>
                                     <Button  >查看我的主页</Button>
                                 </Link>
 

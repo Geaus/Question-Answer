@@ -29,7 +29,7 @@ function ProfileUserCard(props) {
         exist===true?
         <Card>
 
-            <Link to={{pathname:'/profile',search:'?uid='+follow.id}}>
+            <Link to={{pathname:'/profile',search:'?uid='+follow.id+'&menu=questions'}}>
                 <Meta
                     avatar={<Avatar size={64} icon={<UserOutlined />} />}
                     title={follow.userName}

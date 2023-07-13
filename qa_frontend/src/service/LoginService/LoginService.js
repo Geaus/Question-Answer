@@ -1,8 +1,8 @@
 import {message} from "antd";
-
+import {URL} from "../../App";
 export const login = (username, password) => {
 
-    return fetch('http://localhost:8080/login', {
+    return fetch(URL+'/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -28,6 +28,7 @@ export const login = (username, password) => {
                 }
                 else {
                     sessionStorage.setItem('uid', data.user.id);
+                    sessionStorage.setItem('type', data.user.type);
                     sessionStorage.setItem('token', data.result.token)
                 }
             }
@@ -36,7 +37,7 @@ export const login = (username, password) => {
 
 export const register = (params, callback) => {
 
-    fetch('http://localhost:8080/register?'+params.toString() ,{
+    fetch(URL+'/register?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -47,7 +48,7 @@ export const register = (params, callback) => {
 };
 
 export const logout = (params, callback) => {
-    fetch('http://localhost:8080/logoutSystem?'+params.toString() ,{
+    fetch(URL+'/logoutSystem?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

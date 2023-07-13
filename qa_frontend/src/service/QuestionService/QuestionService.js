@@ -1,8 +1,9 @@
 import {useNavigate} from "react-router-dom";
 import {message} from "antd";
-
+import {URL} from "../../App";
+import {json} from "react-router";
 export const getQuestions = (params,callback) => {
-    fetch('http://localhost:8080/getQuestions?'+params.toString(),{
+    fetch(URL+'/getQuestions?'+params.toString(),{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,7 +27,7 @@ export const getQuestions = (params,callback) => {
 
 export const getQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/findQuestion?'+params.toString(),{
+    fetch(URL+'/findQuestion?'+params.toString(),{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,7 +51,7 @@ export const getQuestion = (params,callback) => {
 
 export const getAnswers = (params,callback) => {
 
-    fetch('http://localhost:8080/getAnswer?'+params.toString(),{
+    fetch(URL+'/getAnswer?'+params.toString(),{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,7 +76,7 @@ export const getAnswers = (params,callback) => {
 export const listTag = (callback) => {
     const params = new URLSearchParams();
     params.append('uid', sessionStorage.getItem('uid'));
-    fetch('http://localhost:8080/listTag?' + params.toString() ,{
+    fetch(URL+'/listTag?' + params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -103,7 +104,7 @@ export const askQuestion = (params, tags,callback) => {
     // params.append('userName', username);
 
     // params.append('uid', uid);
-    fetch('http://localhost:8080/askQuestion?' + params.toString(), {
+    fetch(URL+'/askQuestion?' + params.toString(), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -128,14 +129,17 @@ export const askQuestion = (params, tags,callback) => {
 
 }
 
-export const addAnswer = (params) => {
+export const addAnswer = (params,content) => {
 
-    fetch('http://localhost:8080/addAnswer?'+params.toString() ,{
-        method: 'GET',
+    fetch(URL+'/addAnswer?'+params.toString() ,{
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
             'token' : sessionStorage.getItem('token'),
         },
+
+        body:content
+
     })
         .then(response => response.json())
         .then((data) => {
@@ -154,7 +158,7 @@ export const addAnswer = (params) => {
 
 export const searchQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/fullTextSearch?'+params.toString() ,{
+    fetch(URL+'/fullTextSearch?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -178,7 +182,7 @@ export const searchQuestion = (params,callback) => {
 
 export const deleteQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/deleteQuestion?'+params.toString() ,{
+    fetch(URL+'/deleteQuestion?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -187,6 +191,7 @@ export const deleteQuestion = (params,callback) => {
     })
         .then(response => response.json())
         .then((data) => {
+
             if(data != null && data.code != null && data.code === 401) {
                 window.location.pathname = '/login'
                 message.error("用户认证失败，请重新登录")
@@ -203,7 +208,7 @@ export const deleteQuestion = (params,callback) => {
 
 export const deleteAnswer = (params,callback) => {
 
-    fetch('http://localhost:8080/deleteAnswer?'+params.toString() ,{
+    fetch(URL+'/deleteAnswer?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -228,7 +233,7 @@ export const deleteAnswer = (params,callback) => {
 
 export const banUser= (params,callback) => {
 
-    fetch('http://localhost:8080/banUser?'+params.toString() ,{
+    fetch(URL+'/banUser?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -251,7 +256,7 @@ export const banUser= (params,callback) => {
 };
 
 export const searchQuestionByTag = (params, callback) => {
-    fetch('http://localhost:8080/searchByTag?'+params.toString(), {
+    fetch(URL+'/searchByTag?'+params.toString(), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

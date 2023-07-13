@@ -1,10 +1,10 @@
 
 import {message} from "antd";
-
+import {URL} from "../../App";
 
 export const feedbackQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/feedbackQuestion?'+params.toString() ,{
+    fetch(URL+'/feedbackQuestion?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -28,7 +28,7 @@ export const feedbackQuestion = (params,callback) => {
 
 export const feedbackAnswer = (params,callback) => {
 
-    fetch('http://localhost:8080/feedbackAnswer?'+params.toString() ,{
+    fetch(URL+'/feedbackAnswer?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -52,7 +52,7 @@ export const feedbackAnswer = (params,callback) => {
 
 export const changeFollow = (params,callback) => {
 
-    fetch('http://localhost:8080/changeFollow?'+params.toString() ,{
+    fetch(URL+'/changeFollow?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

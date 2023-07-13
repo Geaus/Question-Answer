@@ -1,8 +1,8 @@
 import {message} from "antd";
-
+import {URL} from "../../App";
 export const getAsked = (params,callback) => {
 
-    fetch('http://localhost:8080/getAsked?'+params.toString() ,{
+    fetch(URL+'/getAsked?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,7 +26,7 @@ export const getAsked = (params,callback) => {
 
 export const getAnswered = (params,callback) => {
 
-    fetch('http://localhost:8080/getAnswered?'+params.toString() ,{
+    fetch(URL+'/getAnswered?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,7 +50,7 @@ export const getAnswered = (params,callback) => {
 
 export const getLikedQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/getLikedQuestion?'+params.toString() ,{
+    fetch(URL+'/getLikedQuestion?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,7 +75,7 @@ export const getLikedQuestion = (params,callback) => {
 
 export const getDislikedQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/getDislikedQuestion?'+params.toString() ,{
+    fetch(URL+'/getDislikedQuestion?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -100,7 +100,7 @@ export const getDislikedQuestion = (params,callback) => {
 
 export const getMarkedQuestion = (params,callback) => {
 
-    fetch('http://localhost:8080/getMarkedQuestion?'+params.toString() ,{
+    fetch(URL+'/getMarkedQuestion?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -125,7 +125,7 @@ export const getMarkedQuestion = (params,callback) => {
 
 export const getLikedAnswer = (params,callback) => {
 
-    fetch('http://localhost:8080/getLikedAnswer?'+params.toString() ,{
+    fetch(URL+'/getLikedAnswer?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -150,7 +150,7 @@ export const getLikedAnswer = (params,callback) => {
 
 export const getDislikedAnswer = (params,callback) => {
 
-    fetch('http://localhost:8080/getDislikedAnswer?'+params.toString() ,{
+    fetch(URL+'/getDislikedAnswer?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -174,7 +174,7 @@ export const getDislikedAnswer = (params,callback) => {
 
 export const getFollowed = (params,callback) => {
 
-    fetch('http://localhost:8080/getFollowed?'+params.toString() ,{
+    fetch(URL+'/getFollowed?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -198,7 +198,7 @@ export const getFollowed = (params,callback) => {
 
 export const getUser = (params,callback) => {
 
-    fetch('http://localhost:8080/getUser?'+params.toString() ,{
+    fetch(URL+'/getUser?'+params.toString() ,{
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
