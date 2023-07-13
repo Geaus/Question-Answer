@@ -110,9 +110,11 @@ function QuestionCard(props) {
        const params = new URLSearchParams();
        params.append('qid', question.id);
        params.append('uid', sessionStorage.getItem('uid'));
-       deleteQuestion(params, () => {
-           navigate("/?title=")
-       });
+
+       const callback=()=>{
+           navigate("/");
+       }
+       deleteQuestion(params,callback);
    }
 
    const handleBan=()=>{
@@ -214,13 +216,21 @@ function QuestionCard(props) {
                     </Col>
                 </Row>
 
-
-                <Button
-                    style={{float:'right'}}
-                    onClick={handleShowEditor}
-                >
-                    回答问题
-                </Button>
+                {
+                    showEditor ?
+                        <Button
+                        style={{float:'right'}}
+                        onClick={handleShowEditor}
+                        >
+                            取消回答
+                        </Button>
+                        :<Button
+                            style={{float:'right'}}
+                            onClick={handleShowEditor}
+                        >
+                            回答问题
+                        </Button>
+                }
             </Card>
 
             {

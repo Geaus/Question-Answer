@@ -50,9 +50,6 @@ public class QuestionController {
     @RequestMapping("/getMarkedQuestion")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<Question> getMarked(@RequestParam int page_id, @RequestParam int userId) { return questionService.getMarked(page_id, userId); }
-    @RequestMapping("/searchByTitle")
-    @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<QuestionJSON> searchByTitle(@RequestParam String title, @RequestParam int uid) { return questionService.searchByTitle(title, uid); }
     @RequestMapping("/deleteQuestion")
     @PreAuthorize("@authCheck.authorityCheck(1)")
     public LoginResult deleteQuestion(@RequestParam int qid) {
@@ -67,5 +64,5 @@ public class QuestionController {
     public List<QuestionJSON> searchByTag(@RequestParam int tag, @RequestParam int uid){return questionService.searchByTag(tag, uid);}
     @RequestMapping("/fullTextSearch")
     @PreAuthorize("@authCheck.authorityCheck(0)")
-    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid) throws IOException {return questionService.fullTextSearch(keyword, uid);}
+    public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid,@RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid,page_id);}
 }

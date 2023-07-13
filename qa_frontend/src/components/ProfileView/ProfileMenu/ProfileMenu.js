@@ -1,12 +1,14 @@
-import {
+import
+
+{
     DislikeOutlined,
-    FormOutlined,
+    FormOutlined, LeftOutlined,
     LikeOutlined,
-    QuestionOutlined,
+    QuestionOutlined, RightOutlined,
     StarFilled, StarOutlined,
     UserAddOutlined
 } from "@ant-design/icons";
-import {List, Menu} from "antd";
+import {Button, List, Menu, Space} from "antd";
 import React, {useEffect, useState} from "react";
 import ProfileAnswerCard from "../ProfileAnswerCard/ProfileAnswerCard";
 import ProfileQuestionCard from "../ProfileQuestionCard/ProfileQuestionCard";
@@ -19,20 +21,23 @@ import {
     getLikedQuestion, getMarkedQuestion
 } from "../../../service/ProfileService/ProfileService";
 import {useLocation} from "react-router";
+import {useNavigate} from "react-router-dom";
 
 
 function ProfileMenu() {
 
+    const navigate=useNavigate();
+
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
-    const userId=searchParams.get('uid')
-    const uid=sessionStorage.getItem('uid')
 
+    const userId=searchParams.get('uid');
+    const currentMenuItem=searchParams.get('menu')
+    const page=searchParams.get('page');
 
+    const uid=sessionStorage.getItem('uid');
     const self= userId===sessionStorage.getItem('uid');
     console.log(self)
-
-    const [currentMenuItem,  setCurrentMenuItem] = useState('questions');
     const [questions,setQuestions] =useState([]);
     const [answers,setAnswers] =useState([]);
     const [follows,setFollows]=useState([]);
@@ -76,9 +81,54 @@ function ProfileMenu() {
 
     },[currentMenuItem,uid]);
 
+    useEffect(() => {
+
+        const params = new URLSearchParams();
+        params.append('userId', userId);
+        params.append('uid', uid)
+
+        if(page===null){
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', 0);
+        }
+        else{
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', page);
+
+        }
+
+        if (currentMenuItem === 'questions') {
+            getAsked(params,setQuestions);
+        }
+        else if (currentMenuItem === 'answers') {
+            getAnswered(params,setAnswers);
+        }
+        else if (currentMenuItem === 'likeQuestion') {
+            getLikedQuestion(params,setQuestions);
+        }
+        else if (currentMenuItem === 'likeAnswer') {
+            getLikedAnswer(params,setAnswers);
+        }
+        else if (currentMenuItem === 'dislikeQuestion') {
+            getDislikedQuestion(params,setQuestions);
+        }
+        else if (currentMenuItem === 'dislikeAnswer') {
+            getDislikedAnswer(params,setAnswers);
+        }
+        else if (currentMenuItem === 'subscribe') {
+            getFollowed(params,setFollows);
+        }
+        else if (currentMenuItem === 'star') {
+            getMarkedQuestion(params,setQuestions);
+        }
+
+    },[page]);
+
 
     const handleMenuClick = (e) => {
-        setCurrentMenuItem(e.key);
+
+        navigate('/profile?uid='+userId+'&menu='+e.key);
+        window.location.reload();
 
     };
 
@@ -247,15 +297,53 @@ function ProfileMenu() {
             icon: <StarOutlined />
         }
     ];
+
+    const handleLeft=()=>{
+
+        if(page===null || page==='0'){
+            return;
+        }
+        else{
+
+            let tmp=parseInt(page)-1;
+            navigate('/profile?uid='+userId+'&menu='+currentMenuItem+'&page='+tmp);
+            window.location.reload();
+        }
+
+    }
+    const handleRight=()=>{
+
+        if(page==null){
+
+            navigate('/profile?uid='+userId+'&menu='+currentMenuItem+'&page=1');
+            window.location.reload();
+
+        }
+        else{
+
+            let tmp=parseInt(page)+1;
+            navigate('/profile?uid='+userId+'&menu='+currentMenuItem+'&page='+tmp);
+            window.location.reload();
+
+        }
+    }
     return (
         <div>
             <Menu
                 onClick={handleMenuClick}
-                selectedKeys={[currentMenuItem]}
+                selectedKeys={[ currentMenuItem===null ? 'questions':currentMenuItem]}
                 mode={"horizontal"}
                 items={items}
             />
             {content}
+
+            <div style={{margin:'auto'}}>
+                <Space>
+                    <Button type="text" icon={<LeftOutlined />} onClick={handleLeft}/>
+                    <Button type="text" icon={<RightOutlined />} onClick={handleRight}/>
+                </Space>
+
+            </div>
         </div>
     );
 }

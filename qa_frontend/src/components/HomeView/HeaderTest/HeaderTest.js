@@ -7,27 +7,11 @@ import {getQuestions, searchQuestion} from "../../../service/QuestionService/Que
 import { useNavigate } from 'react-router-dom';
 import {getUser} from "../../../service/ProfileService/ProfileService";
 import {logout} from "../../../service/LoginService/LoginService";
+import {text} from "@milkdown/preset-commonmark";
 
 const {Search} = Input;
 
-const menuItems = [
-    {
-        label: <Link to={"/"} >首页</Link>,
-        key: "home",
-        icon:<HomeOutlined />
 
-    },
-    {
-        label: "关注",
-        key: "at",
-        icon: <StarOutlined />
-    },
-    {
-        label: "热榜",
-        key: "hot",
-        icon: <FireOutlined />
-    }
-]
 const headerBarStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -76,10 +60,11 @@ const HeaderTest = () => {
         console.log(e);
 
         if(e===""){
-            navigate("/");
+            navigate("/?page=0");
+            window.location.reload();
         }else{
             // eslint-disable-next-line react-hooks/rules-of-hooks
-            navigate('/?title='+e);
+            navigate('/?title='+e+'&page=0');
             window.location.reload();
         }
     }
@@ -96,6 +81,38 @@ const HeaderTest = () => {
         logout(params, logoutCallback);
     }
 
+    const handleHome=()=>{
+
+        navigate("/?page=0");
+        window.location.reload();
+
+    }
+
+    const handleProfile=()=>{
+
+        navigate('/profile?uid='+uid+'&menu=questions');
+        window.location.reload();
+    }
+
+    const menuItems = [
+        {
+            label: "首页",
+            key: "home",
+            icon:<HomeOutlined />,
+            onClick: handleHome,
+
+        },
+        {
+            label: "关注",
+            key: "at",
+            icon: <StarOutlined />
+        },
+        {
+            label: "热榜",
+            key: "hot",
+            icon: <FireOutlined />
+        }
+    ]
     return (
         <div  style={headerBarStyle}>
             <div data-testid="logo" style={{ fontSize: '20px' }}>My App</div>
@@ -115,11 +132,9 @@ const HeaderTest = () => {
             <div data-testid="hello" style={greetingStyle}>你好</div>
             <span style={{width: "2vw"}}></span>
 
-            <Link to={{pathname:'/profile',search:'?uid='+uid}}>
-               <Avatar data-testid="avatar" src={user.avatar}/>
-            </Link>
+            <Avatar onClick={handleProfile} data-testid="avatar" src={user.avatar}/>
 
-            <span data-testid="logout" onClick={handleLogout} style={{marginLeft:"2vw", fontSize:'1.2vw',}}>Log out</span>
+            <Button type="text" data-testid="logout" onClick={handleLogout} style={{marginLeft:"2vw", fontSize:'1.2vw',}}>Log out</Button>
 
         </div>
     );
