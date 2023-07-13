@@ -351,8 +351,8 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public List<QuestionJSON> searchByTag(int tagId, int uid){
-        List<TagQuesRelation> tagQuesRelations = tagQuesDao.searchByTagId(tagId);
+    public List<QuestionJSON> searchByTag(int tagId, int uid, int page_id){
+        List<TagQuesRelation> tagQuesRelations = tagQuesDao.searchByTagId(tagId, page_id);
         List<Question> questions = new ArrayList<>();
         for(TagQuesRelation tagQuesRelation : tagQuesRelations){
             questions.add(questionDao.getQuestion(tagQuesRelation.getQuesId()));

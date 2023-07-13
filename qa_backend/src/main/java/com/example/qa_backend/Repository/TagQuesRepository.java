@@ -1,6 +1,8 @@
 package com.example.qa_backend.Repository;
 
 import com.example.qa_backend.Entity.TagQuesRelation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 
@@ -12,5 +14,5 @@ public interface TagQuesRepository extends JpaRepository<TagQuesRelation, Intege
     @Transactional
     void deleteTagQuesRelationsByQuesId(int ques_id);
 
-    List<TagQuesRelation> findAllByTagId(int tagId);
+    Page<TagQuesRelation> findAllByTagId(int tagId, Pageable pageable);
 }
