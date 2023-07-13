@@ -24,7 +24,7 @@ function ProfileUserInfo(props) {
         getUser(params,setUser);
 
         // console.log(user);
-    },[user]);
+    },[]);
 
 
     return (

@@ -90,15 +90,15 @@ public class QuestionServiceimpl implements QuestionService {
 //        jedis.flushAll();
 //        List<String> questions = new ArrayList<>();
 //
-//        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/baike_qa_valid.json"))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                String title = line.split("\"title\": ")[1].split(", ")[0].trim();
-//                questions.add(title);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+////        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/baike_qa_valid.json"))) {
+////            String line;
+////            while ((line = reader.readLine()) != null) {
+////                String title = line.split("\"title\": ")[1].split(", ")[0].trim();
+////                questions.add(title);
+////            }
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////        }
 //
 //        IndexWriter indexWriter ;
 //        IndexReader indexReader ;
@@ -115,24 +115,24 @@ public class QuestionServiceimpl implements QuestionService {
 //// 4.创建IndexWriter写入对象
 //        indexWriter = new IndexWriter(directory, writerConfig);
 //
-//        for(String question1 : questions){
-//            Question question = new Question();
-//            question.setContent("");
-//            question.setUser(userDao.findUser(1));
-//            question.setTitle(question1);
-//            question = questionDao.addQuestion(question);
+////        for(String question1 : questions){
+////            Question question = new Question();
+////            question.setContent("");
+////            question.setUser(userDao.findUser(1));
+////            question.setTitle(question1);
+////            question = questionDao.addQuestion(question);
 //
 //            Document doc = new Document();
 ////StringField 不分词 直接建索引 存储
-//            doc.add(new StringField("id", String.valueOf(question.getId()), Field.Store.YES));
+//            doc.add(new StringField("id", String.valueOf(38), Field.Store.YES));
 ////TextField 分词 建索引 存储
-//            doc.add(new TextField("title", question.getTitle(), Field.Store.YES));
+//            doc.add(new TextField("title", "如何评价软件工程这个专业", Field.Store.YES));
 ////TextField 分词 建索引 存储
-//            doc.add(new TextField("content", question.getContent(), Field.Store.YES));
+//            doc.add(new TextField("content", "rt，如何评价软件工程，就业前景如何，学习难度如何", Field.Store.YES));
 //
 //            indexWriter.addDocument(doc);
 //
-//        }
+////        }
 //        if (indexWriter != null) {
 //            try {
 //                indexWriter.close();
@@ -479,6 +479,7 @@ public class QuestionServiceimpl implements QuestionService {
             if (topDocs.totalHits > 0 && !StringUtils.isEmpty(sentence)) {
                 for (ScoreDoc sd : topDocs.scoreDocs) {
                     Document doc = indexSearcher.doc(sd.doc);
+                    System.out.println(doc.get("id"));
                     Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
                     QuestionJSON res = questionToQuestionJSON(question, uid, true);
                     res.setTitle(highlighter.getBestFragment(new HanLPAnalyzer(), "title", doc.get("title")));
