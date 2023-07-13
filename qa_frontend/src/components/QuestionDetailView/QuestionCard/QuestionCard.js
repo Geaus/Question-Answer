@@ -162,7 +162,7 @@ function QuestionCard(props) {
                             <List
                                 dataSource={question.tags}
                                 renderItem={(tag) => (
-                                    <Link to={`/?tag=${tag.id}`}>
+                                    <Link to={`/?tag=${tag.id}&page=0`}>
                                         <Tag data-testid="question-tag" color="#1677ff">{tag.content}</Tag>
                                     </Link>
                                 )}

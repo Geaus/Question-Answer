@@ -42,6 +42,7 @@ const QuestionList =(props)=>{
             params.append('uid', uid);
             console.log(tag);
             params.append('tag', tag);
+            params.append('page_id', 0);
             searchQuestionByTag(params, setQuestions);
         }
        else{
@@ -67,14 +68,19 @@ const QuestionList =(props)=>{
             const params = new URLSearchParams();
             params.append('uid', uid);
             //TODO:增加page_id的相关逻辑
-            if(title===null || title===''){
+            if(title===null && tag===null){
                 params.append('page_id', 0);
                 getQuestions(params,setQuestions);
             }
-            else{
+            else if(title !==null && tag===null){
                 params.append('page_id', 0);
                 params.append('keyword', title);
                 searchQuestion(params,setQuestions);
+            }
+            else{
+                params.append('page_id', 0);
+                params.append('tag', tag);
+                searchQuestionByTag(params,setQuestions);
             }
 
         }
@@ -82,14 +88,19 @@ const QuestionList =(props)=>{
             const params = new URLSearchParams();
             params.append('uid', uid);
             //TODO:增加page_id的相关逻辑
-            if(title===null || title===''){
+            if(title===null && tag===null){
                 params.append('page_id', page);
                 getQuestions(params,setQuestions);
             }
-            else{
+            else if(title!==null && tag===null){
                 params.append('page_id', page);
                 params.append('keyword', title);
                 searchQuestion(params,setQuestions);
+            }
+            else{
+                params.append('page_id', page);
+                params.append('tag', tag);
+                searchQuestionByTag(params,setQuestions);
             }
         }
 
@@ -109,11 +120,14 @@ const QuestionList =(props)=>{
 
             let tmp=parseInt(page)-1;
 
-            if(title===null || title===''){
+            if(title===null && tag===null){
                 navigate('/?page='+tmp);
             }
-            else {
+            else if(title!==null && tag===null){
                 navigate('/?title=' +title+ '&page=' + tmp);
+            }
+            else{
+                navigate('/?tag=' +tag+ '&page=' + tmp);
             }
 
             window.location.reload();
@@ -124,11 +138,14 @@ const QuestionList =(props)=>{
 
         if(page==null){
 
-            if(title===null || title===''){
+            if(title===null && tag===null){
                 navigate('/?page=1');
             }
-            else {
+            else if(title!==null && tag===null){
                 navigate('/?title=' +title+ '&page=1' );
+            }
+            else{
+                navigate('/?tag=' +tag+ '&page=1' );
             }
             window.location.reload();
 
@@ -137,11 +154,14 @@ const QuestionList =(props)=>{
 
             let tmp=parseInt(page)+1;
 
-            if(title===null || title===''){
+            if(title===null && tag===null){
                 navigate('/?page='+tmp);
             }
-            else {
+            else if(title!==null && tag===null){
                 navigate('/?title=' +title+ '&page=' + tmp);
+            }
+            else{
+                navigate('/?tag=' +tag+ '&page=' + tmp);
             }
 
             window.location.reload();
