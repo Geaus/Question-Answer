@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {login} from "../../service/LoginService"
 
 
-const LoginCard = () => {
+function LoginCard (props) {
 
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
@@ -37,7 +37,7 @@ const LoginCard = () => {
 
     return (
         <div>
-            <Card style={cardStyle} title="欢迎登陆！">
+            <Card style={cardStyle} title="欢迎登陆！" hoverable>
                 <Input
                     placeholder="用户名"
                     style={{ marginBottom: 16 }}
@@ -57,7 +57,9 @@ const LoginCard = () => {
                 >
                     Login
                 </Button>
-
+                <Button onClick={() => props.setShowRegistrationForm(true)}>
+                    Register
+                </Button>
             </Card>
         </div>
     );
