@@ -4,7 +4,7 @@ describe("提问测试", () => {
     cy.get("[placeholder=\"用户名\"]").type("user1")
     cy.get("[placeholder=\"密码\"]").type("1")
     cy.get("[data-testid=\"login-button\"]").click()
-    cy.url().should("eq", "http://localhost:3000/")
+    cy.url().should("eq", "http://localhost:3000/?page=0")
   })
   afterEach("登出系统", () => {
     cy.visit('http://localhost:3000/')
@@ -53,7 +53,7 @@ describe("回答测试", () => {
     cy.get("[placeholder=\"用户名\"]").type("user1")
     cy.get("[placeholder=\"密码\"]").type("1")
     cy.get("[data-testid=\"login-button\"]").click()
-    cy.url().should("eq", "http://localhost:3000/")
+    cy.url().should("eq", "http://localhost:3000/?page=0")
     cy.contains("如何学习ICS").should("be.visible")
     cy.contains("如何学习ICS").click()
     cy.url().should("include", "qid=1")
