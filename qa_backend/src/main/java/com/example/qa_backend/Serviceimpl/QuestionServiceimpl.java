@@ -14,6 +14,7 @@ import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.lucene.HanLPAnalyzer;
 import io.lettuce.core.RedisException;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.hi.HindiNormalizationFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -68,6 +69,7 @@ public class QuestionServiceimpl implements QuestionService {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
     private JedisPool jedisPool;
+    private Analyzer analyzer;
     @PostConstruct
     public void init() throws IOException {
 
@@ -86,6 +88,10 @@ public class QuestionServiceimpl implements QuestionService {
         for(Question question : questions){
             docVectorModel.addDocument(question.getId(), question.getTitle());
         }
+        analyzer = new HanLPAnalyzer();
+        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
+        IndexReader indexReader = DirectoryReader.open(directory);
+        this.docVectorModel.nearest("已加载");
 //        Jedis jedis = jedisPool.getResource();
 //        jedis.flushAll();
 //        List<String> questions = new ArrayList<>();
@@ -207,8 +213,14 @@ public class QuestionServiceimpl implements QuestionService {
     @Override
     public Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException {
         Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
-
+        if (jedis.dbSize() == 0) {
+            // jedis没有内容，跳过操作
+            jedis.close();
+        } else {
+            // jedis有内容，执行flushall操作
+            jedis.flushAll();
+            jedis.close();
+        }
         Question question = new Question();
         question.setContent(content);
         question.setUser(userDao.findUser(userId));
@@ -221,9 +233,7 @@ public class QuestionServiceimpl implements QuestionService {
             tagQuesRelation.setTagId(tags.get(i).getId());
             tagQuesDao.addRelation(tagQuesRelation);
         }
-
         docVectorModel.addDocument(question.getId(), question.getTitle());
-
         IndexWriter indexWriter ;
         Directory directory ;
         Analyzer analyzer ;
@@ -247,7 +257,6 @@ public class QuestionServiceimpl implements QuestionService {
         doc.add(new TextField("content", question.getContent(), Field.Store.YES));
 
         indexWriter.addDocument(doc);
-
         if (indexWriter != null) {
             try {
                 indexWriter.close();
@@ -307,7 +316,14 @@ public class QuestionServiceimpl implements QuestionService {
     @Override
     public void deleteQuestion(int qid) {
         Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
+        if (jedis.dbSize() == 0) {
+            // jedis没有内容，跳过操作
+            jedis.close();
+        } else {
+            // jedis有内容，执行flushall操作
+            jedis.flushAll();
+            jedis.close();
+        }
 
         Question question = questionDao.getQuestion(qid);
         List<Answer> answers = answerDao.findAnswers(question);
@@ -426,6 +442,15 @@ public class QuestionServiceimpl implements QuestionService {
         return res;
     }
 
+//    @Override
+//    public  List<QuestionJSON> fullTextSearch(String keyWord, int uid, int page_id){
+//        List<Question> questions = questionDao.findAllQuestionsByTitle(page_id, "%"+keyWord+"%");
+//        List<QuestionJSON> questionJSONS = new ArrayList<>();
+//        for(Question question : questions){
+//            questionJSONS.add(questionToQuestionJSON(question, uid, false));
+//        }
+//        return questionJSONS;
+//    }
     @Override
     public List<QuestionJSON> fullTextSearch(String keyWord, int uid, int page_id) throws IOException {
         // 检查缓存中是否存在结果
@@ -452,8 +477,7 @@ public class QuestionServiceimpl implements QuestionService {
         if (files == null || files.length == 0) {
             return searchList;
         }
-
-        try (Analyzer analyzer = new HanLPAnalyzer();
+        try (
              Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
              IndexReader indexReader = DirectoryReader.open(directory)) {
 
@@ -479,14 +503,12 @@ public class QuestionServiceimpl implements QuestionService {
             if (topDocs.totalHits > 0 && !StringUtils.isEmpty(sentence)) {
                 for (ScoreDoc sd : topDocs.scoreDocs) {
                     Document doc = indexSearcher.doc(sd.doc);
-                    System.out.println(doc.get("id"));
                     Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
                     QuestionJSON res = questionToQuestionJSON(question, uid, true);
-                    res.setTitle(highlighter.getBestFragment(new HanLPAnalyzer(), "title", doc.get("title")));
+                    res.setTitle(highlighter.getBestFragment(analyzer, "title", doc.get("title")));
                     searchList.add(res);
                 }
             }
-
             indexReader.close();
 
             List<Callable<Void>> tasks = new ArrayList<>();

@@ -12,4 +12,6 @@ public interface QuestionDao {
     Question addQuestion(Question question);
     List<Question> getAsked(int page_id, User user);
     void deleteQuestion(Question question);
+
+    List<Question> findAllQuestionsByTitle(int page_id, String title);
 }

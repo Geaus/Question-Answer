@@ -44,4 +44,9 @@ public class QuestionDaoimpl implements QuestionDao {
         questionRepository.delete(question);
     }
 
+    @Override
+    public List<Question> findAllQuestionsByTitle(int page_id, String title){
+        return questionRepository.findAllByTitleLike(title);
+    }
+
 }
