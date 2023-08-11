@@ -233,44 +233,44 @@ public class QuestionServiceimpl implements QuestionService {
             tagQuesRelation.setTagId(tags.get(i).getId());
             tagQuesDao.addRelation(tagQuesRelation);
         }
-        docVectorModel.addDocument(question.getId(), question.getTitle());
+//        docVectorModel.addDocument(question.getId(), question.getTitle());
         IndexWriter indexWriter ;
         Directory directory ;
         Analyzer analyzer ;
 
         //创建索引目录文件
 
-        analyzer = new HanLPAnalyzer();
-        // 2. 创建Directory对象,声明索引库的位置
-        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-        // 3. 创建IndexWriteConfig对象，写入索引需要的配置
-        IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-        // 4.创建IndexWriter写入对象
-        indexWriter = new IndexWriter(directory, writerConfig);
-        // 5.写入到索引库，通过IndexWriter添加文档对象document
-        Document doc = new Document();
-        //StringField 不分词 直接建索引 存储
-        doc.add(new StringField("id", String.valueOf(question.getId()), Field.Store.YES));
-        //TextField 分词 建索引 存储
-        doc.add(new TextField("title", question.getTitle(), Field.Store.YES));
-        //TextField 分词 建索引 存储
-        doc.add(new TextField("content", question.getContent(), Field.Store.YES));
-
-        indexWriter.addDocument(doc);
-        if (indexWriter != null) {
-            try {
-                indexWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (directory != null) {
-            try {
-                directory.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        analyzer = new HanLPAnalyzer();
+//        // 2. 创建Directory对象,声明索引库的位置
+//        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
+//        // 3. 创建IndexWriteConfig对象，写入索引需要的配置
+//        IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
+//        // 4.创建IndexWriter写入对象
+//        indexWriter = new IndexWriter(directory, writerConfig);
+//        // 5.写入到索引库，通过IndexWriter添加文档对象document
+//        Document doc = new Document();
+//        //StringField 不分词 直接建索引 存储
+//        doc.add(new StringField("id", String.valueOf(question.getId()), Field.Store.YES));
+//        //TextField 分词 建索引 存储
+//        doc.add(new TextField("title", question.getTitle(), Field.Store.YES));
+//        //TextField 分词 建索引 存储
+//        doc.add(new TextField("content", question.getContent(), Field.Store.YES));
+//
+//        indexWriter.addDocument(doc);
+//        if (indexWriter != null) {
+//            try {
+//                indexWriter.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (directory != null) {
+//            try {
+//                directory.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         return question;
     }
