@@ -11,7 +11,7 @@
     <groupId>com.example</groupId>
     <artifactId>qa_backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>qa_backend</name>
     <description>qa_backend</description>
     <properties>
