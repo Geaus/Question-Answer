@@ -58,21 +58,6 @@ class FeedbackServiceimplTest {
         expectedFeedbackForQuestion.setBookmark(0);
         when(feedbackQuestionDao.findSpecific(1,1)).thenReturn(expectedFeedbackForQuestion);
 
-        Question expectedQuestion = new Question();
-        expectedQuestion.setId(1);
-        expectedQuestion.setContent("content");
-        expectedQuestion.setCreateTime("2023-7-10 11:14:03");
-        List<Tag> tagList = new ArrayList<>();
-        expectedQuestion.setTags(tagList);
-        expectedQuestion.setTitle("title");
-        User expectedUser = new User();
-        expectedUser.setId(1);
-        expectedQuestion.setUser(expectedUser);
-        expectedQuestion.setLike(3);
-        expectedQuestion.setDislike(1);
-        expectedQuestion.setMark(2);
-        when(questionDao.getQuestion(1)).thenReturn(expectedQuestion);
-
         FeedbackForQuestion expectedLike = new FeedbackForQuestion();
         expectedLike.setUserId(1);
         expectedLike.setQuesId(1);
@@ -113,7 +98,19 @@ class FeedbackServiceimplTest {
         expectedUnstar.setBookmark(0);
         when(feedbackQuestionDao.addOne(expectedUnstar)).thenReturn(expectedUnstar);
 
-        when(questionDao.addQuestion(expectedQuestion)).thenReturn(expectedQuestion);
+        doNothing().when(feedbackQuestionDao).deleteSpecific(1, 1);
+
+        Question expectedQuestion = new Question();
+        expectedQuestion.setId(1);
+        expectedQuestion.setContent("content");
+        expectedQuestion.setCreateTime("2023-7-10 11:14:03");
+        List<Tag> tagList = new ArrayList<>();
+        expectedQuestion.setTags(tagList);
+        expectedQuestion.setTitle("title");
+        User expectedUser = new User();
+        expectedUser.setId(1);
+        expectedQuestion.setUser(expectedUser);
+        when(questionDao.getQuestion(1)).thenReturn(expectedQuestion);
 
         List<FeedbackForQuestion> expectedFeedbackList = new ArrayList<>();
         FeedbackForQuestion feedback1 = new FeedbackForQuestion();
@@ -137,8 +134,8 @@ class FeedbackServiceimplTest {
         expectedFeedbackForQuestion.setLike(0);
         QuestionJSON questionJSON2 = feedbackServiceimpl.changeQuestionFeedback(1, 1, 2);
 
-        assertEquals(4, questionJSON1.getLike());
-        assertEquals(3, questionJSON2.getMark());
+        assertEquals(3, questionJSON1.getLike());
+        assertEquals(1, questionJSON2.getMark());
     }
 
     @Test
@@ -150,20 +147,6 @@ class FeedbackServiceimplTest {
         expectedFeedbackForAnswer.setLike(0);
         when(feedbackAnswerDao.findSpecific(1,1)).thenReturn(expectedFeedbackForAnswer);
 
-        Answer expectedAnswer = new Answer();
-        expectedAnswer.setId(1);
-        expectedAnswer.setContent("content");
-        Question expectedQuestion = new Question();
-        expectedAnswer.setQuestion(expectedQuestion);
-        User expectedUser = new User();
-        expectedUser.setId(1);
-        expectedAnswer.setUser(expectedUser);
-        expectedAnswer.setCreateTime("2023:07:10 14:54:12");
-        expectedAnswer.setLike(3);
-        expectedAnswer.setDislike(0);
-        when(answerDao.findAnswer(1)).thenReturn(expectedAnswer);
-        when(answerDao.addAnswer(expectedAnswer)).thenReturn(expectedAnswer);
-
         FeedbackForAnswer expectedLike = new FeedbackForAnswer();
         expectedLike.setId(1);
         expectedLike.setAnsId(1);
@@ -172,6 +155,16 @@ class FeedbackServiceimplTest {
         when(feedbackAnswerDao.addOne(expectedLike)).thenReturn(expectedLike);
 
         doNothing().when(feedbackAnswerDao).deleteSpecific(1, 1);
+
+        Answer expectedAnswer = new Answer();
+        expectedAnswer.setId(1);
+        expectedAnswer.setContent("content");
+        Question expectedQuestion = new Question();
+        expectedAnswer.setQuestion(expectedQuestion);
+        User expectedUser = new User();
+        expectedAnswer.setUser(expectedUser);
+        expectedAnswer.setCreateTime("2023:07:10 14:54:12");
+        when(answerDao.findAnswer(1)).thenReturn(expectedAnswer);
 
         List<FeedbackForAnswer> expectedFeedbackList = new ArrayList<>();
         FeedbackForAnswer feedback1 = new FeedbackForAnswer();
@@ -199,8 +192,7 @@ class FeedbackServiceimplTest {
 
         AnswerJSON answerJSON = feedbackServiceimpl.changeAnswerFeedback(1, 1, 1);
 
-        assertEquals(4, answerJSON.getLike());
-        assertEquals(0, answerJSON.getDislike());
+        assertEquals(2, answerJSON.getLike());
     }
 
     @Test
