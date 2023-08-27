@@ -26,6 +26,18 @@ function ProfileUserInfo(props) {
         // console.log(user);
     },[]);
 
+    useEffect(() => {
+
+        // sessionStorage.setItem('uid','1');
+        const params = new URLSearchParams();
+        params.append('userId', userId);
+        params.append('uid', uid);
+
+        getUser(params,setUser);
+
+        console.log(user);
+    },[userId]);
+
 
     return (
         <div style={{padding: '50px'}}>
