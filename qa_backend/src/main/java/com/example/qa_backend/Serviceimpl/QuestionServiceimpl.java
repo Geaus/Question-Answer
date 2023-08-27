@@ -182,6 +182,7 @@ public class QuestionServiceimpl implements QuestionService {
         //构建搜索条件
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
                 .query(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+                .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
 //                .sort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
 //                .sort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
 //                .sort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
@@ -371,6 +372,7 @@ public class QuestionServiceimpl implements QuestionService {
         keywordDao.deleteKeyword(qid);
 
         docVectorModel.remove(qid);
+        esRepository.deleteById((long) qid);
 
     }
 
