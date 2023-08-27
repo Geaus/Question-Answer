@@ -1,15 +1,19 @@
-import React, {Component, useEffect, useState} from 'react';
+import React, {Component, useEffect, useReducer, useRef, useState} from 'react';
 import {Card, Button, Collapse, List, Space} from 'antd';
 import QuestionItem from "../QuestionItem/QuestionItem";
 import {getQuestions, searchQuestion, searchQuestionByTag} from "../../../service/QuestionService/QuestionService";
 import {useLocation, useParams} from "react-router";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
+import useForceUpdate from "antd/es/_util/hooks/useForceUpdate";
+import * as reactDOM from "react-dom";
+import HomeView from "../../../view/HomeView/HomeView";
+import App from "../../../App";
+
 const QuestionList =(props)=>{
 
 
     const navigate=useNavigate();
-
     const location=useLocation();
     const searchParams=new URLSearchParams(location.search);
     const title=searchParams.get('title');
@@ -25,8 +29,8 @@ const QuestionList =(props)=>{
     const updateQuestion = (data) =>{
         setQuestions(data);
     }
-    useEffect(() => {
 
+    useEffect(() => {
         if(title){
             const params = new URLSearchParams();
             params.append('uid', uid);
@@ -34,8 +38,6 @@ const QuestionList =(props)=>{
             params.append('keyword', title);
             params.append('page_id', 0);
             searchQuestion(params, updateQuestion);
-
-
         }
         else if(tag){
             const params = new URLSearchParams();
@@ -110,6 +112,51 @@ const QuestionList =(props)=>{
         console.log(questions);
     },[questions]);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if(page===null){
+                const params = new URLSearchParams();
+                params.append('uid', uid);
+                //TODO:增加page_id的相关逻辑
+                if(title===null && tag===null){
+                    params.append('page_id', 0);
+                    getQuestions(params,updateQuestion);
+                }
+                else if(title !==null && tag===null){
+                    params.append('page_id', 0);
+                    params.append('keyword', title);
+                    searchQuestion(params,updateQuestion);
+                }
+                else{
+                    params.append('page_id', 0);
+                    params.append('tag', tag);
+                    searchQuestionByTag(params,updateQuestion);
+                }
+
+            }
+            else{
+                const params = new URLSearchParams();
+                params.append('uid', uid);
+                //TODO:增加page_id的相关逻辑
+                if(title===null && tag===null){
+                    params.append('page_id', page);
+                    getQuestions(params,updateQuestion);
+                }
+                else if(title!==null && tag===null){
+                    params.append('page_id', page);
+                    params.append('keyword', title);
+                    searchQuestion(params,updateQuestion);
+                }
+                else{
+                    params.append('page_id', page);
+                    params.append('tag', tag);
+                    searchQuestionByTag(params,updateQuestion);
+                }
+            }
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [])
+
 
     const handleLeft=()=>{
 
@@ -170,15 +217,15 @@ const QuestionList =(props)=>{
 
     }
     return (
-
         <div>
-
             <div>
                 {
                     empty === false?<List
                         dataSource={questions}
                         renderItem={(question) => (
-                            <QuestionItem  info={question}/>
+                            <div>
+                                <QuestionItem  info={question}/>
+                            </div>
                             // <Card key={question.id}>{question.title}</Card>
                         )}
                     />:null
