@@ -1,4 +1,4 @@
-import {Avatar, Button, Card, Divider, List, Space, Tag} from "antd";
+import {Avatar, Button, Card, Divider, List, message, Space, Tag} from "antd";
 import {
     CaretDownOutlined,
     CaretUpOutlined,
@@ -27,6 +27,13 @@ function AnswerList(props) {
 
     const [answers,setAnswers]=useState([]);
 
+    const answerUpdate = (data) => {
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+        }
+        else setAnswers(data);
+    }
+
     useEffect(() => {
 
         if(page===null){
@@ -38,7 +45,7 @@ function AnswerList(props) {
             params.append('page_id', 0);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
         else{
             const params = new URLSearchParams();
@@ -48,7 +55,7 @@ function AnswerList(props) {
             params.append('page_id', page);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
 
     }, [id]);
@@ -64,7 +71,7 @@ function AnswerList(props) {
                 params.append('page_id', 0);
 
                 // eslint-disable-next-line array-callback-return
-                getAnswers(params,setAnswers);
+                getAnswers(params,answerUpdate);
             }
             else{
                 const params = new URLSearchParams();
@@ -74,7 +81,7 @@ function AnswerList(props) {
                 params.append('page_id', page);
 
                 // eslint-disable-next-line array-callback-return
-                getAnswers(params,setAnswers);
+                getAnswers(params,answerUpdate);
             }
         }, 3000);
         return () => clearInterval(interval);
@@ -93,7 +100,7 @@ function AnswerList(props) {
             params.append('page_id', 0);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
         else{
             const params = new URLSearchParams();
@@ -103,7 +110,7 @@ function AnswerList(props) {
             params.append('page_id', page);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
 
     },[page]);

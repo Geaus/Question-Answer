@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useReducer, useRef, useState} from 'react';
-import {Card, Button, Collapse, List, Space} from 'antd';
+import {Card, Button, Collapse, List, Space, message} from 'antd';
 import QuestionItem from "../QuestionItem/QuestionItem";
 import {getQuestions, searchQuestion, searchQuestionByTag} from "../../../service/QuestionService/QuestionService";
 import {useLocation, useParams} from "react-router";
@@ -27,7 +27,11 @@ const QuestionList =(props)=>{
 
 
     const updateQuestion = (data) =>{
-        setQuestions(data);
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+            message.error("当前为最后一页");
+        }
+        else setQuestions(data);
     }
 
     useEffect(() => {
