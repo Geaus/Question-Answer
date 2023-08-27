@@ -61,27 +61,27 @@ public class QuestionServiceimpl implements QuestionService {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
     private JedisPool jedisPool;
-    @PostConstruct
-    public void init() throws IOException {
-
-        try{
-            JedisPoolConfig poolConfig = new JedisPoolConfig();
-            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
-
-        } catch (Exception e) {
-            throw new RedisException("初始化redisPool失败");   //抛出异常
-        }
-        Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
-        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
-        this.docVectorModel = new DocVectorModel(wordVectorModel);
-        List<Question> questions = questionDao.listAll();
-        for(Question question : questions){
-            docVectorModel.addDocument(question.getId(), question.getTitle());
-        }
-//        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-//        IndexReader indexReader = DirectoryReader.open(directory);
-        this.docVectorModel.nearest("已加载");
+//    @PostConstruct
+//    public void init() throws IOException {
+//
+//        try{
+//            JedisPoolConfig poolConfig = new JedisPoolConfig();
+//            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
+//
+//        } catch (Exception e) {
+//            throw new RedisException("初始化redisPool失败");   //抛出异常
+//        }
+//        Jedis jedis = jedisPool.getResource();
+//        jedis.flushAll();
+//        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
+//        this.docVectorModel = new DocVectorModel(wordVectorModel);
+//        List<Question> questions = questionDao.listAll();
+//        for(Question question : questions){
+//            docVectorModel.addDocument(question.getId(), question.getTitle());
+//        }
+////        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
+////        IndexReader indexReader = DirectoryReader.open(directory);
+//        this.docVectorModel.nearest("已加载");
 //        Jedis jedis = jedisPool.getResource();
 //        jedis.flushAll();
 //        List<String> questions = new ArrayList<>();
@@ -143,7 +143,7 @@ public class QuestionServiceimpl implements QuestionService {
 //                e.printStackTrace();
 //            }
 //        }
-    }
+//    }
 
     @Override
     public void esTest(int userId, String content, String title){
