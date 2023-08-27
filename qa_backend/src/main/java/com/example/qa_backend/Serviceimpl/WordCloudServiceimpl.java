@@ -22,6 +22,8 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
 
@@ -32,9 +34,27 @@ public class WordCloudServiceimpl implements WordCloudService {
     @Autowired
     QuestionDao questionDao;
 
-    @Override
     @PostConstruct
+    public void setTimer() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    generate();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        Timer timer = new Timer();
+        long delay = 0;
+        long period = 1000 * 3600 * 24;
+        timer.schedule(task, delay, period);
+    }
+
+    @Override
     public void generate() throws IOException {
+        System.out.println("刷新词云");
         FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
         frequencyAnalyzer.setWordFrequenciesToReturn(600);
         frequencyAnalyzer.setMinWordLength(2);
@@ -65,7 +85,7 @@ public class WordCloudServiceimpl implements WordCloudService {
         wordCloud.writeToStream("png", output);
         byte[] outputByte = ((ByteArrayOutputStream)output).toByteArray();
         wordCloudString =  encodeBase64String(outputByte);
-        System.out.println(wordCloudString);
+        System.out.println("词云刷新完毕");
     }
 
     @Override
