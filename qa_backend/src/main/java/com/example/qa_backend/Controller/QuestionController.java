@@ -1,5 +1,6 @@
 package com.example.qa_backend.Controller;
 
+import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.LoginResult;
@@ -65,4 +66,9 @@ public class QuestionController {
     @RequestMapping("/fullTextSearch")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid, @RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid, page_id);}
+    @RequestMapping("/esTest")
+    public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
+
+    @RequestMapping("/esSearch")
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid) throws IOException {return questionService.EsSearch(keyword, limit, uid);}
 }
