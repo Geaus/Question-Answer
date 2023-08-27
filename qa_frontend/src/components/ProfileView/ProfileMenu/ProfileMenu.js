@@ -48,8 +48,15 @@ function ProfileMenu() {
         const params = new URLSearchParams();
         params.append('userId', userId);
         params.append('uid', uid)
-        //TODO:增加page_id的相关逻辑
-        params.append('page_id', 0);
+        if(page===null){
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', 0);
+        }
+        else{
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', page);
+
+        }
 
         if (currentMenuItem === 'questions') {
             getAsked(params,setQuestions);

@@ -36,7 +36,9 @@ function AnswerCard(props) {
     const newlineIndex = answerContent.indexOf('\n');
     const truncatedContent = newlineIndex !== -1 ? answerContent.substring(0, newlineIndex) + '...' : answerContent;
 
-
+    useEffect(() => {
+        setAnswer(props.info);
+    }, [props])
 
     const  handleExpanded=()=>{
         setExpanded(!expanded);
