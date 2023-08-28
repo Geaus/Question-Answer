@@ -7,6 +7,13 @@ import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.example.qa_backend.Service.SensitiveWordService;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +28,9 @@ public class QuestionController {
     QuestionService questionService;
     @Autowired
     SensitiveWordService sensitiveWordService;
+    @Autowired
+    private RestHighLevelClient restClient;
+
     @RequestMapping("/getQuestions")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> listQuestions(@RequestParam int page_id, @RequestParam int uid) { return questionService.listQuestions(page_id, uid); }
@@ -71,4 +81,49 @@ public class QuestionController {
 
     @RequestMapping("/esSearch")
     public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid) throws IOException {return questionService.EsSearch(keyword, limit, uid);}
+
+    @PostMapping("/ikCreate")
+    public void ikCreate(@RequestParam String index) throws Exception {
+        // 1. 创建索引的请求
+        CreateIndexRequest request = new CreateIndexRequest(index);
+        request.settings(Settings.builder()
+                .put("index.number_of_shards", 6)
+                .put("index.number_of_replicas", 0)
+        );
+
+        // 2. 创建索引映射
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.startObject("properties");
+            {
+                // 创建电影名字文档字段
+                builder.startObject("title");
+                {
+                    builder.field("type", "text")
+                            .field("analyzer", "ik_max_word")
+                            .field("search_analyzer", "ik_smart");
+                }
+                builder.endObject();
+
+                // 创建电影描述文档字段
+                builder.startObject("content");
+                {
+                    builder.field("type", "text")
+                            .field("analyzer", "ik_smart")
+                            .field("search_analyzer", "ik_smart");
+                }
+                builder.endObject();
+            }
+            builder.endObject();
+        }
+        builder.endObject();
+
+        request.mapping("XContentBuilder",builder); // 使用新的mapping方法
+
+        // 3. 客户端执行请求，请求后获得响应
+        CreateIndexResponse response = restClient.indices().create(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+    }
+
 }

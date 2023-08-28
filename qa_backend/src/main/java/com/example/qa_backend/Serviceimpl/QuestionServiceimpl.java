@@ -10,8 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import io.lettuce.core.RedisException;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -146,7 +149,7 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public void esTest(int userId, String content, String title){
+    public void esTest(int userId, String content, String title) throws IOException {
 
         Question question = new Question();
         question.setContent(content);
@@ -159,17 +162,24 @@ public class QuestionServiceimpl implements QuestionService {
         question = questionDao.addQuestion(question);
         int ques_id = question.getId();
 
-        Es article = new Es();
-        article.setTitle(title);
-        article.setContent(content);
-        article.setId(ques_id);
-        esRepository.save(article);
-
+//        IndexRequest request = new IndexRequest("1");
+//        request.setRefreshPolicy(WriteRequest.RefreshPolicy.NONE);
+//        Es article = new Es();
+//        article.setTitle(title);
+//        article.setContent(content);
+//        article.setId(ques_id);
+//        esRepository.save(article);
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("title", title);
+        jsonMap.put("content", content);
+        IndexRequest indexRequest = new IndexRequest("105")
+                .id(String.valueOf(ques_id)).source(jsonMap);
+        IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
     }
 
     @Override
     public List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException {
-        SearchRequest searchRequest = new SearchRequest("question");
+        SearchRequest searchRequest = new SearchRequest("105");
 
         //高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();

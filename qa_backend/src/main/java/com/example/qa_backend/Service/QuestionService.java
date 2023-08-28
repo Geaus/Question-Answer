@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface QuestionService {
-    void esTest(int userId, String content, String title);
+    void esTest(int userId, String content, String title) throws IOException;
 
     List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException;
 
