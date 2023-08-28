@@ -61,24 +61,24 @@ public class QuestionServiceimpl implements QuestionService {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
     private JedisPool jedisPool;
-    @PostConstruct
-    public void init() throws IOException {
-
-        try{
-            JedisPoolConfig poolConfig = new JedisPoolConfig();
-            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
-
-        } catch (Exception e) {
-            throw new RedisException("初始化redisPool失败");   //抛出异常
-        }
-        Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
+//    @PostConstruct
+//    public void init() throws IOException {
+//
+//        try{
+//            JedisPoolConfig poolConfig = new JedisPoolConfig();
+//            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
+//
+//        } catch (Exception e) {
+//            throw new RedisException("初始化redisPool失败");   //抛出异常
+//        }
+//        Jedis jedis = jedisPool.getResource();
+//        jedis.flushAll();
 //        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
-        this.docVectorModel = new DocVectorModel(wordVectorModel);
-        List<Question> questions = questionDao.listAll();
-        for(Question question : questions){
-            docVectorModel.addDocument(question.getId(), question.getTitle());
-        }
+//        this.docVectorModel = new DocVectorModel(wordVectorModel);
+//        List<Question> questions = questionDao.listAll();
+//        for(Question question : questions){
+//            docVectorModel.addDocument(question.getId(), question.getTitle());
+//        }
 ////        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
 ////        IndexReader indexReader = DirectoryReader.open(directory);
 //        this.docVectorModel.nearest("已加载");
@@ -143,7 +143,7 @@ public class QuestionServiceimpl implements QuestionService {
 //                e.printStackTrace();
 //            }
 //        }
-    }
+//    }
 
     @Override
     public void esTest(int userId, String content, String title){
@@ -286,15 +286,15 @@ public class QuestionServiceimpl implements QuestionService {
 
     @Override
     public Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException {
-        Jedis jedis = jedisPool.getResource();
-        if (jedis.dbSize() == 0) {
-            // jedis没有内容，跳过操作
-            jedis.close();
-        } else {
-            // jedis有内容，执行flushall操作
-            jedis.flushAll();
-            jedis.close();
-        }
+//        Jedis jedis = jedisPool.getResource();
+//        if (jedis.dbSize() == 0) {
+//            // jedis没有内容，跳过操作
+//            jedis.close();
+//        } else {
+//            // jedis有内容，执行flushall操作
+//            jedis.flushAll();
+//            jedis.close();
+//        }
         Question question = new Question();
         question.setContent(content);
         question.setUser(userDao.findUser(userId));
@@ -307,7 +307,7 @@ public class QuestionServiceimpl implements QuestionService {
             tagQuesRelation.setTagId(tags.get(i).getId());
             tagQuesDao.addRelation(tagQuesRelation);
         }
-        docVectorModel.addDocument(question.getId(), question.getTitle());
+//        docVectorModel.addDocument(question.getId(), question.getTitle());
 
 
         return question;
