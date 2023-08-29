@@ -2,11 +2,7 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
-COPY qa_frontend/package.json ./
-RUN npm install
-
-COPY qa_frontend/ ./
-RUN npm run build
+COPY qa_frontend/build ./
 
 
 FROM nginx:alpine
