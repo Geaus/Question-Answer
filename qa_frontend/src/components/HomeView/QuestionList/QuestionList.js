@@ -5,10 +5,6 @@ import {getQuestions, searchQuestion, searchQuestionByTag} from "../../../servic
 import {useLocation, useParams} from "react-router";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
-import useForceUpdate from "antd/es/_util/hooks/useForceUpdate";
-import * as reactDOM from "react-dom";
-import HomeView from "../../../view/HomeView/HomeView";
-import App from "../../../App";
 
 const QuestionList =(props)=>{
 
@@ -49,7 +45,7 @@ const QuestionList =(props)=>{
             console.log(tag);
             params.append('tag', tag);
             params.append('page_id', 0);
-            searchQuestionByTag(params, setQuestions);
+            searchQuestionByTag(params, updateQuestion);
         }
        else{
             // sessionStorage.setItem('uid','1');
@@ -63,7 +59,7 @@ const QuestionList =(props)=>{
                 params.append('page_id', page);
             }
 
-            getQuestions(params,setQuestions);
+            getQuestions(params,updateQuestion);
         }
 
     },[title, tag]);
@@ -76,17 +72,17 @@ const QuestionList =(props)=>{
             //TODO:增加page_id的相关逻辑
             if(title===null && tag===null){
                 params.append('page_id', 0);
-                getQuestions(params,setQuestions);
+                getQuestions(params,updateQuestion);
             }
             else if(title !==null && tag===null){
                 params.append('page_id', 0);
                 params.append('keyword', title);
-                searchQuestion(params,setQuestions);
+                searchQuestion(params,updateQuestion);
             }
             else{
                 params.append('page_id', 0);
                 params.append('tag', tag);
-                searchQuestionByTag(params,setQuestions);
+                searchQuestionByTag(params,updateQuestion);
             }
 
         }
@@ -96,17 +92,17 @@ const QuestionList =(props)=>{
             //TODO:增加page_id的相关逻辑
             if(title===null && tag===null){
                 params.append('page_id', page);
-                getQuestions(params,setQuestions);
+                getQuestions(params,updateQuestion);
             }
             else if(title!==null && tag===null){
                 params.append('page_id', page);
                 params.append('keyword', title);
-                searchQuestion(params,setQuestions);
+                searchQuestion(params,updateQuestion);
             }
             else{
                 params.append('page_id', page);
                 params.append('tag', tag);
-                searchQuestionByTag(params,setQuestions);
+                searchQuestionByTag(params,updateQuestion);
             }
         }
 

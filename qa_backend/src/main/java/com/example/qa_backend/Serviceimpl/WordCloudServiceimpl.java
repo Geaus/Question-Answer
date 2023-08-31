@@ -1,7 +1,10 @@
 package com.example.qa_backend.Serviceimpl;
 
+import com.example.qa_backend.Dao.FeedbackQuestionDao;
 import com.example.qa_backend.Dao.QuestionDao;
+import com.example.qa_backend.Entity.FeedbackForQuestion;
 import com.example.qa_backend.Entity.Question;
+import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.WordCloudService;
 import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.WordFrequency;
@@ -30,10 +33,11 @@ import static org.apache.tomcat.util.codec.binary.Base64.encodeBase64String;
 @Service
 public class WordCloudServiceimpl implements WordCloudService {
     private String wordCloudString = "";
-
+    private List<Question> hotQuestions = new ArrayList<>();
     @Autowired
     QuestionDao questionDao;
-
+    @Autowired
+    FeedbackQuestionDao feedbackQuestionDao;
     @PostConstruct
     public void setTimer() {
         TimerTask task = new TimerTask() {
@@ -52,7 +56,6 @@ public class WordCloudServiceimpl implements WordCloudService {
         timer.schedule(task, delay, period);
     }
 
-    @Override
     public void generate() throws IOException {
         System.out.println("刷新词云");
         FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
@@ -84,12 +87,70 @@ public class WordCloudServiceimpl implements WordCloudService {
         OutputStream output = new ByteArrayOutputStream();
         wordCloud.writeToStream("png", output);
         byte[] outputByte = ((ByteArrayOutputStream)output).toByteArray();
-        wordCloudString =  encodeBase64String(outputByte);
+        wordCloudString = encodeBase64String(outputByte);
         System.out.println("词云刷新完毕");
+
+        System.out.println("刷新热榜");
+        questions.sort((a, b) -> {
+            int hotIndexA = a.getLike() + a.getDislike() + a.getMark();
+            int hotIndexB = b.getLike() + b.getDislike() + b.getMark();
+            return Integer.compare(hotIndexB, hotIndexA);
+        });
+        if(questions.size() < 100) {
+            hotQuestions = new ArrayList<>(questions);
+        }
+        else {
+            List<Question> hotTmp = new ArrayList<>();
+            for(int i = 0; i < 100; i++) {
+                hotTmp.add(questions.get(i));
+            }
+            hotQuestions = hotTmp;
+        }
+        System.out.println("热榜刷新完毕");
     }
 
     @Override
     public String get() {
         return wordCloudString;
+    }
+
+    @Override
+    public List<QuestionJSON> getHotQuestion(int uid, int page_id) {
+        List<QuestionJSON> resList = new ArrayList<>();
+        for(int i = page_id * 10; i < (page_id + 1) * 10; i++) {
+            if(hotQuestions.size() <= i) break;
+            Question tmp = hotQuestions.get(i);
+            Question question = questionDao.getQuestion(tmp.getId());
+            QuestionJSON res = new QuestionJSON();
+            res.setId(question.getId());
+            res.setContent(question.getContent());
+            res.setCreateTime(question.getCreateTime());
+            res.setTags(question.getTags());
+            res.setTitle(question.getTitle());
+            res.setUser(question.getUser());
+            List<FeedbackForQuestion> feedback = feedbackQuestionDao.findFeedback(question.getId());
+            int like = 0, dislike = 0, mark = 0, likeFlag = 0, markFlag = 0;
+            for(int j = 0; j < feedback.size(); j++) {
+                if(feedback.get(j).getLike() == -1){
+                    if(feedback.get(j).getUserId() == uid)likeFlag = -1;
+                    dislike++;
+                }
+                else if(feedback.get(j).getLike() == 1){
+                    if(feedback.get(j).getUserId() == uid)likeFlag = 1;
+                    like++;
+                }
+                if(feedback.get(j).getBookmark() == 1){
+                    if(feedback.get(j).getUserId() == uid)markFlag = 1;
+                    mark++;
+                }
+            }
+            res.setLike(like);
+            res.setDislike(dislike);
+            res.setMark(mark);
+            res.setLikeFlag(likeFlag);
+            res.setMarkFlag(markFlag);
+            resList.add(res);
+        }
+        return resList;
     }
 }

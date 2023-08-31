@@ -6,6 +6,7 @@ import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.example.qa_backend.Service.SensitiveWordService;
+import com.example.qa_backend.Service.WordCloudService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,8 @@ public class QuestionController {
     QuestionService questionService;
     @Autowired
     SensitiveWordService sensitiveWordService;
+    @Autowired
+    WordCloudService wordCloudService;
     @RequestMapping("/getQuestions")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> listQuestions(@RequestParam int page_id, @RequestParam int uid) { return questionService.listQuestions(page_id, uid); }
@@ -65,4 +68,9 @@ public class QuestionController {
     @RequestMapping("/fullTextSearch")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid, @RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid, page_id);}
+    @RequestMapping("/hotQuestion")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
+    public List<QuestionJSON> getHotQuestion(@RequestParam int page_id, @RequestParam int uid) {
+        return wordCloudService.getHotQuestion(uid, page_id);
+    }
 }
