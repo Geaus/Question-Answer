@@ -20,8 +20,7 @@ RUN npm run build
 # 暴露端口 9000
 EXPOSE 80
 
-
-COPY qa_frontend/build ./
+COPY qa_frontend/ ./
 
 FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
