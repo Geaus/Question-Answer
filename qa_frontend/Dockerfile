@@ -11,14 +11,17 @@ COPY qa_frontend/package.json ./
 # 安装依赖
 RUN npm i --production --registry=https://registry.npm.taobao.org
 
+# 拷贝其他所有文件到容器（除了 .dockerignore 中的目录和文件）
+COPY qa_frontend/ ./
+
 # build
 RUN npm run build
 
-# 拷贝其他所有文件到容器（除了 .dockerignore 中的目录和文件）
-COPY qa_frontend/build ./
-
 # 暴露端口 9000
 EXPOSE 80
+
+
+COPY qa_frontend/build ./
 
 FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
