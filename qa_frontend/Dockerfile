@@ -20,5 +20,5 @@ RUN npm run build
 # 暴露端口 9000
 EXPOSE 3000
 
-# 运行容器时执行命令，每个 Dokcerfile 只能有一个 CMD 命令，多个的话只有最后一个会执行
-CMD [ "npm", "start" ]
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
