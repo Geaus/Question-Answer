@@ -63,7 +63,7 @@ public class QuestionController {
     public List<Question> getMarked(@RequestParam int page_id, @RequestParam int userId) { return questionService.getMarked(page_id, userId); }
     @RequestMapping("/deleteQuestion")
     @PreAuthorize("@authCheck.authorityCheck(1)")
-    public LoginResult deleteQuestion(@RequestParam int qid) {
+    public LoginResult deleteQuestion(@RequestParam int qid) throws IOException {
         questionService.deleteQuestion(qid);
         LoginResult result = new LoginResult();
         result.setCode(200);

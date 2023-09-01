@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import io.lettuce.core.RedisException;
+import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -172,14 +175,15 @@ public class QuestionServiceimpl implements QuestionService {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("title", title);
         jsonMap.put("content", content);
-        IndexRequest indexRequest = new IndexRequest("105")
+        IndexRequest indexRequest = new IndexRequest("110")
                 .id(String.valueOf(ques_id)).source(jsonMap);
+        IndexRequest.RefreshPolicy.parse("wait_for");
         IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
     }
 
     @Override
     public List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException {
-        SearchRequest searchRequest = new SearchRequest("105");
+        SearchRequest searchRequest = new SearchRequest("110");
 
         //高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
@@ -362,17 +366,7 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public void deleteQuestion(int qid) {
-        Jedis jedis = jedisPool.getResource();
-        if (jedis.dbSize() == 0) {
-            // jedis没有内容，跳过操作
-            jedis.close();
-        } else {
-            // jedis有内容，执行flushall操作
-            jedis.flushAll();
-            jedis.close();
-        }
-
+    public void deleteQuestion(int qid) throws IOException {
         Question question = questionDao.getQuestion(qid);
         List<Answer> answers = answerDao.findAnswers(question);
         for(int i = 0; i < answers.size(); i++)feedbackAnswerDao.deleteByAns(answers.get(i).getId());
@@ -381,8 +375,13 @@ public class QuestionServiceimpl implements QuestionService {
         questionDao.deleteQuestion(question);
         keywordDao.deleteKeyword(qid);
 
-        docVectorModel.remove(qid);
-        esRepository.deleteById((long) qid);
+        DeleteRequest request = new DeleteRequest("110", String.valueOf(qid));
+        request.setRefreshPolicy("wait_for");
+        DeleteResponse deleteResponse = restClient.delete(
+                request, RequestOptions.DEFAULT);
+        if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
+            System.out.println("es未发现需要删除的问题");
+        }
 
     }
 

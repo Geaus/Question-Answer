@@ -20,7 +20,7 @@ public interface QuestionService {
     List<Question> getLiked(int page_id, int userId);
     List<Question> getDisliked(int page_id, int userId);
     List<Question> getMarked(int page_id, int userId);
-    void deleteQuestion(int qid);
+    void deleteQuestion(int qid) throws IOException;
     List<QuestionJSON> searchByTag(int tagId, int uid, int page_id);
     List<QuestionJSON> fullTextSearch(String keyWord, int uid, int page_id) throws IOException;
 }
