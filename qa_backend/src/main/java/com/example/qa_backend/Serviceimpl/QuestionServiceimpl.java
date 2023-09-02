@@ -3,13 +3,22 @@ package com.example.qa_backend.Serviceimpl;
 import com.example.qa_backend.Dao.*;
 import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.QuestionJSON;
-import com.example.qa_backend.Repository.EsRepository;
 import com.example.qa_backend.Service.QuestionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import io.lettuce.core.RedisException;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -19,6 +28,8 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -27,6 +38,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.jandex.IndexReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -34,8 +46,11 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
@@ -57,98 +72,69 @@ public class QuestionServiceimpl implements QuestionService {
     KeywordDao keywordDao;
     @Autowired
     AnswerDao answerDao;
-    @Autowired
-    EsRepository esRepository;
-    @Autowired
-    private RestHighLevelClient restClient;
 
+    ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
+        @Override
+        public void onResponse(IndexResponse indexResponse) {
+
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            System.out.println("Es写入出错");
+        }
+    };
+
+    private final RestHighLevelClient writeRestClient = initRestClient();
+    private final RestHighLevelClient searchRestClient = initRestClient();
+    private final RestHighLevelClient deleteRestClient = initRestClient();
     private WordVectorModel wordVectorModel;
     private DocVectorModel docVectorModel;
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
     private JedisPool jedisPool;
+
+    private RestHighLevelClient initRestClient(){
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "123456"));
+        return new RestHighLevelClient(
+                RestClient.builder(
+                                new HttpHost("localhost", 9200, "http"))
+                        .setHttpClientConfigCallback(httpClientBuilder -> {
+                            httpClientBuilder.disableAuthCaching();
+                            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                        }));
+
+    }
     @PostConstruct
     public void init() throws IOException {
 
-        try{
-            JedisPoolConfig poolConfig = new JedisPoolConfig();
-            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
+        List<String> questions = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
+                questions.add(title);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        } catch (Exception e) {
-            throw new RedisException("初始化redisPool失败");   //抛出异常
+        for(String question1 : questions){
+            Question question = new Question();
+            question.setContent("");
+            question.setUser(userDao.findUser(1));
+            question.setTitle(question1);
+            question = questionDao.addQuestion(question);
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("title", question1);
+            jsonMap.put("content", "");
+            IndexRequest indexRequest = new IndexRequest("1")
+                    .id(String.valueOf(question.getId())).source(jsonMap);
+            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
+
         }
-        Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
-        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
-        this.docVectorModel = new DocVectorModel(wordVectorModel);
-        List<Question> questions = questionDao.listAll();
-        for(Question question : questions){
-            docVectorModel.addDocument(question.getId(), question.getTitle());
-        }
-//        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-//        IndexReader indexReader = DirectoryReader.open(directory);
-        this.docVectorModel.nearest("已加载");
-//        Jedis jedis = jedisPool.getResource();
-//        jedis.flushAll();
-//        List<String> questions = new ArrayList<>();
-//
-////        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/baike_qa_valid.json"))) {
-////            String line;
-////            while ((line = reader.readLine()) != null) {
-////                String title = line.split("\"title\": ")[1].split(", ")[0].trim();
-////                questions.add(title);
-////            }
-////        } catch (IOException e) {
-////            e.printStackTrace();
-////        }
-//
-//        IndexWriter indexWriter ;
-//        IndexReader indexReader ;
-//        Directory directory ;
-//        Analyzer analyzer ;
-//
-////创建索引目录文件
-//
-//        analyzer = new HanLPAnalyzer();
-//// 2. 创建Directory对象,声明索引库的位置
-//        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-//// 3. 创建IndexWriteConfig对象，写入索引需要的配置
-//        IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-//// 4.创建IndexWriter写入对象
-//        indexWriter = new IndexWriter(directory, writerConfig);
-//
-////        for(String question1 : questions){
-////            Question question = new Question();
-////            question.setContent("");
-////            question.setUser(userDao.findUser(1));
-////            question.setTitle(question1);
-////            question = questionDao.addQuestion(question);
-//
-//            Document doc = new Document();
-////StringField 不分词 直接建索引 存储
-//            doc.add(new StringField("id", String.valueOf(38), Field.Store.YES));
-////TextField 分词 建索引 存储
-//            doc.add(new TextField("title", "如何评价软件工程这个专业", Field.Store.YES));
-////TextField 分词 建索引 存储
-//            doc.add(new TextField("content", "rt，如何评价软件工程，就业前景如何，学习难度如何", Field.Store.YES));
-//
-//            indexWriter.addDocument(doc);
-//
-////        }
-//        if (indexWriter != null) {
-//            try {
-//                indexWriter.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (directory != null) {
-//            try {
-//                directory.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     @Override
@@ -175,74 +161,84 @@ public class QuestionServiceimpl implements QuestionService {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("title", title);
         jsonMap.put("content", content);
-        IndexRequest indexRequest = new IndexRequest("110")
+        jsonMap.put("titleAndContent", title+"&&"+content);
+        IndexRequest indexRequest = new IndexRequest("11")
                 .id(String.valueOf(ques_id)).source(jsonMap);
         IndexRequest.RefreshPolicy.parse("wait_for");
-        IndexResponse indexResponse = restClient.index(indexRequest, RequestOptions.DEFAULT);
+
+        writeRestClient.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
     }
 
     @Override
-    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException {
-        SearchRequest searchRequest = new SearchRequest("110");
+    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException {
+        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
 
-        //高亮
+        SearchRequest searchRequest = new SearchRequest("11");
+
+        // 高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.field("title");
-        highlightBuilder.field("content");
+        highlightBuilder.field("titleAndContent");
         highlightBuilder.requireFieldMatch(false);
         highlightBuilder.preTags("<span style='color:red'>");
         highlightBuilder.postTags("</span>");
 
-        //构建搜索条件
+        // 构建搜索条件
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
-                .query(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+                .query(QueryBuilders.multiMatchQuery(keyword, "titleAndContent"))
                 .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
-//                .sort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
-//                .sort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
-//                .sort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
-                .from(0)// 指定从哪条开始查询
-//                .size(limit)// 需要查出的总记录条数
-                .highlighter(highlightBuilder);//高亮
+                .from((page_id - 1) * 10)
+                .size(10)
+                .highlighter(highlightBuilder);
         searchRequest.source(searchSourceBuilder);
-        SearchResponse searchResponse = restClient.search(searchRequest, RequestOptions.DEFAULT);
 
-        List<QuestionJSON> list = new ArrayList<>();
-        long total = searchResponse.getHits().getTotalHits().value;
-        System.out.println(total);
-        for (SearchHit hit : searchResponse.getHits().getHits()) {
-            QuestionJSON questionJSON = new QuestionJSON();
+        searchRestClient.searchAsync(searchRequest, RequestOptions.DEFAULT, new ActionListener<SearchResponse>() {
+            @Override
+            public void onResponse(SearchResponse searchResponse) {
+                List<QuestionJSON> list = new ArrayList<>();
+                for (SearchHit hit : searchResponse.getHits().getHits()) {
+                    QuestionJSON questionJSON = new QuestionJSON();
 
-            // 处理高亮显示的结果
-            HighlightField titleField = hit.getHighlightFields().get("title");
-            if (titleField != null) {
-                questionJSON.setTitle(titleField.getFragments()[0].toString());
+                    HighlightField titleField = hit.getHighlightFields().get("titleAndContent");
+                    if (titleField != null) {
+                        questionJSON.setTitle(titleField.getFragments()[0].toString().split("&&")[0]);
+                    }
+                    HighlightField contentField = hit.getHighlightFields().get("titleAndContent");
+                    if (contentField != null) {
+                        questionJSON.setContent(contentField.getFragments()[0].toString().split("&&")[1]);
+                    }
+
+                    String id = hit.getId();
+                    Question question = questionDao.getQuestion(Integer.parseInt(id));
+                    questionJSON.setId(question.getId());
+                    question.setCreateTime(question.getCreateTime());
+                    questionJSON.setTags(question.getTags());
+                    questionJSON.setUser(question.getUser());
+                    int likeFlag = 0, markFlag = 0;
+                    FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
+                    if (feedback != null) {
+                        if (feedback.getLike() == 1) likeFlag = 1;
+                        else if (feedback.getLike() == -1) likeFlag = -1;
+                        if (feedback.getBookmark() == 1) markFlag = 1;
+                    }
+                    questionJSON.setLike(question.getLike());
+                    questionJSON.setDislike(question.getDislike());
+                    questionJSON.setMark(question.getMark());
+                    questionJSON.setLikeFlag(likeFlag);
+                    questionJSON.setMarkFlag(markFlag);
+                    list.add(questionJSON);
+                }
+                future.complete(list);
             }
-            HighlightField contentField = hit.getHighlightFields().get("content");
-            if (contentField != null) {
-                questionJSON.setContent(contentField.getFragments()[0].toString());
+
+            @Override
+            public void onFailure(Exception e) {
+                future.completeExceptionally(e);
             }
-            Question question = questionDao.getQuestion(Integer.parseInt(hit.getId()));
-            System.out.println(hit.getId());
-            questionJSON.setId(question.getId());
-            question.setCreateTime(question.getCreateTime());
-            questionJSON.setTags(question.getTags());
-            questionJSON.setUser(question.getUser());
-            int likeFlag = 0, markFlag = 0;
-            FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
-            if(feedback != null) {
-                if(feedback.getLike() == 1)likeFlag = 1;
-                else if(feedback.getLike() == -1)likeFlag = -1;
-                if(feedback.getBookmark() == 1)markFlag = 1;
-            }
-            questionJSON.setLike(question.getLike());
-            questionJSON.setDislike(question.getDislike());
-            questionJSON.setMark(question.getMark());
-            questionJSON.setLikeFlag(likeFlag);
-            questionJSON.setMarkFlag(markFlag);
-            list.add(questionJSON);
-        }
-        return list;
+        });
+
+        return future.get();
     }
+
     @Override
     public List<QuestionJSON> listQuestions(int page_id, int uid) {
         List<Question> ques = questionDao.listQuestions(page_id);
@@ -377,7 +373,7 @@ public class QuestionServiceimpl implements QuestionService {
 
         DeleteRequest request = new DeleteRequest("110", String.valueOf(qid));
         request.setRefreshPolicy("wait_for");
-        DeleteResponse deleteResponse = restClient.delete(
+        DeleteResponse deleteResponse = deleteRestClient.delete(
                 request, RequestOptions.DEFAULT);
         if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
             System.out.println("es未发现需要删除的问题");

@@ -1,15 +1,22 @@
 package com.example.qa_backend.Controller;
 
-import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.example.qa_backend.Service.SensitiveWordService;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.xcontent.XContentBuilder;
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CrossOrigin
 @RestController
@@ -28,8 +36,6 @@ public class QuestionController {
     QuestionService questionService;
     @Autowired
     SensitiveWordService sensitiveWordService;
-    @Autowired
-    private RestHighLevelClient restClient;
 
     @RequestMapping("/getQuestions")
     @PreAuthorize("@authCheck.authorityCheck(0)")
@@ -80,7 +86,7 @@ public class QuestionController {
     public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
 
     @RequestMapping("/esSearch")
-    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid) throws IOException {return questionService.EsSearch(keyword, limit, uid);}
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid, page_id);}
 
     @PostMapping("/ikCreate")
     public void ikCreate(@RequestParam String index) throws Exception {
@@ -89,6 +95,7 @@ public class QuestionController {
         request.settings(Settings.builder()
                 .put("index.number_of_shards", 6)
                 .put("index.number_of_replicas", 0)
+                .put("refresh_interval", "1m")
         );
 
         // 2. 创建索引映射
@@ -97,8 +104,21 @@ public class QuestionController {
         {
             builder.startObject("properties");
             {
-                // 创建电影名字文档字段
                 builder.startObject("title");
+                {
+                    builder.field("type", "text");
+                    builder.field("copy_to", "titleAndContent");
+                }
+                builder.endObject();
+
+                builder.startObject("content");
+                {
+                    builder.field("type", "text");
+                    builder.field("copy_to", "titleAndContent");
+                }
+                builder.endObject();
+
+                builder.startObject("titleAndContent");
                 {
                     builder.field("type", "text")
                             .field("analyzer", "ik_max_word")
@@ -106,14 +126,6 @@ public class QuestionController {
                 }
                 builder.endObject();
 
-                // 创建电影描述文档字段
-                builder.startObject("content");
-                {
-                    builder.field("type", "text")
-                            .field("analyzer", "ik_smart")
-                            .field("search_analyzer", "ik_smart");
-                }
-                builder.endObject();
             }
             builder.endObject();
         }
@@ -121,8 +133,19 @@ public class QuestionController {
 
         request.mapping("XContentBuilder",builder); // 使用新的mapping方法
 
-        // 3. 客户端执行请求，请求后获得响应
-        CreateIndexResponse response = restClient.indices().create(request, RequestOptions.DEFAULT);
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "123456"));
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(
+                                new HttpHost("localhost", 9200, "http"))
+                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                                httpClientBuilder.disableAuthCaching();
+                                return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                            }
+                        }));
+        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
         System.out.println(response);
     }
 
