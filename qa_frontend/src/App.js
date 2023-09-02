@@ -11,7 +11,7 @@ import LoginView from "./view/LoginView/LoginView";
 import Answer from "./components/QuestionDetailView/Editor/Editor";
 
 // export const URL='http://localhost:8080';
-export const URL='http://60.204.203.173/api';
+export const URL='http://localhost/api';
 
 class App extends React.Component {
 
