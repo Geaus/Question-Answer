@@ -7,6 +7,7 @@ COPY ./qa_backend/target/qa_backend-0.0.1-SNAPSHOT.jar /app/
 # 设置工作目录为/app
 WORKDIR /app
 
+RUN apk add --update font-adobe-100dpi ttf-dejavu fontconfig
 
 # 暴露应用程序的端口
 EXPOSE 8080
