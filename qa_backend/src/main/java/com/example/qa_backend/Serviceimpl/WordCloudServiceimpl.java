@@ -19,6 +19,7 @@ import com.kennycason.kumo.nlp.tokenizers.ChineseWordTokenizer;
 import com.kennycason.kumo.palette.ColorPalette;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -66,8 +67,11 @@ public class WordCloudServiceimpl implements WordCloudService {
         frequencyAnalyzer.setWordFrequenciesToReturn(600);
         frequencyAnalyzer.setMinWordLength(2);
         frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
-        FileReader fileReader = new FileReader("qa_backend-0.0.1-SNAPSHOT.jar/BOOT-INF/classes/CloudStopWords.txt");
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
+//        FileReader fileReader = new FileReader("src/main/resources/CloudStopWords.txt");
+//        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        ClassPathResource resource = new  ClassPathResource("CloudStopWords.txt");
+        InputStream inputStream = resource.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         List<String> stopWords = new ArrayList<>();
         String line;
         while ((line = bufferedReader.readLine()) != null) {
