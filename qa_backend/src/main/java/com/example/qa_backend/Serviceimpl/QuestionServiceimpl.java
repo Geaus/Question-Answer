@@ -272,6 +272,10 @@ public class QuestionServiceimpl implements QuestionService {
             }
         }
 
+        User user = userDao.findUser(userId);
+        user.setAsked(user.getAsked() + 1);
+        user = userDao.addOne(user);
+
         return question;
     }
 
