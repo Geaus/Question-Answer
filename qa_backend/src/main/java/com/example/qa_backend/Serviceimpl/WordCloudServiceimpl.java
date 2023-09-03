@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -59,6 +60,8 @@ public class WordCloudServiceimpl implements WordCloudService {
 
     public void generate() throws IOException {
         System.out.println("刷新词云");
+        System.out.println(Paths.get("").toAbsolutePath());
+
         FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
         frequencyAnalyzer.setWordFrequenciesToReturn(600);
         frequencyAnalyzer.setMinWordLength(2);
