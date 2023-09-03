@@ -4,9 +4,10 @@
 /qa_frontend/node_modules
 /qa_frontend/.idea
 /qa_frontend/package-lock.json
+/qa_frontend/src/App.js
 /qa_backend/.idea
 /qa_backend/target
-/qa_backend/src/main/resources
+/qa_backend/src/main/resources/application.properties
 /.pnp
 .pnp.js
 
