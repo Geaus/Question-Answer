@@ -10,9 +10,7 @@ import java.util.List;
 
 public interface QuestionService {
     void esTest(int userId, String content, String title) throws IOException;
-
     List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException;
-
     List<QuestionJSON> listQuestions(int page_id, int uid);
     QuestionJSON findQuestion(int uid, int id);
     Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException;

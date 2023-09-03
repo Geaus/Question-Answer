@@ -1,5 +1,6 @@
 package com.example.qa_backend.Controller;
 
+import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.LoginResult;
