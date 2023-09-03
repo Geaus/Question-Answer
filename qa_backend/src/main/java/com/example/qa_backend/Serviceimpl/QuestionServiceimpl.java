@@ -6,32 +6,41 @@ import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
-import com.hankcs.hanlp.seg.common.Term;
-import com.hankcs.lucene.HanLPAnalyzer;
 import io.lettuce.core.RedisException;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.hi.HindiNormalizationFilter;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
-import org.apache.lucene.search.highlight.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.jandex.IndexReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -42,9 +51,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -64,95 +73,170 @@ public class QuestionServiceimpl implements QuestionService {
     @Autowired
     AnswerDao answerDao;
 
+    ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
+        @Override
+        public void onResponse(IndexResponse indexResponse) {
+
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            System.out.println("Es写入出错");
+        }
+    };
+
+    private final RestHighLevelClient writeRestClient = initRestClient();
+    private final RestHighLevelClient searchRestClient = initRestClient();
+    private final RestHighLevelClient deleteRestClient = initRestClient();
     private WordVectorModel wordVectorModel;
     private DocVectorModel docVectorModel;
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Map<String, List<QuestionJSON>> searchCache = new ConcurrentHashMap<>();
     private JedisPool jedisPool;
-    private Analyzer analyzer;
+
+    private RestHighLevelClient initRestClient(){
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "123456"));
+        return new RestHighLevelClient(
+                RestClient.builder(
+                                new HttpHost("localhost", 9200, "http"))
+                        .setHttpClientConfigCallback(httpClientBuilder -> {
+                            httpClientBuilder.disableAuthCaching();
+                            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                        }));
+
+    }
     @PostConstruct
     public void init() throws IOException {
 
-        try{
-            JedisPoolConfig poolConfig = new JedisPoolConfig();
-            jedisPool = new JedisPool(poolConfig,"127.0.0.1", 6379, 1000, null);
+        List<String> questions = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
+                questions.add(title);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        } catch (Exception e) {
-            throw new RedisException("初始化redisPool失败");   //抛出异常
+        for(String question1 : questions){
+            Question question = new Question();
+            question.setContent("");
+            question.setUser(userDao.findUser(1));
+            question.setTitle(question1);
+            question = questionDao.addQuestion(question);
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("title", question1);
+            jsonMap.put("content", "");
+            IndexRequest indexRequest = new IndexRequest("1")
+                    .id(String.valueOf(question.getId())).source(jsonMap);
+            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
+
         }
-        Jedis jedis = jedisPool.getResource();
-        jedis.flushAll();
-        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
-        this.docVectorModel = new DocVectorModel(wordVectorModel);
-        List<Question> questions = questionDao.listAll();
-        for(Question question : questions){
-            docVectorModel.addDocument(question.getId(), question.getTitle());
-        }
-        analyzer = new HanLPAnalyzer();
-        Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-        IndexReader indexReader = DirectoryReader.open(directory);
-        this.docVectorModel.nearest("已加载");
-//        Jedis jedis = jedisPool.getResource();
-//        jedis.flushAll();
-//        List<String> questions = new ArrayList<>();
-//
-////        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/baike_qa_valid.json"))) {
-////            String line;
-////            while ((line = reader.readLine()) != null) {
-////                String title = line.split("\"title\": ")[1].split(", ")[0].trim();
-////                questions.add(title);
-////            }
-////        } catch (IOException e) {
-////            e.printStackTrace();
-////        }
-//
-//        IndexWriter indexWriter ;
-//        IndexReader indexReader ;
-//        Directory directory ;
-//        Analyzer analyzer ;
-//
-////创建索引目录文件
-//
-//        analyzer = new HanLPAnalyzer();
-//// 2. 创建Directory对象,声明索引库的位置
-//        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-//// 3. 创建IndexWriteConfig对象，写入索引需要的配置
-//        IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-//// 4.创建IndexWriter写入对象
-//        indexWriter = new IndexWriter(directory, writerConfig);
-//
-////        for(String question1 : questions){
-////            Question question = new Question();
-////            question.setContent("");
-////            question.setUser(userDao.findUser(1));
-////            question.setTitle(question1);
-////            question = questionDao.addQuestion(question);
-//
-//            Document doc = new Document();
-////StringField 不分词 直接建索引 存储
-//            doc.add(new StringField("id", String.valueOf(38), Field.Store.YES));
-////TextField 分词 建索引 存储
-//            doc.add(new TextField("title", "如何评价软件工程这个专业", Field.Store.YES));
-////TextField 分词 建索引 存储
-//            doc.add(new TextField("content", "rt，如何评价软件工程，就业前景如何，学习难度如何", Field.Store.YES));
-//
-//            indexWriter.addDocument(doc);
-//
-////        }
-//        if (indexWriter != null) {
-//            try {
-//                indexWriter.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (directory != null) {
-//            try {
-//                directory.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+    }
+
+    @Override
+    public void esTest(int userId, String content, String title) throws IOException {
+
+        Question question = new Question();
+        question.setContent(content);
+        question.setUser(userDao.findUser(userId));
+        question.setTitle(title);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date currentDate = new Date();
+        String formattedDate = sdf.format(currentDate);
+        question.setCreateTime(formattedDate);
+        question = questionDao.addQuestion(question);
+        int ques_id = question.getId();
+
+//        IndexRequest request = new IndexRequest("1");
+//        request.setRefreshPolicy(WriteRequest.RefreshPolicy.NONE);
+//        Es article = new Es();
+//        article.setTitle(title);
+//        article.setContent(content);
+//        article.setId(ques_id);
+//        esRepository.save(article);
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("title", title);
+        jsonMap.put("content", content);
+        jsonMap.put("titleAndContent", title+"&&"+content);
+        IndexRequest indexRequest = new IndexRequest("11")
+                .id(String.valueOf(ques_id)).source(jsonMap);
+        IndexRequest.RefreshPolicy.parse("wait_for");
+
+        writeRestClient.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
+    }
+
+    @Override
+    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException {
+        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
+
+        SearchRequest searchRequest = new SearchRequest("11");
+
+        // 高亮
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.field("titleAndContent");
+        highlightBuilder.requireFieldMatch(false);
+        highlightBuilder.preTags("<span style='color:red'>");
+        highlightBuilder.postTags("</span>");
+
+        // 构建搜索条件
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.multiMatchQuery(keyword, "titleAndContent"))
+                .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
+                .from((page_id - 1) * 10)
+                .size(10)
+                .highlighter(highlightBuilder);
+        searchRequest.source(searchSourceBuilder);
+
+        searchRestClient.searchAsync(searchRequest, RequestOptions.DEFAULT, new ActionListener<SearchResponse>() {
+            @Override
+            public void onResponse(SearchResponse searchResponse) {
+                List<QuestionJSON> list = new ArrayList<>();
+                for (SearchHit hit : searchResponse.getHits().getHits()) {
+                    QuestionJSON questionJSON = new QuestionJSON();
+
+                    HighlightField titleField = hit.getHighlightFields().get("titleAndContent");
+                    if (titleField != null) {
+                        questionJSON.setTitle(titleField.getFragments()[0].toString().split("&&")[0]);
+                    }
+                    HighlightField contentField = hit.getHighlightFields().get("titleAndContent");
+                    if (contentField != null) {
+                        questionJSON.setContent(contentField.getFragments()[0].toString().split("&&")[1]);
+                    }
+
+                    String id = hit.getId();
+                    Question question = questionDao.getQuestion(Integer.parseInt(id));
+                    questionJSON.setId(question.getId());
+                    question.setCreateTime(question.getCreateTime());
+                    questionJSON.setTags(question.getTags());
+                    questionJSON.setUser(question.getUser());
+                    int likeFlag = 0, markFlag = 0;
+                    FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
+                    if (feedback != null) {
+                        if (feedback.getLike() == 1) likeFlag = 1;
+                        else if (feedback.getLike() == -1) likeFlag = -1;
+                        if (feedback.getBookmark() == 1) markFlag = 1;
+                    }
+                    questionJSON.setLike(question.getLike());
+                    questionJSON.setDislike(question.getDislike());
+                    questionJSON.setMark(question.getMark());
+                    questionJSON.setLikeFlag(likeFlag);
+                    questionJSON.setMarkFlag(markFlag);
+                    list.add(questionJSON);
+                }
+                future.complete(list);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                future.completeExceptionally(e);
+            }
+        });
+
+        return future.get();
     }
 
     @Override
@@ -234,43 +318,7 @@ public class QuestionServiceimpl implements QuestionService {
             tagQuesDao.addRelation(tagQuesRelation);
         }
         docVectorModel.addDocument(question.getId(), question.getTitle());
-        IndexWriter indexWriter ;
-        Directory directory ;
-        Analyzer analyzer ;
 
-        //创建索引目录文件
-
-        analyzer = new HanLPAnalyzer();
-        // 2. 创建Directory对象,声明索引库的位置
-        directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-        // 3. 创建IndexWriteConfig对象，写入索引需要的配置
-        IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-        // 4.创建IndexWriter写入对象
-        indexWriter = new IndexWriter(directory, writerConfig);
-        // 5.写入到索引库，通过IndexWriter添加文档对象document
-        Document doc = new Document();
-        //StringField 不分词 直接建索引 存储
-        doc.add(new StringField("id", String.valueOf(question.getId()), Field.Store.YES));
-        //TextField 分词 建索引 存储
-        doc.add(new TextField("title", question.getTitle(), Field.Store.YES));
-        //TextField 分词 建索引 存储
-        doc.add(new TextField("content", question.getContent(), Field.Store.YES));
-
-        indexWriter.addDocument(doc);
-        if (indexWriter != null) {
-            try {
-                indexWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (directory != null) {
-            try {
-                directory.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         User user = userDao.findUser(userId);
         user.setAsked(user.getAsked() + 1);
@@ -318,17 +366,7 @@ public class QuestionServiceimpl implements QuestionService {
     }
 
     @Override
-    public void deleteQuestion(int qid) {
-        Jedis jedis = jedisPool.getResource();
-        if (jedis.dbSize() == 0) {
-            // jedis没有内容，跳过操作
-            jedis.close();
-        } else {
-            // jedis有内容，执行flushall操作
-            jedis.flushAll();
-            jedis.close();
-        }
-
+    public void deleteQuestion(int qid) throws IOException {
         Question question = questionDao.getQuestion(qid);
         List<Answer> answers = answerDao.findAnswers(question);
         for(int i = 0; i < answers.size(); i++)feedbackAnswerDao.deleteByAns(answers.get(i).getId());
@@ -337,37 +375,14 @@ public class QuestionServiceimpl implements QuestionService {
         questionDao.deleteQuestion(question);
         keywordDao.deleteKeyword(qid);
 
-        docVectorModel.remove(qid);
-
-        IndexWriter indexWriter = null;
-        Directory directory = null;
-        try (Analyzer analyzer = new HanLPAnalyzer()) {
-            directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-            IndexWriterConfig writerConfig = new IndexWriterConfig(analyzer);
-            indexWriter = new IndexWriter(directory, writerConfig);
-            //根据id字段进行删除
-            indexWriter.deleteDocuments(new org.apache.lucene.index.Term("id", String.valueOf(qid)));
-            indexWriter.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("删除索引库出错：" + e.getMessage());
-        } finally {
-            if (indexWriter != null) {
-                try {
-                    indexWriter.commit();
-                    indexWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (directory != null) {
-                try {
-                    directory.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        DeleteRequest request = new DeleteRequest("110", String.valueOf(qid));
+        request.setRefreshPolicy("wait_for");
+        DeleteResponse deleteResponse = deleteRestClient.delete(
+                request, RequestOptions.DEFAULT);
+        if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
+            System.out.println("es未发现需要删除的问题");
         }
+
     }
 
     @Override
@@ -481,39 +496,6 @@ public class QuestionServiceimpl implements QuestionService {
         if (files == null || files.length == 0) {
             return searchList;
         }
-        try (
-             Directory directory = FSDirectory.open(Paths.get("src/main/resources/indexLibrary"));
-             IndexReader indexReader = DirectoryReader.open(directory)) {
-
-            List<Term> termList = HanLP.segment(keyWord.toLowerCase());
-            CoreStopWordDictionary.apply(termList);
-            StringBuilder sentenceBuilder = new StringBuilder();
-            for (Term term : termList) {
-                String word = term.toString().substring(0, term.length());
-                sentenceBuilder.append(word);
-            }
-            String sentence = sentenceBuilder.toString();
-
-            QueryParser queryParser = new MultiFieldQueryParser(new String[]{"title", "content"}, analyzer);
-            Query query = queryParser.parse(!StringUtils.isEmpty(sentence) ? sentence : "*:*");
-            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-            TopDocs topDocs = indexSearcher.search(query, 10);
-            //高亮显示
-            SimpleHTMLFormatter simpleHTMLFormatter = new SimpleHTMLFormatter("<span style='color:red'>", "</span>");
-            Highlighter highlighter = new Highlighter(simpleHTMLFormatter, new QueryScorer(query));
-            Fragmenter fragmenter = new SimpleFragmenter(100);   //高亮后的段落范围在100字内
-            highlighter.setTextFragmenter(fragmenter);
-
-            if (topDocs.totalHits > 0 && !StringUtils.isEmpty(sentence)) {
-                for (ScoreDoc sd : topDocs.scoreDocs) {
-                    Document doc = indexSearcher.doc(sd.doc);
-                    Question question = questionDao.getQuestion(Integer.parseInt(doc.get("id")));
-                    QuestionJSON res = questionToQuestionJSON(question, uid, true);
-                    res.setTitle(highlighter.getBestFragment(analyzer, "title", doc.get("title")));
-                    searchList.add(res);
-                }
-            }
-            indexReader.close();
 
             List<Callable<Void>> tasks = new ArrayList<>();
             for (Map.Entry<Integer, Float> entry : this.docVectorModel.nearest(keyWord)) {
@@ -540,10 +522,7 @@ public class QuestionServiceimpl implements QuestionService {
             cacheResults(keyWord, searchList);
 
             return searchList.subList(0, Math.min(searchList.size(), 10));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("全文检索出错：" + e.getMessage());
-        }
+
     }
 
     private List<QuestionJSON> getCachedResults(String keyWord) {
