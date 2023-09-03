@@ -11,7 +11,13 @@ import {useParams} from "react-router";
 import React, {useEffect, useState} from "react";
 import {useLocation} from "react-router";
 import Answer from "../Editor/Editor";
-import {banUser, deleteQuestion, getQuestion} from "../../../service/QuestionService/QuestionService";
+import {
+    banUser,
+    deleteQuestion,
+    getQuestion,
+    getQuestions,
+    searchQuestion, searchQuestionByTag
+} from "../../../service/QuestionService/QuestionService";
 import QuestionItem from "../../HomeView/QuestionItem/QuestionItem";
 import {feedbackQuestion} from "../../../service/FeedbackService/FeedbackService";
 import {Link, useNavigate} from "react-router-dom";
@@ -49,6 +55,23 @@ function QuestionCard(props) {
         getQuestion(params,callback);
 
     }, [id]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const params = new URLSearchParams();
+            params.append('uid', uid);
+            params.append('qid', id);
+
+            const callback=(data)=>{
+
+                setQuestion(data);
+                setUser(data.user);
+            }
+            // eslint-disable-next-line array-callback-return
+            getQuestion(params,callback);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [])
 
     const  handleLike=()=>{
 

@@ -1,4 +1,4 @@
-import {Avatar, Button, Card, Divider, List, Space, Tag} from "antd";
+import {Avatar, Button, Card, Divider, List, message, Space, Tag} from "antd";
 import {
     CaretDownOutlined,
     CaretUpOutlined,
@@ -27,18 +27,65 @@ function AnswerList(props) {
 
     const [answers,setAnswers]=useState([]);
 
+    const answerUpdate = (data) => {
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+        }
+        else setAnswers(data);
+    }
+
     useEffect(() => {
 
-        const params = new URLSearchParams();
-        params.append('uid', sessionStorage.getItem('uid'));
-        params.append('qid', id);
-        //TODO:增加page_id的相关逻辑
-        params.append('page_id', 0);
+        if(page===null){
 
-        // eslint-disable-next-line array-callback-return
-       getAnswers(params,setAnswers);
+            const params = new URLSearchParams();
+            params.append('uid', sessionStorage.getItem('uid'));
+            params.append('qid', id);
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', 0);
+
+            // eslint-disable-next-line array-callback-return
+            getAnswers(params,answerUpdate);
+        }
+        else{
+            const params = new URLSearchParams();
+            params.append('uid', sessionStorage.getItem('uid'));
+            params.append('qid', id);
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', page);
+
+            // eslint-disable-next-line array-callback-return
+            getAnswers(params,answerUpdate);
+        }
 
     }, [id]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if(page===null){
+
+                const params = new URLSearchParams();
+                params.append('uid', sessionStorage.getItem('uid'));
+                params.append('qid', id);
+                //TODO:增加page_id的相关逻辑
+                params.append('page_id', 0);
+
+                // eslint-disable-next-line array-callback-return
+                getAnswers(params,answerUpdate);
+            }
+            else{
+                const params = new URLSearchParams();
+                params.append('uid', sessionStorage.getItem('uid'));
+                params.append('qid', id);
+                //TODO:增加page_id的相关逻辑
+                params.append('page_id', page);
+
+                // eslint-disable-next-line array-callback-return
+                getAnswers(params,answerUpdate);
+            }
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [])
 
 
     useEffect(()=>{
@@ -53,7 +100,7 @@ function AnswerList(props) {
             params.append('page_id', 0);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
         else{
             const params = new URLSearchParams();
@@ -63,7 +110,7 @@ function AnswerList(props) {
             params.append('page_id', page);
 
             // eslint-disable-next-line array-callback-return
-            getAnswers(params,setAnswers);
+            getAnswers(params,answerUpdate);
         }
 
     },[page]);

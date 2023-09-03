@@ -8,7 +8,7 @@ import
     StarFilled, StarOutlined,
     UserAddOutlined
 } from "@ant-design/icons";
-import {Button, List, Menu, Space} from "antd";
+import {Button, List, Menu, message, Space} from "antd";
 import React, {useEffect, useState} from "react";
 import ProfileAnswerCard from "../ProfileAnswerCard/ProfileAnswerCard";
 import ProfileQuestionCard from "../ProfileQuestionCard/ProfileQuestionCard";
@@ -42,38 +42,68 @@ function ProfileMenu() {
     const [answers,setAnswers] =useState([]);
     const [follows,setFollows]=useState([]);
 
+    const answerUpdate = (data) => {
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+        }
+        else setAnswers(data);
+    }
+
+    const questionUpdate = (data) =>{
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+            message.error("当前为最后一页");
+        }
+        else setQuestions(data);
+    }
+
+    const followUpdate = (data) => {
+        if(data.length === 0 && page != null && page !== "0") {
+            handleLeft();
+            message.error("当前为最后一页");
+        }
+        else setFollows(data);
+    }
+
     useEffect(() => {
 
 
         const params = new URLSearchParams();
         params.append('userId', userId);
         params.append('uid', uid)
-        //TODO:增加page_id的相关逻辑
-        params.append('page_id', 0);
+        if(page===null){
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', 0);
+        }
+        else{
+            //TODO:增加page_id的相关逻辑
+            params.append('page_id', page);
+
+        }
 
         if (currentMenuItem === 'questions') {
-            getAsked(params,setQuestions);
+            getAsked(params,questionUpdate);
         }
         else if (currentMenuItem === 'answers') {
-            getAnswered(params,setAnswers);
+            getAnswered(params,answerUpdate);
         }
         else if (currentMenuItem === 'likeQuestion') {
-            getLikedQuestion(params,setQuestions);
+            getLikedQuestion(params,questionUpdate);
         }
         else if (currentMenuItem === 'likeAnswer') {
-            getLikedAnswer(params,setAnswers);
+            getLikedAnswer(params,answerUpdate);
         }
         else if (currentMenuItem === 'dislikeQuestion') {
-            getDislikedQuestion(params,setQuestions);
+            getDislikedQuestion(params,questionUpdate);
         }
         else if (currentMenuItem === 'dislikeAnswer') {
-            getDislikedAnswer(params,setAnswers);
+            getDislikedAnswer(params,answerUpdate);
         }
         else if (currentMenuItem === 'subscribe') {
-            getFollowed(params,setFollows);
+            getFollowed(params,followUpdate);
         }
         else if (currentMenuItem === 'star') {
-            getMarkedQuestion(params,setQuestions);
+            getMarkedQuestion(params,questionUpdate);
         }
 
         console.log(questions)
@@ -98,28 +128,28 @@ function ProfileMenu() {
         }
 
         if (currentMenuItem === 'questions') {
-            getAsked(params,setQuestions);
+            getAsked(params,questionUpdate);
         }
         else if (currentMenuItem === 'answers') {
-            getAnswered(params,setAnswers);
+            getAnswered(params,answerUpdate);
         }
         else if (currentMenuItem === 'likeQuestion') {
-            getLikedQuestion(params,setQuestions);
+            getLikedQuestion(params,questionUpdate);
         }
         else if (currentMenuItem === 'likeAnswer') {
-            getLikedAnswer(params,setAnswers);
+            getLikedAnswer(params,answerUpdate);
         }
         else if (currentMenuItem === 'dislikeQuestion') {
-            getDislikedQuestion(params,setQuestions);
+            getDislikedQuestion(params,questionUpdate);
         }
         else if (currentMenuItem === 'dislikeAnswer') {
-            getDislikedAnswer(params,setAnswers);
+            getDislikedAnswer(params,answerUpdate);
         }
         else if (currentMenuItem === 'subscribe') {
-            getFollowed(params,setFollows);
+            getFollowed(params,followUpdate);
         }
         else if (currentMenuItem === 'star') {
-            getMarkedQuestion(params,setQuestions);
+            getMarkedQuestion(params,questionUpdate);
         }
 
     },[page]);

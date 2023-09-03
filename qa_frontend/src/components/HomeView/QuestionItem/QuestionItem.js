@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {Card, Button, Collapse, Row, Col, Space, Typography} from 'antd';
 import {
     CaretDownOutlined,
@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import {Link} from "react-router-dom";
 import {feedbackQuestion} from "../../../service/FeedbackService/FeedbackService";
+import {getQuestions, searchQuestion, searchQuestionByTag} from "../../../service/QuestionService/QuestionService";
 
 
 const { Meta } = Card;
@@ -81,10 +82,15 @@ const QuestionItem =(props)=>{
 
      }
 
+
      const handleDelete=()=>{
 
         setExist(false);
      }
+
+     useEffect(() => {
+         setQuestion(props.info);
+     }, [props])
 
     return (
 

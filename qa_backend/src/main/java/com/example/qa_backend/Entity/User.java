@@ -35,6 +35,18 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<Answer> answers;
+    @Basic
+    @Column(name = "liked")
+    private int liked;
+    @Basic
+    @Column(name = "disliked")
+    private int disliked;
+    @Basic
+    @Column(name = "asked")
+    private int asked;
+    @Basic
+    @Column(name = "answered")
+    private int answered;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -188,6 +200,38 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public int getLiked() {
+        return liked;
+    }
+
+    public void setLiked(int liked) {
+        this.liked = liked;
+    }
+
+    public int getDisliked() {
+        return disliked;
+    }
+
+    public void setDisliked(int disliked) {
+        this.disliked = disliked;
+    }
+
+    public int getAsked() {
+        return asked;
+    }
+
+    public void setAsked(int asked) {
+        this.asked = asked;
+    }
+
+    public int getAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(int answered) {
+        this.answered = answered;
     }
 
     @Override

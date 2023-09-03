@@ -3,16 +3,22 @@ package com.example.qa_backend.Serviceimpl;
 import com.example.qa_backend.Dao.*;
 import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.QuestionJSON;
+import com.example.qa_backend.Repository.EsRepository;
 import com.example.qa_backend.Service.QuestionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
+import io.lettuce.core.RedisException;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -21,8 +27,10 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -35,9 +43,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -60,6 +71,10 @@ public class QuestionServiceimpl implements QuestionService {
     KeywordDao keywordDao;
     @Autowired
     AnswerDao answerDao;
+    @Autowired
+    EsRepository esRepository;
+    @Autowired
+    private RestHighLevelClient restClient;
 
     ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
         @Override
@@ -97,37 +112,36 @@ public class QuestionServiceimpl implements QuestionService {
     }
     @PostConstruct
     public void init() throws IOException {
-//
-//        List<String> questions = new ArrayList<>();
-//        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
-//                questions.add(title);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for(String question1 : questions){
-//            Question question = new Question();
-//            question.setContent("");
-//            question.setUser(userDao.findUser(1));
-//            question.setTitle(question1);
-//            question = questionDao.addQuestion(question);
-//            Map<String, Object> jsonMap = new HashMap<>();
-//            jsonMap.put("title", question1);
-//            jsonMap.put("content", " ");
-//            IndexRequest indexRequest = new IndexRequest("1")
-//                    .id(String.valueOf(question.getId())).source(jsonMap);
-//            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
-//
-//        }
+
+        List<String> questions = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
+                questions.add(title);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for(String question1 : questions){
+            Question question = new Question();
+            question.setContent("");
+            question.setUser(userDao.findUser(1));
+            question.setTitle(question1);
+            question = questionDao.addQuestion(question);
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("title", question1);
+            jsonMap.put("content", "");
+            IndexRequest indexRequest = new IndexRequest("1")
+                    .id(String.valueOf(question.getId())).source(jsonMap);
+            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
+
+        }
     }
 
     @Override
     public void esTest(int userId, String content, String title) throws IOException {
-
         Question question = new Question();
         question.setContent(content);
         question.setUser(userDao.findUser(userId));
@@ -157,123 +171,138 @@ public class QuestionServiceimpl implements QuestionService {
         writeRestClient.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
     }
 
+//    @Override
+//    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException {
+//        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
+//
+//        SearchRequest searchRequest = new SearchRequest("11");
+//
+//        // 高亮
+//        HighlightBuilder highlightBuilder = new HighlightBuilder();
+//        highlightBuilder.field("titleAndContent");
+//        highlightBuilder.requireFieldMatch(false);
+//        highlightBuilder.preTags("<span style='color:red'>");
+//        highlightBuilder.postTags("</span>");
+//
+//        // 构建搜索条件
+//        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+//                .query(QueryBuilders.multiMatchQuery(keyword, "titleAndContent"))
+//                .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
+//                .from((page_id - 1) * 10)
+//                .size(10)
+//                .highlighter(highlightBuilder);
+//        searchRequest.source(searchSourceBuilder);
+//
+//        searchRestClient.searchAsync(searchRequest, RequestOptions.DEFAULT, new ActionListener<SearchResponse>() {
+//            @Override
+//            public void onResponse(SearchResponse searchResponse) {
+//                List<QuestionJSON> list = new ArrayList<>();
+//                for (SearchHit hit : searchResponse.getHits().getHits()) {
+//                    QuestionJSON questionJSON = new QuestionJSON();
+//
+//                    HighlightField titleField = hit.getHighlightFields().get("titleAndContent");
+//                    if (titleField != null) {
+//                        questionJSON.setTitle(titleField.getFragments()[0].toString().split("&&")[0]);
+//                    }
+//                    HighlightField contentField = hit.getHighlightFields().get("titleAndContent");
+//                    if (contentField != null) {
+//                        questionJSON.setContent(contentField.getFragments()[0].toString().split("&&")[1]);
+//                    }
+//
+//                    String id = hit.getId();
+//                    Question question = questionDao.getQuestion(Integer.parseInt(id));
+//                    questionJSON.setId(question.getId());
+//                    question.setCreateTime(question.getCreateTime());
+//                    questionJSON.setTags(question.getTags());
+//                    questionJSON.setUser(question.getUser());
+//                    int likeFlag = 0, markFlag = 0;
+//                    FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
+//                    if (feedback != null) {
+//                        if (feedback.getLike() == 1) likeFlag = 1;
+//                        else if (feedback.getLike() == -1) likeFlag = -1;
+//                        if (feedback.getBookmark() == 1) markFlag = 1;
+//                    }
+//                    questionJSON.setLike(question.getLike());
+//                    questionJSON.setDislike(question.getDislike());
+//                    questionJSON.setMark(question.getMark());
+//                    questionJSON.setLikeFlag(likeFlag);
+//                    questionJSON.setMarkFlag(markFlag);
+//                    list.add(questionJSON);
+//                }
+//                future.complete(list);
+//            }
+//
+//            @Override
+//            public void onFailure(Exception e) {
+//                future.completeExceptionally(e);
+//            }
+//        });
+//
+//        return future.get();
+//    }
+
     @Override
-    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException {
-        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
+    public List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException {
+        SearchRequest searchRequest = new SearchRequest("question");
 
-        SearchRequest searchRequest = new SearchRequest("1");
-
-        // 高亮
+        //高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.field("titleAndContent");
+        highlightBuilder.field("title");
+        highlightBuilder.field("content");
         highlightBuilder.requireFieldMatch(false);
         highlightBuilder.preTags("<span style='color:red'>");
         highlightBuilder.postTags("</span>");
 
-        // 构建搜索条件
+        //构建搜索条件
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
-                .query(QueryBuilders.multiMatchQuery(keyword, "titleAndContent"))
+                .query(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
                 .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
-                .from((page_id - 1) * 10)
-                .size(10)
-                .highlighter(highlightBuilder);
+//                .sort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
+//                .sort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
+//                .sort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
+                .from(0)// 指定从哪条开始查询
+//                .size(limit)// 需要查出的总记录条数
+                .highlighter(highlightBuilder);//高亮
         searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restClient.search(searchRequest, RequestOptions.DEFAULT);
 
-        searchRestClient.searchAsync(searchRequest, RequestOptions.DEFAULT, new ActionListener<SearchResponse>() {
-            @Override
-            public void onResponse(SearchResponse searchResponse) {
-                List<QuestionJSON> list = new ArrayList<>();
-                for (SearchHit hit : searchResponse.getHits().getHits()) {
-                    QuestionJSON questionJSON = new QuestionJSON();
-//                    System.out.println(hit.getScore());
-                    HighlightField titleField = hit.getHighlightFields().get("titleAndContent");
-                    String title = titleField.getFragments()[0].toString().split("&&")[0];
-                    String content = titleField.getFragments()[0].toString().split("&&")[1];
-                    if (title != null && !title.equals("")) {
-                        questionJSON.setTitle(title);
-                    }
-                    if (content != null && !content.equals("")) {
-                        questionJSON.setContent(content);
-                    }
-
-                    String id = hit.getId();
-                    Question question = questionDao.getQuestion(Integer.parseInt(id));
-                    questionJSON.setId(question.getId());
-                    question.setCreateTime(question.getCreateTime());
-                    questionJSON.setTags(question.getTags());
-                    questionJSON.setUser(question.getUser());
-                    int likeFlag = 0, markFlag = 0;
-                    FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
-                    if (feedback != null) {
-                        if (feedback.getLike() == 1) likeFlag = 1;
-                        else if (feedback.getLike() == -1) likeFlag = -1;
-                        if (feedback.getBookmark() == 1) markFlag = 1;
-                    }
-                    questionJSON.setLike(question.getLike());
-                    questionJSON.setDislike(question.getDislike());
-                    questionJSON.setMark(question.getMark());
-                    questionJSON.setLikeFlag(likeFlag);
-                    questionJSON.setMarkFlag(markFlag);
-                    list.add(questionJSON);
-                }
-                future.complete(list);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                future.completeExceptionally(e);
-            }
-        });
-
-        return future.get();
-    }
-
-    @Override
-    public void faqWrite(String question, String answer){
-
-        Map<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("question", question);
-        jsonMap.put("answer", answer);
-        jsonMap.put("question_and_answer", question+"&&"+answer);
-        IndexRequest indexRequest = new IndexRequest("faqRobot")
-                .source(jsonMap);
-
-        writeRestClient.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
-    }
-
-    @Override
-    public String faqSearch(String keyword) throws IOException {
-        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
-
-        SearchRequest searchRequest = new SearchRequest("faqRobot");
-
-        // 高亮
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.field("question_and_answer");
-        highlightBuilder.requireFieldMatch(false);
-        highlightBuilder.preTags("<span style='color:red'>");
-        highlightBuilder.postTags("</span>");
-
-        // 构建搜索条件
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
-                .query(QueryBuilders.multiMatchQuery(keyword, "question_and_answer"))
-                .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
-                .size(1)
-                .highlighter(highlightBuilder);
-        searchRequest.source(searchSourceBuilder);
-
-        SearchResponse searchResponse = searchRestClient.search(searchRequest, RequestOptions.DEFAULT);
-        String res = "";
+        List<QuestionJSON> list = new ArrayList<>();
+        long total = searchResponse.getHits().getTotalHits().value;
+        System.out.println(total);
         for (SearchHit hit : searchResponse.getHits().getHits()) {
-//                    System.out.println(hit.getScore());
-            HighlightField answerField = hit.getHighlightFields().get("question_and_answer");
-            if (answerField != null) {
-                res = answerField.getFragments()[0].toString().split("&&")[1];
-            }
-        }
-        return res;
-    }
+            QuestionJSON questionJSON = new QuestionJSON();
 
+            // 处理高亮显示的结果
+            HighlightField titleField = hit.getHighlightFields().get("title");
+            if (titleField != null) {
+                questionJSON.setTitle(titleField.getFragments()[0].toString());
+            }
+            HighlightField contentField = hit.getHighlightFields().get("content");
+            if (contentField != null) {
+                questionJSON.setContent(contentField.getFragments()[0].toString());
+            }
+            Question question = questionDao.getQuestion(Integer.parseInt(hit.getId()));
+            System.out.println(hit.getId());
+            questionJSON.setId(question.getId());
+            question.setCreateTime(question.getCreateTime());
+            questionJSON.setTags(question.getTags());
+            questionJSON.setUser(question.getUser());
+            int likeFlag = 0, markFlag = 0;
+            FeedbackForQuestion feedback = feedbackQuestionDao.findSpecific(question.getId(), uid);
+            if(feedback != null) {
+                if(feedback.getLike() == 1)likeFlag = 1;
+                else if(feedback.getLike() == -1)likeFlag = -1;
+                if(feedback.getBookmark() == 1)markFlag = 1;
+            }
+            questionJSON.setLike(question.getLike());
+            questionJSON.setDislike(question.getDislike());
+            questionJSON.setMark(question.getMark());
+            questionJSON.setLikeFlag(likeFlag);
+            questionJSON.setMarkFlag(markFlag);
+            list.add(questionJSON);
+        }
+        return list;
+    }
     @Override
     public List<QuestionJSON> listQuestions(int page_id, int uid) {
         List<Question> ques = questionDao.listQuestions(page_id);
@@ -331,15 +360,15 @@ public class QuestionServiceimpl implements QuestionService {
 
     @Override
     public Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException {
-        Jedis jedis = jedisPool.getResource();
-        if (jedis.dbSize() == 0) {
-            // jedis没有内容，跳过操作
-            jedis.close();
-        } else {
-            // jedis有内容，执行flushall操作
-            jedis.flushAll();
-            jedis.close();
-        }
+//        Jedis jedis = jedisPool.getResource();
+//        if (jedis.dbSize() == 0) {
+//            // jedis没有内容，跳过操作
+//            jedis.close();
+//        } else {
+//            // jedis有内容，执行flushall操作
+//            jedis.flushAll();
+//            jedis.close();
+//        }
         Question question = new Question();
         question.setContent(content);
         question.setUser(userDao.findUser(userId));
@@ -354,6 +383,10 @@ public class QuestionServiceimpl implements QuestionService {
         }
         docVectorModel.addDocument(question.getId(), question.getTitle());
 
+
+        User user = userDao.findUser(userId);
+        user.setAsked(user.getAsked() + 1);
+        user = userDao.addOne(user);
 
         return question;
     }

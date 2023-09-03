@@ -1,11 +1,13 @@
 package com.example.qa_backend.Controller;
 
+import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.LoginResult;
 import com.example.qa_backend.JSON.QuestionJSON;
 import com.example.qa_backend.Service.QuestionService;
 import com.example.qa_backend.Service.SensitiveWordService;
+import com.example.qa_backend.Service.WordCloudService;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -36,7 +38,8 @@ public class QuestionController {
     QuestionService questionService;
     @Autowired
     SensitiveWordService sensitiveWordService;
-
+    @Autowired
+    WordCloudService wordCloudService;
     @RequestMapping("/getQuestions")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> listQuestions(@RequestParam int page_id, @RequestParam int uid) { return questionService.listQuestions(page_id, uid); }
@@ -82,25 +85,23 @@ public class QuestionController {
     @RequestMapping("/fullTextSearch")
     @PreAuthorize("@authCheck.authorityCheck(0)")
     public List<QuestionJSON> fullTextSearch(@RequestParam String keyword, @RequestParam int uid, @RequestParam int page_id) throws IOException {return questionService.fullTextSearch(keyword, uid, page_id);}
+    @RequestMapping("/hotQuestion")
+    @PreAuthorize("@authCheck.authorityCheck(0)")
+    public List<QuestionJSON> getHotQuestion(@RequestParam int page_id, @RequestParam int uid) {
+        return wordCloudService.getHotQuestion(uid, page_id);
+    }
     @RequestMapping("/esTest")
     public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
 
     @RequestMapping("/esSearch")
-    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid, page_id);}
-
-    @RequestMapping("/faqWrite")
-    public void faqWrite(@RequestParam String question, @RequestParam String answer) throws IOException {questionService.faqWrite(question, answer);}
-
-    @RequestMapping("/faqSearch")
-    public void faqSearch(@RequestParam String keyword) throws IOException {questionService.faqSearch(keyword);}
-
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid);}
 
     @PostMapping("/ikCreate")
     public void ikCreate(@RequestParam String index) throws Exception {
         // 1. 创建索引的请求
         CreateIndexRequest request = new CreateIndexRequest(index);
         request.settings(Settings.builder()
-                .put("index.number_of_shards", 3)
+                .put("index.number_of_shards", 6)
                 .put("index.number_of_replicas", 0)
                 .put("refresh_interval", "1m")
         );
@@ -155,66 +156,4 @@ public class QuestionController {
         CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
         System.out.println(response);
     }
-
-    @PostMapping("/faqCreate")
-    public void faqCreate(@RequestParam String index) throws Exception {
-        // 1. 创建索引的请求
-        CreateIndexRequest request = new CreateIndexRequest(index);
-        request.settings(Settings.builder()
-                .put("index.number_of_shards", 3)
-                .put("index.number_of_replicas", 0)
-                .put("refresh_interval", "1m")
-        );
-
-        // 2. 创建索引映射
-        XContentBuilder builder = XContentFactory.jsonBuilder();
-        builder.startObject();
-        {
-            builder.startObject("properties");
-            {
-                builder.startObject("question");
-                {
-                    builder.field("type", "text");
-                    builder.field("copy_to", "question_and_answer");
-                }
-                builder.endObject();
-
-                builder.startObject("answer");
-                {
-                    builder.field("type", "text");
-                    builder.field("copy_to", "question_and_answer");
-                }
-                builder.endObject();
-
-                builder.startObject("question_and_answer");
-                {
-                    builder.field("type", "text")
-                            .field("analyzer", "ik_max_word")
-                            .field("search_analyzer", "ik_smart");
-                }
-                builder.endObject();
-
-            }
-            builder.endObject();
-        }
-        builder.endObject();
-
-        request.mapping("XContentBuilder",builder); // 使用新的mapping方法
-
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("elastic", "123456"));
-        RestHighLevelClient client = new RestHighLevelClient(
-                RestClient.builder(
-                                new HttpHost("localhost", 9200, "http"))
-                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                                httpClientBuilder.disableAuthCaching();
-                                return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-                            }
-                        }));
-        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
-        System.out.println(response);
-    }
-
 }

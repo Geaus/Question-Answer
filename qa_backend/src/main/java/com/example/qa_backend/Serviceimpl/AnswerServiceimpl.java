@@ -1,10 +1,7 @@
 package com.example.qa_backend.Serviceimpl;
 
 import com.example.qa_backend.Dao.*;
-import com.example.qa_backend.Entity.Answer;
-import com.example.qa_backend.Entity.FeedbackForAnswer;
-import com.example.qa_backend.Entity.Follow;
-import com.example.qa_backend.Entity.Question;
+import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.AnswerJSON;
 import com.example.qa_backend.Service.AnswerService;
 import com.example.qa_backend.Service.SensitiveWordService;
@@ -68,6 +65,9 @@ public class AnswerServiceimpl implements AnswerService {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formattedDate = formatter.format(date);
         ans.setCreateTime(formattedDate);
+        User user = userDao.findUser(userId);
+        user.setAnswered(user.getAnswered() + 1);
+        user = userDao.addOne(user);
         return answerDao.addAnswer(ans);
     }
 

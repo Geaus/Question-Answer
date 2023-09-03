@@ -4,16 +4,17 @@ import HeaderTest from "../../components/HomeView/HeaderTest/HeaderTest";
 import UserCard from "../../components/HomeView/UserCard/UserCard";
 import QuestionList from "../../components/HomeView/QuestionList/QuestionList";
 import { useNavigate } from "react-router-dom";
+import HotQuestionList from "../../components/HomeView/HotQuestionList/HotQuestionList";
 const { Header, Content, Footer } = Layout;
 
-const HomeView = () => {
+const HotQuestionView = () => {
 
 
     const navigate=useNavigate();
 
     useEffect(() => {
 
-       const uid=sessionStorage.getItem('uid');
+        const uid=sessionStorage.getItem('uid');
         if(uid===null){
             message.error("请登录");
             navigate("/login")
@@ -31,6 +32,7 @@ const HomeView = () => {
             <Content
                 style={{
                     display: 'flex',
+                    height: '100vh',
                     width:'80vw',
                     margin: '0 auto',
                     paddingTop:'3vh'
@@ -44,12 +46,12 @@ const HomeView = () => {
 
                     }}
                 >
-                    <QuestionList/>
+                    <HotQuestionList />
                 </div>
 
 
                 <div style={{ width:'20vw'}}>
-                  <UserCard/>
+                    <UserCard />
                 </div>
 
             </Content>
@@ -58,4 +60,4 @@ const HomeView = () => {
     );
 };
 
-export default HomeView;
+export default HotQuestionView;

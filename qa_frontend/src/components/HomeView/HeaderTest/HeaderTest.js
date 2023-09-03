@@ -82,10 +82,13 @@ const HeaderTest = () => {
     }
 
     const handleHome=()=>{
-
         navigate("/?page=0");
         window.location.reload();
+    }
 
+    const handleHot = () => {
+        navigate("/hot?page=0");
+        window.location.reload();
     }
 
     const handleProfile=()=>{
@@ -103,14 +106,10 @@ const HeaderTest = () => {
 
         },
         {
-            label: "关注",
-            key: "at",
-            icon: <StarOutlined />
-        },
-        {
             label: "热榜",
             key: "hot",
-            icon: <FireOutlined />
+            icon: <FireOutlined />,
+            onClick: handleHot,
         }
     ]
     return (
