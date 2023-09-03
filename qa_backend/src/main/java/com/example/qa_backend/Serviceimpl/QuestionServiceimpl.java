@@ -3,22 +3,16 @@ package com.example.qa_backend.Serviceimpl;
 import com.example.qa_backend.Dao.*;
 import com.example.qa_backend.Entity.*;
 import com.example.qa_backend.JSON.QuestionJSON;
-import com.example.qa_backend.Repository.EsRepository;
 import com.example.qa_backend.Service.QuestionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
-import io.lettuce.core.RedisException;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -27,10 +21,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -43,12 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -71,8 +60,6 @@ public class QuestionServiceimpl implements QuestionService {
     KeywordDao keywordDao;
     @Autowired
     AnswerDao answerDao;
-    @Autowired
-    EsRepository esRepository;
     @Autowired
     private RestHighLevelClient restClient;
 
@@ -113,31 +100,31 @@ public class QuestionServiceimpl implements QuestionService {
     @PostConstruct
     public void init() throws IOException {
 
-        List<String> questions = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
-                questions.add(title);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        for(String question1 : questions){
-            Question question = new Question();
-            question.setContent("");
-            question.setUser(userDao.findUser(1));
-            question.setTitle(question1);
-            question = questionDao.addQuestion(question);
-            Map<String, Object> jsonMap = new HashMap<>();
-            jsonMap.put("title", question1);
-            jsonMap.put("content", "");
-            IndexRequest indexRequest = new IndexRequest("1")
-                    .id(String.valueOf(question.getId())).source(jsonMap);
-            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
-
-        }
+//        List<String> questions = new ArrayList<>();
+//        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                String title = line.split("\"title\": \"")[1].split("\"")[0].trim();
+//                questions.add(title);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        for(String question1 : questions){
+//            Question question = new Question();
+//            question.setContent("");
+//            question.setUser(userDao.findUser(1));
+//            question.setTitle(question1);
+//            question = questionDao.addQuestion(question);
+//            Map<String, Object> jsonMap = new HashMap<>();
+//            jsonMap.put("title", question1);
+//            jsonMap.put("content", " ");
+//            IndexRequest indexRequest = new IndexRequest("1")
+//                    .id(String.valueOf(question.getId())).source(jsonMap);
+//            IndexResponse indexResponse = writeRestClient.index(indexRequest, RequestOptions.DEFAULT);
+//
+//        }
     }
 
     @Override
@@ -201,13 +188,14 @@ public class QuestionServiceimpl implements QuestionService {
 //                    QuestionJSON questionJSON = new QuestionJSON();
 //
 //                    HighlightField titleField = hit.getHighlightFields().get("titleAndContent");
-//                    if (titleField != null) {
-//                        questionJSON.setTitle(titleField.getFragments()[0].toString().split("&&")[0]);
-//                    }
-//                    HighlightField contentField = hit.getHighlightFields().get("titleAndContent");
-//                    if (contentField != null) {
-//                        questionJSON.setContent(contentField.getFragments()[0].toString().split("&&")[1]);
-//                    }
+//                        String title = titleField.getFragments()[0].toString().split("&&")[0];
+//                        String content = titleField.getFragments()[0].toString().split("&&")[1];
+//                                        if (title != null && !title.equals("")) {
+//                            questionJSON.setTitle(title);
+//                        }
+//                                        if (content != null && !content.equals("")) {
+//                            questionJSON.setContent(content);
+//                        }
 //
 //                    String id = hit.getId();
 //                    Question question = questionDao.getQuestion(Integer.parseInt(id));
@@ -303,6 +291,53 @@ public class QuestionServiceimpl implements QuestionService {
         }
         return list;
     }
+
+    @Override
+    public void faqWrite(String question, String answer){
+
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("question", question);
+        jsonMap.put("answer", answer);
+        jsonMap.put("question_and_answer", question+"&&"+answer);
+        IndexRequest indexRequest = new IndexRequest("faqRobot")
+                .source(jsonMap);
+
+        writeRestClient.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
+    }
+
+    @Override
+    public String faqSearch(String keyword) throws IOException {
+        CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
+
+        SearchRequest searchRequest = new SearchRequest("faqRobot");
+
+        // 高亮
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.field("question_and_answer");
+        highlightBuilder.requireFieldMatch(false);
+        highlightBuilder.preTags("<span style='color:red'>");
+        highlightBuilder.postTags("</span>");
+
+        // 构建搜索条件
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.multiMatchQuery(keyword, "question_and_answer"))
+                .sort(SortBuilders.scoreSort().order(SortOrder.DESC))
+                .size(1)
+                .highlighter(highlightBuilder);
+        searchRequest.source(searchSourceBuilder);
+
+        SearchResponse searchResponse = searchRestClient.search(searchRequest, RequestOptions.DEFAULT);
+        String res = "";
+        for (SearchHit hit : searchResponse.getHits().getHits()) {
+//                    System.out.println(hit.getScore());
+            HighlightField answerField = hit.getHighlightFields().get("question_and_answer");
+            if (answerField != null) {
+                res = answerField.getFragments()[0].toString().split("&&")[1];
+            }
+        }
+        return res;
+    }
+
     @Override
     public List<QuestionJSON> listQuestions(int page_id, int uid) {
         List<Question> ques = questionDao.listQuestions(page_id);
