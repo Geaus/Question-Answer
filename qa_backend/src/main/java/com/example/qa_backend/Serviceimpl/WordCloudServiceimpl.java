@@ -66,7 +66,7 @@ public class WordCloudServiceimpl implements WordCloudService {
         frequencyAnalyzer.setWordFrequenciesToReturn(600);
         frequencyAnalyzer.setMinWordLength(2);
         frequencyAnalyzer.setWordTokenizer(new ChineseWordTokenizer());
-        FileReader fileReader = new FileReader("src/main/resources/CloudStopWords.txt");
+        FileReader fileReader = new FileReader("qa_backend-0.0.1-SNAPSHOT.jar/BOOT-INF/classes/CloudStopWords.txt");
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         List<String> stopWords = new ArrayList<>();
         String line;
