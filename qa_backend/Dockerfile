@@ -8,7 +8,7 @@ COPY ./qa_backend/target/qa_backend-0.0.1-SNAPSHOT.jar /app/
 WORKDIR /app
 # 设置为阿里云源
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-RUN apk add --update font-adobe-100dpi ttf-dejavu fontconfig
+RUN apk add --no-cache ttf-dejavu fontconfig
 
 # 暴露应用程序的端口
 EXPOSE 8080
