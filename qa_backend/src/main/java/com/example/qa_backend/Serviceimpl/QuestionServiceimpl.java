@@ -453,7 +453,7 @@ public class QuestionServiceimpl implements QuestionService {
             tagQuesRelation.setTagId(tags.get(i).getId());
             tagQuesDao.addRelation(tagQuesRelation);
         }
-        docVectorModel.addDocument(question.getId(), question.getTitle());
+//        docVectorModel.addDocument(question.getId(), question.getTitle());
 
 
         User user = userDao.findUser(userId);
