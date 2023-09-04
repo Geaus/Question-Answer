@@ -93,7 +93,7 @@ public class QuestionController {
     public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
 
     @RequestMapping("/esSearch")
-    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid);}
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch1(keyword, limit, uid);}
 
     @RequestMapping("/faqWrite")
     public void faqWrite(@RequestParam String question, @RequestParam String answer) throws IOException {questionService.faqWrite(question, answer);}
@@ -128,6 +128,13 @@ public class QuestionController {
                 {
                     builder.field("type", "text");
                     builder.field("copy_to", "titleAndContent");
+                }
+                builder.endObject();
+
+                builder.startObject("vector");
+                {
+                    builder.field("type", "dense_vector");
+                    builder.field("dims", "300");
                 }
                 builder.endObject();
 
