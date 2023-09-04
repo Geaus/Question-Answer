@@ -1,16 +1,24 @@
 package com.example.qa_backend.Service;
 
-import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.QuestionJSON;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface QuestionService {
     void esTest(int userId, String content, String title) throws IOException;
-    List<QuestionJSON> EsSearch(String keyword, int limit, int uid) throws IOException;
+
+    List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException;
+
+    List<QuestionJSON> EsSearch1(String keyword, int limit, int uid) throws IOException;
+
+    void faqWrite(String question, String answer);
+
+    String faqSearch(String keyword) throws IOException;
+
     List<QuestionJSON> listQuestions(int page_id, int uid);
     QuestionJSON findQuestion(int uid, int id);
     Question askQuestion(int userId, String content, String title, List<Tag> tags) throws IOException;

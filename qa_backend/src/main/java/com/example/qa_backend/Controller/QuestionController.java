@@ -1,6 +1,5 @@
 package com.example.qa_backend.Controller;
 
-import com.example.qa_backend.Entity.Es;
 import com.example.qa_backend.Entity.Question;
 import com.example.qa_backend.Entity.Tag;
 import com.example.qa_backend.JSON.LoginResult;
@@ -94,7 +93,13 @@ public class QuestionController {
     public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
 
     @RequestMapping("/esSearch")
-    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid);}
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch1(keyword, limit, uid);}
+
+    @RequestMapping("/faqWrite")
+    public void faqWrite(@RequestParam String question, @RequestParam String answer) throws IOException {questionService.faqWrite(question, answer);}
+
+    @RequestMapping("/faqSearch")
+    public void faqSearch(@RequestParam String keyword) throws IOException {questionService.faqSearch(keyword);}
 
     @PostMapping("/ikCreate")
     public void ikCreate(@RequestParam String index) throws Exception {
@@ -126,7 +131,75 @@ public class QuestionController {
                 }
                 builder.endObject();
 
+                builder.startObject("vector");
+                {
+                    builder.field("type", "dense_vector");
+                    builder.field("dims", "300");
+                }
+                builder.endObject();
+
                 builder.startObject("titleAndContent");
+                {
+                    builder.field("type", "text")
+                            .field("analyzer", "ik_max_word")
+                            .field("search_analyzer", "ik_smart");
+                }
+                builder.endObject();
+
+            }
+            builder.endObject();
+        }
+        builder.endObject();
+
+        request.mapping("XContentBuilder",builder); // 使用新的mapping方法
+
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "123456"));
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(
+                                new HttpHost("localhost", 9200, "http"))
+                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                                httpClientBuilder.disableAuthCaching();
+                                return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                            }
+                        }));
+        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+    }
+
+    @PostMapping("/faqCreate")
+    public void faqCreate(@RequestParam String index) throws Exception {
+        // 1. 创建索引的请求
+        CreateIndexRequest request = new CreateIndexRequest(index);
+        request.settings(Settings.builder()
+                .put("index.number_of_shards", 3)
+                .put("index.number_of_replicas", 0)
+                .put("refresh_interval", "1m")
+        );
+
+        // 2. 创建索引映射
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.startObject("properties");
+            {
+                builder.startObject("question");
+                {
+                    builder.field("type", "text");
+                    builder.field("copy_to", "question_and_answer");
+                }
+                builder.endObject();
+
+                builder.startObject("answer");
+                {
+                    builder.field("type", "text");
+                    builder.field("copy_to", "question_and_answer");
+                }
+                builder.endObject();
+
+                builder.startObject("question_and_answer");
                 {
                     builder.field("type", "text")
                             .field("analyzer", "ik_max_word")
