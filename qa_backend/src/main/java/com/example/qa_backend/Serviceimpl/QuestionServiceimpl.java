@@ -113,8 +113,8 @@ public class QuestionServiceimpl implements QuestionService {
     }
     @PostConstruct
     public void init() throws IOException {
-        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
-        this.docVectorModel = new DocVectorModel(wordVectorModel);
+//        this.wordVectorModel = new WordVectorModel("src/main/resources/sgns.zhihu.word");
+//        this.docVectorModel = new DocVectorModel(wordVectorModel);
 
 //        List<String> questions = new ArrayList<>();
 //        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/web_text_zh_train.json"))) {
