@@ -167,8 +167,8 @@ public class QuestionServiceimpl implements QuestionService {
         jsonMap.put("title", title);
         jsonMap.put("content", content);
         jsonMap.put("titleAndContent", title+"&&"+content);
-        float[] arr = this.docVectorModel.query(title).getElementArray();
-        jsonMap.put("vector", arr);
+//        float[] arr = this.docVectorModel.query(title).getElementArray();
+//        jsonMap.put("vector", arr);
         IndexRequest indexRequest = new IndexRequest("test1")
                 .id(String.valueOf(ques_id)).source(jsonMap);
         IndexRequest.RefreshPolicy.parse("wait_for");
