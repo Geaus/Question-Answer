@@ -180,7 +180,7 @@ public class QuestionServiceimpl implements QuestionService {
     public List<QuestionJSON> EsSearch(String keyword, int limit, int uid, int page_id) throws ExecutionException, InterruptedException {
         CompletableFuture<List<QuestionJSON>> future = new CompletableFuture<>();
 
-        SearchRequest searchRequest = new SearchRequest("11");
+        SearchRequest searchRequest = new SearchRequest("test1");
 
         // 高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
