@@ -11,7 +11,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 ENV LANG zh_CN.UTF-8
 RUN apk add --update  ttf-dejavu fontconfig
 COPY ./qa_backend//src/main/resources/STSONG-light.ttf /usr/share/fonts/ttf-dejavu/msyh.ttf
-
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
 
 # 暴露应用程序的端口
 EXPOSE 8080
