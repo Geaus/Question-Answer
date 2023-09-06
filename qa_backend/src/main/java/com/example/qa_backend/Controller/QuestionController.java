@@ -93,7 +93,7 @@ public class QuestionController {
     public void esTest(@RequestParam int uid, @RequestParam String content, @RequestParam String title) throws IOException {questionService.esTest(uid, content, title);}
 
     @RequestMapping("/esSearch")
-    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch1(keyword, limit, uid);}
+    public List<QuestionJSON> esTest1(@RequestParam String keyword, @RequestParam int limit, @RequestParam int uid, @RequestParam int page_id) throws IOException, ExecutionException, InterruptedException {return questionService.EsSearch(keyword, limit, uid, page_id);}
 
     @RequestMapping("/faqWrite")
     public void faqWrite(@RequestParam String question, @RequestParam String answer) throws IOException {questionService.faqWrite(question, answer);}
@@ -131,13 +131,6 @@ public class QuestionController {
                 }
                 builder.endObject();
 
-                builder.startObject("vector");
-                {
-                    builder.field("type", "dense_vector");
-                    builder.field("dims", "300");
-                }
-                builder.endObject();
-
                 builder.startObject("titleAndContent");
                 {
                     builder.field("type", "text")
@@ -158,7 +151,7 @@ public class QuestionController {
                 new UsernamePasswordCredentials("elastic", "123456"));
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
-                                new HttpHost("localhost", 9200, "http"))
+                                new HttpHost("60.204.203.173", 9200, "http"))
                         .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
                                 httpClientBuilder.disableAuthCaching();
@@ -219,7 +212,7 @@ public class QuestionController {
                 new UsernamePasswordCredentials("elastic", "123456"));
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
-                                new HttpHost("localhost", 9200, "http"))
+                                new HttpHost("60.204.203.173", 9200, "http"))
                         .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
                                 httpClientBuilder.disableAuthCaching();

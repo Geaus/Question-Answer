@@ -104,7 +104,7 @@ public class QuestionServiceimpl implements QuestionService {
                 new UsernamePasswordCredentials("elastic", "123456"));
         return new RestHighLevelClient(
                 RestClient.builder(
-                                new HttpHost("localhost", 9200, "http"))
+                                new HttpHost("60.204.203.173", 9200, "http"))
                         .setHttpClientConfigCallback(httpClientBuilder -> {
                             httpClientBuilder.disableAuthCaching();
                             return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
